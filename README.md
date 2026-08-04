@@ -4,60 +4,72 @@ Track and score candidates for any big purchase decision — an apartment, a
 bike, a car, whatever's next — against your own criteria, in one gallery
 board per project.
 
-## How it works
+This repo is a generic engine. It has no idea what you're shopping for.
 
-Each subfolder is one independent shortlist for one purchase decision
-(`bikes/`, `apartment/`, `car/`, ...). Every project follows the same shape:
+## The app (this repo)
 
-- `criteria.md` — the scoring rubric for this search (budget, must-haves,
-  weighted categories, status flow). **Not tracked in git** — lives locally
-  only, since it's personal (budget, location, contact info).
-- `listings.db` / `listings.csv` — the candidate database. **Not tracked.**
-- `add_listing.py` — CLI to add one candidate, score it against
-  `criteria.md`, and regenerate the gallery.
+- `add_listing.py` — CLI to add one candidate, score it, and regenerate the
+  gallery.
 - `generate_gallery.py` — builds `gallery.html`, a sortable visual board of
   every candidate by fit score and status.
 - `serve.py` — small local server so the gallery's web UI can save edits
-  (status changes, notes, criteria updates) back to disk.
-- `sources_status.csv` — which listing sites are actually scrapable vs.
-  bot-blocked, and how, so repeat searches don't re-discover the same dead
-  ends.
+  (status changes, notes, project settings, criteria/offer text) back to
+  the database.
+- `init_db.py` / `schema.sql` — creates `listings.db` (SQLite): a
+  `listings` table (the candidates), a `sources_status` table (which
+  listing sites are scrapable vs. bot-walled), and a singleton `project`
+  row holding everything about *this* search — what you're looking for,
+  budget, search area, optional ship-to address, fulfillment, and the
+  scoring rubric / outreach message text (edited live from the gallery's
+  Project Settings / Scoring Criteria / Contact-Offer Template panels).
+- `photo_cache.py` — downloads a listing's photo locally so the gallery
+  doesn't depend on the source site's (often expiring) image URL.
+
+Everything for one project lives in that one `listings.db` file — no
+separate criteria/config files to keep in sync.
 
 Candidates move through a status pipeline (`new` → `flagged` → `contacted`
-→ ... → `purchased`, or archived as `no_go` / `rejected` / `sold_elsewhere`),
-sorted by fit score.
+→ ... → `purchased`, or archived as `no_go` / `rejected` / `sold_elsewhere`
+/ `scam_suspected`), sorted by fit score.
 
-## Why the data isn't in this repo
+## Starting a project
 
-This repo is the app, not the search. Each project's real data — your
-budget, criteria, contact templates, and candidate database — is personal
-and stays local-only (see `.gitignore`).
+A "project" is just a folder with its own `listings.db`, running its own
+copy of the scripts above. Nothing here tracks or cares what you're
+shopping for — that all lives in your project's database, not the app.
 
-## Starting a new project
+1. Make a folder (e.g. `~/car-search/`) and copy in the app scripts above.
+2. Run `python3 init_db.py --object "..." --budget "..." --search-area "..."`
+   (all optional/fillable-later — see `python3 init_db.py --help`).
+3. Fill in `templates/criteria.md` and `templates/offer_template.md`
+   (copy them out, edit the brackets), then either pass them to `init_db.py`
+   via `--criteria-file` / `--offer-file`, or paste the text into the
+   gallery's Scoring Criteria / Contact-Offer Template panels after the
+   fact. `templates/reference_spec.md` and `templates/target_list.md` are
+   just working notes — keep them alongside the project folder, no need to
+   load them into the db.
+4. Start adding candidates with `add_listing.py`.
 
-Copy the genericized files in `templates/` into your new project folder and
-fill in the brackets:
+**Never commit a project's `listings.db` to a public repo** — budget,
+contact info, and physical/personal measurements live in it.
 
-- `templates/criteria.md` — scoring rubric, budget, must-haves, status flow
-- `templates/reference_spec.md` — your measurements/constraints + a
-  benchmark item to compare candidates against (optional — skip if this
-  category has no "does it fit" dimension)
-- `templates/target_list.md` — specific models/units to prioritize
-- `templates/offer_template.md` — the message you send sellers
-- `templates/sources_status.csv` — tracks which listing sites are
-  scrapable vs. bot-walled
+## templates/
 
-`bikes/` in this repo is the worked example this pattern was extracted
-from — its actual filled-in versions of these files stay local/gitignored,
-but the shape is identical to the templates.
+Generic starting points — no object-specific content, since criteria are
+inherently personal (your budget, your fit, your location):
 
-## Projects
+- `criteria.md`, `reference_spec.md`, `target_list.md`, `offer_template.md`
 
-- `bikes/` — SQLite-backed
-- `apartment/` — CSV-backed
-- `car/` — SQLite-backed, scaffolded but not yet configured (needs budget
-  and must-haves in `criteria.md`)
+`templates/examples/` is different: source-scraping research isn't
+personal, just factual (which sites are bot-walled, which have clean
+structured data), so real worked examples are published as-is:
 
-`bikes/` and `apartment/` currently use different storage (SQLite vs. CSV)
-and haven't been unified into one shared engine yet — that's a planned
-follow-up rather than a blocker to using either one today.
+- `sources_status_bikes.csv`, `sources_status_apartments.csv`
+
+## Local, unpublished projects on this machine
+
+`bikes/`, `apartment/`, and `car/` exist locally in this same parent
+directory but are git-ignored — they're real, personal, in-progress
+searches (some predating this repo, still on their own slightly-diverged
+copies of the engine, including apartment's older CSV-based version), not
+part of the published app.

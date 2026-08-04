@@ -6,9 +6,12 @@ from pathlib import Path
 
 DIR = Path(__file__).parent
 DB_PATH = DIR / "listings.db"
-CRITERIA_PATH = DIR / "criteria.md"
-OFFER_PATH = DIR / "offer_template.md"
 OUT_PATH = DIR / "gallery.html"
+
+EMPTY_PROJECT = {
+    "object": "", "budget": "", "search_area": "", "ship_to_address": "",
+    "fulfillment": "", "criteria_md": "", "offer_template_md": "",
+}
 
 # Active pipeline, roughly in order, then archive statuses at the end.
 STATUS_ORDER = [
@@ -81,7 +84,7 @@ def card(row):
     source = html.escape(row["source"] or "")
     location = html.escape(row["location"] or "")
     condition = html.escape(row["condition"] or "")
-    size_frame = html.escape(row["size_frame"] or "")
+    variant = html.escape(row["variant"] or "")
     key_specs = html.escape(row["key_specs"] or "")
     notes = html.escape(row["notes"] or "")
     status_color = STATUS_COLORS.get(status, "#6b7280")
@@ -105,7 +108,7 @@ def card(row):
           <span class="status-badge" style="background:{status_color}">{html.escape(STATUS_LABELS.get(status, status))}</span>
         </div>
         <div class="title">{title}</div>
-        <div class="meta">{location} &middot; {size_frame} &middot; {source} &middot; {condition}</div>
+        <div class="meta">{location} &middot; {variant} &middot; {source} &middot; {condition}</div>
         <div class="specs">{key_specs}</div>
         <textarea class="notes-edit" id="notes-{row_id}" spellcheck="false">{notes}</textarea>
         <div class="card-actions">
@@ -161,9 +164,8 @@ def sources_panel(conn):
     return f'<div class="sources-panel"><span class="sources-label">Sources:</span> {"".join(chips)}</div>'
 
 
-def editable_panel(panel_id, title, path, endpoint):
-    text = path.read_text(encoding="utf-8") if path.exists() else ""
-    escaped = html.escape(text)
+def editable_panel(panel_id, title, text, endpoint):
+    escaped = html.escape(text or "")
     return f"""
   <details class="editable-panel">
     <summary>{title} (click to reveal &amp; edit)</summary>
@@ -173,7 +175,34 @@ def editable_panel(panel_id, title, path, endpoint):
         <button onclick="saveEditable('{panel_id}', '{endpoint}')">Save</button>
         <span id="{panel_id}-status"></span>
       </div>
-      <div class="editable-hint">Saving writes straight to {path.name} and regenerates this page. Only works when this page is loaded from the serve.py URL (not a local file:// open) — if Save fails, that's why.</div>
+      <div class="editable-hint">Saving writes straight to the project's local database and regenerates this page. Only works when this page is loaded from the serve.py URL (not a local file:// open) — if Save fails, that's why.</div>
+    </div>
+  </details>
+"""
+
+
+def project_settings_panel(project):
+    fields = [
+        ("object", "Searching for"),
+        ("budget", "Budget"),
+        ("search_area", "Search area"),
+        ("ship_to_address", "Ship to (optional)"),
+        ("fulfillment", "Fulfillment"),
+    ]
+    rows_html = "\n".join(
+        f'<div class="settings-row"><label for="proj-{key}">{label}</label>'
+        f'<input id="proj-{key}" value="{html.escape(project[key] or "")}"></div>'
+        for key, label in fields
+    )
+    return f"""
+  <details class="editable-panel">
+    <summary>Project Settings (click to reveal &amp; edit)</summary>
+    <div class="editable-body">
+      <div class="settings-grid">{rows_html}</div>
+      <div class="editable-actions">
+        <button onclick="saveProjectSettings()">Save</button>
+        <span id="project-settings-status"></span>
+      </div>
     </div>
   </details>
 """
@@ -210,6 +239,21 @@ SCRIPT = """
       const status = document.getElementById(panelId + '-status');
       status.textContent = 'Saving...';
       fetch(endpoint, { method: 'POST', headers: { 'X-Edit-Token': getEditToken() }, body: text })
+        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+        .then(() => { status.textContent = 'Saved - reloading...'; setTimeout(() => location.reload(), 600); })
+        .catch(e => { status.textContent = 'Save failed: ' + e.message; if (e.message.includes('401')) localStorage.removeItem('editToken'); });
+    }
+    function saveProjectSettings() {
+      const fields = ['object', 'budget', 'search_area', 'ship_to_address', 'fulfillment'];
+      const payload = {};
+      fields.forEach(f => { payload[f] = document.getElementById('proj-' + f).value; });
+      const status = document.getElementById('project-settings-status');
+      status.textContent = 'Saving...';
+      fetch('/api/save-project-settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Edit-Token': getEditToken() },
+        body: JSON.stringify(payload)
+      })
         .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
         .then(() => { status.textContent = 'Saved - reloading...'; setTimeout(() => location.reload(), 600); })
         .catch(e => { status.textContent = 'Save failed: ' + e.message; if (e.message.includes('401')) localStorage.removeItem('editToken'); });
@@ -326,6 +370,8 @@ def main():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     rows = conn.execute("SELECT * FROM listings").fetchall()
+    project_row = conn.execute("SELECT * FROM project WHERE id = 1").fetchone()
+    project = dict(project_row) if project_row else dict(EMPTY_PROJECT)
 
     active_rows = [r for r in rows if normalize_status(r["status"]) not in ARCHIVE_STATUSES]
     archived_rows = [r for r in rows if normalize_status(r["status"]) in ARCHIVE_STATUSES]
@@ -333,10 +379,19 @@ def main():
     board_html = board(active_rows)
     archive_html = archive_section(archived_rows)
 
+    page_title = html.escape(project["object"]) if project["object"] else "Shortlist"
+    meta_bits = [
+        f"Budget: {html.escape(project['budget'])}" if project["budget"] else "",
+        f"Search area: {html.escape(project['search_area'])}" if project["search_area"] else "",
+        f"Fulfillment: {html.escape(project['fulfillment'])}" if project["fulfillment"] else "",
+        f"Ship to: {html.escape(project['ship_to_address'])}" if project["ship_to_address"] else "",
+    ]
+    project_meta_line = " &middot; ".join(b for b in meta_bits if b)
+
     doc = f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bike Search</title>
+<title>{page_title}</title>
 <style>
   body {{ font-family: -apple-system, Helvetica, Arial, sans-serif; background: #f4f4f5; margin: 0; padding: 24px; color: #18181b; }}
   h1 {{ font-size: 20px; margin: 0 0 4px; }}
@@ -386,6 +441,11 @@ def main():
   .editable-panel span[id$="-status"] {{ font-size: 12px; color: #71717a; }}
   .editable-hint {{ font-size: 11px; color: #a1a1aa; margin-top: 6px; }}
   .archive-panel {{ margin-top: 28px; }}
+  .project-meta {{ color: #52525b; font-size: 13px; margin-bottom: 14px; }}
+  .settings-grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }}
+  .settings-row {{ display: flex; flex-direction: column; gap: 4px; }}
+  .settings-row label {{ font-size: 11px; color: #71717a; font-weight: 600; }}
+  .settings-row input {{ font-size: 13px; padding: 6px 8px; border: 1px solid #d4d4d8; border-radius: 6px; font-family: inherit; }}
 
   @media (max-width: 640px) {{
     body {{ padding: 12px; }}
@@ -404,10 +464,12 @@ def main():
   }}
 </style></head>
 <body>
-  <h1>Bike Search</h1>
+  <h1>{page_title}</h1>
+  {f'<div class="project-meta">{project_meta_line}</div>' if project_meta_line else ''}
   <div class="sub">{len(rows)} listings tracked total &middot; sorted by fit score &middot; change status from the dropdown on any card &middot; click a photo to open the original listing<span class="mobile-swipe-hint">&middot; swipe a card right to flag for follow-up, left to pass</span></div>
-  {editable_panel('criteria', 'Scoring Criteria', CRITERIA_PATH, '/api/save-criteria')}
-  {editable_panel('offer', 'Contact/Offer Template', OFFER_PATH, '/api/save-outreach')}
+  {project_settings_panel(project)}
+  {editable_panel('criteria', 'Scoring Criteria', project['criteria_md'], '/api/save-criteria')}
+  {editable_panel('offer', 'Contact/Offer Template', project['offer_template_md'], '/api/save-outreach')}
   {sources_panel(conn)}
   {status_summary(active_rows)}
   {board_html}

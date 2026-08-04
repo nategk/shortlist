@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Serves this directory like http.server, plus:
-  POST /api/save-criteria   - overwrites criteria.md with the request body
-  POST /api/save-outreach   - overwrites offer_template.md with the request body
-  POST /api/update-status   - {"id": "...", "status": "..."} updates one listing's status
-  POST /api/update-notes    - {"id": "...", "notes": "..."} updates one listing's notes
+  POST /api/save-criteria          - overwrites project.criteria_md with the request body
+  POST /api/save-outreach          - overwrites project.offer_template_md with the request body
+  POST /api/save-project-settings  - {"object"/"budget"/"search_area"/"ship_to_address"/"fulfillment": "..."} updates any subset of project columns
+  POST /api/update-status          - {"id": "...", "status": "..."} updates one listing's status
+  POST /api/update-notes           - {"id": "...", "notes": "..."} updates one listing's notes
 All regenerate gallery.html after writing.
 
 Binds to your Tailscale interface IP by default (detected at runtime via
@@ -40,9 +41,10 @@ def get_or_create_edit_token():
 
 EDIT_TOKEN = get_or_create_edit_token()
 
-FILE_SAVE_ENDPOINTS = {
-    "/api/save-criteria": DIR / "criteria.md",
-    "/api/save-outreach": DIR / "offer_template.md",
+# endpoint -> project column it overwrites wholesale (was a flat file)
+PROJECT_TEXT_ENDPOINTS = {
+    "/api/save-criteria": "criteria_md",
+    "/api/save-outreach": "offer_template_md",
 }
 
 # endpoint -> listings column it updates
@@ -50,6 +52,8 @@ ROW_UPDATE_ENDPOINTS = {
     "/api/update-status": "status",
     "/api/update-notes": "notes",
 }
+
+PROJECT_SETTINGS_FIELDS = {"object", "budget", "search_area", "ship_to_address", "fulfillment"}
 
 
 def regenerate_gallery():
@@ -64,6 +68,12 @@ def update_row_field(row_id, field, value):
         if cur.rowcount == 0:
             return False, f"no listing with id {row_id}"
     return True, None
+
+
+def update_project_field(field, value):
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.execute(f"UPDATE project SET {field} = ? WHERE id = 1", (value,))
+        conn.commit()
 
 
 def detect_tailscale_ip():
@@ -91,17 +101,35 @@ class Handler(SimpleHTTPRequestHandler):
             self._respond(401, "missing or invalid edit token")
             return
 
-        if self.path in FILE_SAVE_ENDPOINTS:
-            target = FILE_SAVE_ENDPOINTS[self.path]
+        if self.path in PROJECT_TEXT_ENDPOINTS:
+            field = PROJECT_TEXT_ENDPOINTS[self.path]
             body = self._read_body()
             if not body.strip():
                 self._respond(400, "empty body, refusing to save")
                 return
-            target.write_text(body, encoding="utf-8")
+            update_project_field(field, body)
             try:
                 regenerate_gallery()
             except subprocess.CalledProcessError as e:
-                self._respond(500, f"saved {target.name} but gallery regen failed: {e}")
+                self._respond(500, f"saved {field} but gallery regen failed: {e}")
+                return
+            self._respond(200, "saved")
+
+        elif self.path == "/api/save-project-settings":
+            try:
+                payload = json.loads(self._read_body())
+            except (ValueError, TypeError):
+                self._respond(400, "invalid JSON body")
+                return
+            with sqlite3.connect(DB_PATH) as conn:
+                for field in PROJECT_SETTINGS_FIELDS:
+                    if field in payload:
+                        conn.execute(f"UPDATE project SET {field} = ? WHERE id = 1", (payload[field],))
+                conn.commit()
+            try:
+                regenerate_gallery()
+            except subprocess.CalledProcessError as e:
+                self._respond(500, f"saved settings but gallery regen failed: {e}")
                 return
             self._respond(200, "saved")
 
@@ -153,7 +181,7 @@ def main():
     port = int(sys.argv[2]) if len(sys.argv) > 2 else 8091
     os.chdir(DIR)
     server = ThreadingHTTPServer((bind, port), Handler)
-    print(f"Serving {DIR} on http://{bind}:{port} (GET static files, POST /api/save-criteria, /api/save-outreach, /api/update-status, /api/update-notes)")
+    print(f"Serving {DIR} on http://{bind}:{port} (GET static files, POST /api/save-criteria, /api/save-outreach, /api/save-project-settings, /api/update-status, /api/update-notes)")
     print(f"Edit token (needed to save changes, not to view): {EDIT_TOKEN}")
     server.serve_forever()
 

@@ -30,7 +30,7 @@ def main():
     p.add_argument("--price", default="")
     p.add_argument("--location", default="")
     p.add_argument("--condition", default="")
-    p.add_argument("--size-frame", default="")
+    p.add_argument("--variant", default="", help="size, trim, or model variant, whatever's relevant to this category")
     p.add_argument("--key-specs", default="")
     p.add_argument("--fit-score", required=True, type=int, help="0-100+ per criteria.md rubric, modifiers included")
     p.add_argument("--status", default="new")
@@ -54,7 +54,7 @@ def main():
             "price": args.price,
             "location": args.location,
             "condition": args.condition,
-            "size_frame": args.size_frame,
+            "variant": args.variant,
             "key_specs": args.key_specs,
             "fit_score": args.fit_score,
             "status": args.status,
@@ -68,9 +68,9 @@ def main():
         cur = conn.execute(
             "INSERT INTO listings "
             "(date_found, source, url, photo_url, title, price, location, condition, "
-            " size_frame, key_specs, fit_score, status, notes) "
+            " variant, key_specs, fit_score, status, notes) "
             "VALUES (:date_found, :source, :url, :photo_url, :title, :price, :location, "
-            " :condition, :size_frame, :key_specs, :fit_score, :status, :notes)",
+            " :condition, :variant, :key_specs, :fit_score, :status, :notes)",
             row,
         )
         conn.commit()

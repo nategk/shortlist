@@ -1,30 +1,11 @@
-# --- Per-project private data (db, criteria, personal templates, generated output) ---
-# Each vertical folder (bikes/, apartment/, car/, ...) holds its own real data locally.
-# Only the app code itself is published — the data below is intentionally never committed.
-**/listings.db
-**/listings.csv
-**/garages.csv
-**/sources_status.csv
-**/criteria.md
-**/garage_criteria.md
-**/bike_fit.md
-**/target_bikes.md
-**/outreach_templates.md
-**/offer_template.md
-**/search_log.md
-**/gallery.html
-**/.edit_token
-**/photos/
-apartment/README.md
+# Local per-project directories are NOT part of the published app.
+# Each is a private local workspace that uses the generic engine at the repo
+# root; its real data (criteria, database, personal templates, generated
+# gallery) lives only here and is never published.
+/bikes/
+/apartment/
+/car/
 
-# --- Python ---
-**/__pycache__/
+# Python
+__pycache__/
 *.pyc
-
-# --- Exceptions: generic templates/ ARE published (genericized, no personal data) ---
-!templates/
-!templates/criteria.md
-!templates/reference_spec.md
-!templates/target_list.md
-!templates/offer_template.md
-!templates/sources_status.csv
