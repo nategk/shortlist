@@ -36,27 +36,37 @@ Candidates move through a status pipeline (`new` → `flagged` → `contacted`
 
 A "project" is just a folder with its own `listings.db`, running its own
 copy of the scripts above. Nothing here tracks or cares what you're
-shopping for — that all lives in your project's database, not the app.
+shopping for — that all lives in your project's `config/` and database,
+not the app.
+
+Two folders, two audiences:
+- **`templates/`** (this repo, public) — generic, empty-of-content starting
+  points. What you copy *from*.
+- **`config/`** (your project folder, private, git-ignored) — your filled-in
+  personal instructions: sizing, preferred make/model/color, budget, the
+  actual scoring rubric. What the app reads.
 
 1. Make a folder (e.g. `~/car-search/`) and copy in the app scripts above.
 2. Run `python3 init_db.py --object "..." --budget "..." --search-area "..."`
    (all optional/fillable-later — see `python3 init_db.py --help`).
-3. Fill in `templates/criteria.md` and `templates/offer_template.md`
-   (copy them out, edit the brackets), then either pass them to `init_db.py`
-   via `--criteria-file` / `--offer-file`, or paste the text into the
-   gallery's Scoring Criteria / Contact-Offer Template panels after the
-   fact. `templates/reference_spec.md` and `templates/target_list.md` are
-   just working notes — keep them alongside the project folder, no need to
-   load them into the db.
+3. Make a `config/` folder in your project. Copy `templates/criteria.md` and
+   `templates/offer_template.md` into it and fill in the brackets —
+   `init_db.py` reads `config/criteria.md` / `config/offer_template.md`
+   automatically and seeds them into the database (after that, edit them
+   live from the gallery's Scoring Criteria / Contact-Offer Template
+   panels instead). Copy `templates/reference_spec.md` and
+   `templates/target_list.md` into `config/` too — those stay as permanent
+   working notes, never loaded into the db.
 4. Start adding candidates with `add_listing.py`.
 
-**Never commit a project's `listings.db` to a public repo** — budget,
-contact info, and physical/personal measurements live in it.
+**Never commit a project's `config/` or `listings.db` to a public repo** —
+budget, contact info, and physical/personal measurements live in them.
 
 ## templates/
 
 Generic starting points — no object-specific content, since criteria are
-inherently personal (your budget, your fit, your location):
+inherently personal (your budget, your fit, your location). Copy these into
+your project's `config/` folder and fill in the brackets:
 
 - `criteria.md`, `reference_spec.md`, `target_list.md`, `offer_template.md`
 
