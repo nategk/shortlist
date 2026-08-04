@@ -1,0 +1,22 @@
+# --- Per-project private data (db, criteria, personal templates, generated output) ---
+# Each vertical folder (bikes/, apartment/, car/, ...) holds its own real data locally.
+# Only the app code itself is published — the data below is intentionally never committed.
+**/listings.db
+**/listings.csv
+**/garages.csv
+**/sources_status.csv
+**/criteria.md
+**/garage_criteria.md
+**/bike_fit.md
+**/target_bikes.md
+**/outreach_templates.md
+**/offer_template.md
+**/search_log.md
+**/gallery.html
+**/.edit_token
+**/photos/
+apartment/README.md
+
+# --- Python ---
+**/__pycache__/
+*.pyc
