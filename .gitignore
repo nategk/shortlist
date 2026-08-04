@@ -20,3 +20,11 @@ apartment/README.md
 # --- Python ---
 **/__pycache__/
 *.pyc
+
+# --- Exceptions: generic templates/ ARE published (genericized, no personal data) ---
+!templates/
+!templates/criteria.md
+!templates/reference_spec.md
+!templates/target_list.md
+!templates/offer_template.md
+!templates/sources_status.csv

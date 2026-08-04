@@ -31,8 +31,25 @@ sorted by fit score.
 
 This repo is the app, not the search. Each project's real data — your
 budget, criteria, contact templates, and candidate database — is personal
-and stays local-only (see `.gitignore`). Clone this repo, then set up your
-own `criteria.md` and an empty database per project you want to run.
+and stays local-only (see `.gitignore`).
+
+## Starting a new project
+
+Copy the genericized files in `templates/` into your new project folder and
+fill in the brackets:
+
+- `templates/criteria.md` — scoring rubric, budget, must-haves, status flow
+- `templates/reference_spec.md` — your measurements/constraints + a
+  benchmark item to compare candidates against (optional — skip if this
+  category has no "does it fit" dimension)
+- `templates/target_list.md` — specific models/units to prioritize
+- `templates/offer_template.md` — the message you send sellers
+- `templates/sources_status.csv` — tracks which listing sites are
+  scrapable vs. bot-walled
+
+`bikes/` in this repo is the worked example this pattern was extracted
+from — its actual filled-in versions of these files stay local/gitignored,
+but the shape is identical to the templates.
 
 ## Projects
 
