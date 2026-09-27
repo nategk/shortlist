@@ -2,11 +2,11 @@
 """Regenerate gallery.html from listings.db. Run after any edit to the DB."""
 import html
 import sqlite3
-from pathlib import Path
 
-DIR = Path(__file__).parent
-DB_PATH = DIR / "listings.db"
-OUT_PATH = DIR / "gallery.html"
+from project_dir import PROJECT_DIR
+
+DB_PATH = PROJECT_DIR / "listings.db"
+OUT_PATH = PROJECT_DIR / "gallery.html"
 
 EMPTY_PROJECT = {
     "object": "", "budget": "", "search_area": "", "ship_to_address": "",

@@ -24,6 +24,9 @@ This repo is a generic engine. It has no idea what you're shopping for.
   Project Settings / Scoring Criteria / Contact-Offer Template panels).
 - `photo_cache.py` — downloads a listing's photo locally so the gallery
   doesn't depend on the source site's (often expiring) image URL.
+- `project_dir.py` — resolves which project folder the scripts read and
+  write. Defaults to the scripts' own folder; set `SHORTLIST_PROJECT` to
+  point them at a project elsewhere (e.g. one under `searches/`).
 
 Everything for one project lives in that one `listings.db` file — no
 separate criteria/config files to keep in sync.
@@ -46,9 +49,13 @@ Two folders, two audiences:
   personal instructions: sizing, preferred make/model/color, budget, the
   actual scoring rubric. What the app reads.
 
-1. Make a folder (e.g. `~/car-search/`) and copy in the app scripts above.
+1. Make a folder (e.g. `~/car-search/`) and copy in the app scripts above —
+   or, to keep the project next to the code, make `searches/<name>/` in this
+   repo and `export SHORTLIST_PROJECT=searches/<name>` before running the
+   scripts from the repo root.
 2. Run `python3 init_db.py --object "..." --budget "..." --search-area "..."`
-   (all optional/fillable-later — see `python3 init_db.py --help`).
+   (all optional/fillable-later — see `python3 init_db.py --help`). A
+   `config/sources_status.csv` is seeded into the sources table too.
 3. Make a `config/` folder in your project. Copy `templates/criteria.md` and
    `templates/offer_template.md` into it and fill in the brackets —
    `init_db.py` reads `config/criteria.md` / `config/offer_template.md`
@@ -75,6 +82,14 @@ personal, just factual (which sites are bot-walled, which have clean
 structured data), so real worked examples are published as-is:
 
 - `sources_status_bikes.csv`, `sources_status_apartments.csv`
+
+## searches/
+
+Projects kept alongside the code, run via `SHORTLIST_PROJECT`:
+
+- `searches/nyc-rental/` — 1BR rental, Oct 1 2026 move-in, Lincoln Square /
+  UWS / Chelsea near the Hudson River Greenway. Committed deliberately —
+  criteria, listings db and gallery are public.
 
 ## Local, unpublished projects on this machine
 

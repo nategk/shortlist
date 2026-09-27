@@ -6,6 +6,9 @@
 /apartment/
 /car/
 
+# serve.py's per-project edit secret - never publish
+.edit_token
+
 # Python
 __pycache__/
 *.pyc
