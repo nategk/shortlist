@@ -20,11 +20,11 @@ import subprocess
 import sqlite3
 import sys
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
-from pathlib import Path
 
-DIR = Path(__file__).parent
-DB_PATH = DIR / "listings.db"
-TOKEN_PATH = DIR / ".edit_token"
+from project_dir import APP_DIR, PROJECT_DIR
+
+DB_PATH = PROJECT_DIR / "listings.db"
+TOKEN_PATH = PROJECT_DIR / ".edit_token"
 
 
 def get_or_create_edit_token():
@@ -57,7 +57,7 @@ PROJECT_SETTINGS_FIELDS = {"object", "budget", "search_area", "ship_to_address",
 
 
 def regenerate_gallery():
-    subprocess.run([sys.executable, str(DIR / "generate_gallery.py")], check=True, cwd=DIR)
+    subprocess.run([sys.executable, str(APP_DIR / "generate_gallery.py")], check=True, cwd=PROJECT_DIR)
 
 
 def update_row_field(row_id, field, value):
@@ -179,9 +179,9 @@ def main():
             sys.exit(1)
 
     port = int(sys.argv[2]) if len(sys.argv) > 2 else 8091
-    os.chdir(DIR)
+    os.chdir(PROJECT_DIR)
     server = ThreadingHTTPServer((bind, port), Handler)
-    print(f"Serving {DIR} on http://{bind}:{port} (GET static files, POST /api/save-criteria, /api/save-outreach, /api/save-project-settings, /api/update-status, /api/update-notes)")
+    print(f"Serving {PROJECT_DIR} on http://{bind}:{port} (GET static files, POST /api/save-criteria, /api/save-outreach, /api/save-project-settings, /api/update-status, /api/update-notes)")
     print(f"Edit token (needed to save changes, not to view): {EDIT_TOKEN}")
     server.serve_forever()
 

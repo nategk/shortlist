@@ -13,12 +13,11 @@ import sqlite3
 import subprocess
 import sys
 from datetime import date
-from pathlib import Path
 
 from photo_cache import cache_photo
+from project_dir import APP_DIR, PROJECT_DIR
 
-DIR = Path(__file__).parent
-DB_PATH = DIR / "listings.db"
+DB_PATH = PROJECT_DIR / "listings.db"
 
 
 def main():
@@ -83,7 +82,7 @@ def main():
                 conn.commit()
 
     print(f"Added id {new_id}: {args.title or args.url} (${args.price}, fit_score={args.fit_score})")
-    subprocess.run([sys.executable, str(DIR / "generate_gallery.py")], check=True)
+    subprocess.run([sys.executable, str(APP_DIR / "generate_gallery.py")], check=True)
 
 
 if __name__ == "__main__":

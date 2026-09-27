@@ -3,10 +3,10 @@ longer depends on the source site's URL. Facebook CDN URLs in particular
 carry a signed, time-limited token (the oe= param) that expires a while
 after it's copied, so caching immediately at add-time is the only fix."""
 import urllib.request
-from pathlib import Path
 
-DIR = Path(__file__).parent
-PHOTOS_DIR = DIR / "photos"
+from project_dir import PROJECT_DIR
+
+PHOTOS_DIR = PROJECT_DIR / "photos"
 
 
 def cache_photo(url, listing_id):
