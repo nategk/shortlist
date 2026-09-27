@@ -1,13 +1,22 @@
 #!/usr/bin/env python3
-"""Regenerate gallery.html from listings.db. Run after any edit to the DB."""
+"""Regenerate gallery.html from listings.db. Run after any edit to the DB.
+
+--read-only builds a public snapshot instead: no edit controls, no calls to
+serve.py (see build_site.py, which publishes these to GitHub Pages)."""
+import argparse
 import html
 import re
 import sqlite3
+from datetime import date
+from pathlib import Path
 
 from project_dir import PROJECT_DIR
 
 DB_PATH = PROJECT_DIR / "listings.db"
 OUT_PATH = PROJECT_DIR / "gallery.html"
+
+# Set from --read-only in main(); the renderers below consult it.
+READ_ONLY = False
 
 EMPTY_PROJECT = {
     "object": "", "budget": "", "search_area": "", "ship_to_address": "",
@@ -94,6 +103,26 @@ def card(row):
         f'<img src="{photo}" alt="{title}" loading="lazy" onerror="this.style.display=\'none\'">'
         if photo else '<div class="noimg">no photo</div>'
     )
+    if READ_ONLY:
+        return f"""
+    <div class="card" data-status="{status}" data-id="{row_id}">
+      <a class="thumb-link" href="{url}" target="_blank" rel="noopener noreferrer">
+        <div class="thumb">{img_html}
+          <span class="score" style="background:{sc_color}">{score_disp}</span>
+        </div>
+      </a>
+      <div class="body">
+        <div class="top-row">
+          <span class="price">${price}</span>
+          <span class="status-badge" style="background:{status_color}">{html.escape(STATUS_LABELS.get(status, status))}</span>
+        </div>
+        <div class="title">{title}</div>
+        <div class="meta">{location} &middot; {variant} &middot; {source} &middot; {condition}</div>
+        <div class="specs">{key_specs}</div>
+        {f'<div class="notes-ro">{notes}</div>' if notes else ''}
+        <a class="viewlink" href="{url}" target="_blank" rel="noopener noreferrer">View original listing &rarr;</a>
+      </div>
+    </div>"""
     return f"""
     <div class="card" data-status="{status}" data-id="{row_id}">
       <div class="swipe-label swipe-label-pass">Pass</div>
@@ -185,6 +214,13 @@ def sources_panel(conn):
 
 def editable_panel(panel_id, title, text, endpoint):
     escaped = html.escape(text or "")
+    if READ_ONLY:
+        return f"""
+  <details class="editable-panel">
+    <summary>{title}</summary>
+    <div class="editable-body"><pre class="ro-text">{escaped}</pre></div>
+  </details>
+"""
     return f"""
   <details class="editable-panel">
     <summary>{title} (click to reveal &amp; edit)</summary>
@@ -201,6 +237,8 @@ def editable_panel(panel_id, title, text, endpoint):
 
 
 def project_settings_panel(project):
+    if READ_ONLY:
+        return ""  # the meta line under the title already shows these
     fields = [
         ("object", "Searching for"),
         ("budget", "Budget"),
@@ -385,7 +423,21 @@ SCRIPT = """
 """
 
 
+def read_only_script():
+    """Just the status-chip filter - everything else in SCRIPT posts to serve.py."""
+    start = SCRIPT.index("    function filterByStatus")
+    return "\n  <script>\n" + SCRIPT[start:]
+
+
 def main():
+    global READ_ONLY
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--read-only", action="store_true", help="public snapshot: no edit controls or serve.py calls")
+    p.add_argument("--out", default="", help=f"output path (default {OUT_PATH})")
+    args = p.parse_args()
+    READ_ONLY = args.read_only
+    out_path = Path(args.out) if args.out else OUT_PATH
+
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     rows = conn.execute("SELECT * FROM listings").fetchall()
@@ -406,6 +458,11 @@ def main():
         f"Ship to: {html.escape(project['ship_to_address'])}" if project["ship_to_address"] else "",
     ]
     project_meta_line = " &middot; ".join(b for b in meta_bits if b)
+    if READ_ONLY:
+        sub_hint = f"read-only snapshot, updated {date.today().isoformat()} &middot; click a photo to open the original listing"
+    else:
+        sub_hint = ("change status from the dropdown on any card &middot; click a photo to open the original listing"
+                    '<span class="mobile-swipe-hint">&middot; swipe a card right to flag for follow-up, left to pass</span>')
 
     doc = f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
@@ -446,6 +503,8 @@ def main():
   .source-chip {{ display: inline-flex; align-items: center; margin-right: 14px; cursor: default; }}
   .source-chip .dot {{ width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; display: inline-block; }}
   .chip-sub {{ color: #a1a1aa; margin-left: 4px; }}
+  .notes-ro {{ font-size: 13px; line-height: 1.45; color: #3f3f46; background: #f4f4f5; border-radius: 6px; padding: 8px 10px; margin: 8px 0; }}
+  .ro-text {{ white-space: pre-wrap; font: 13px/1.5 ui-monospace, Menlo, monospace; margin: 0; }}
   .chip-link {{ margin-left: 6px; color: #2563eb; text-decoration: none; font-weight: 600; }}
   .chip-link:hover {{ text-decoration: underline; }}
   .status-summary {{ margin-bottom: 20px; }}
@@ -487,7 +546,7 @@ def main():
 <body>
   <h1>{page_title}</h1>
   {f'<div class="project-meta">{project_meta_line}</div>' if project_meta_line else ''}
-  <div class="sub">{len(rows)} listings tracked total &middot; sorted by fit score &middot; change status from the dropdown on any card &middot; click a photo to open the original listing<span class="mobile-swipe-hint">&middot; swipe a card right to flag for follow-up, left to pass</span></div>
+  <div class="sub">{len(rows)} listings tracked total &middot; sorted by fit score &middot; {sub_hint}</div>
   {project_settings_panel(project)}
   {editable_panel('criteria', 'Scoring Criteria', project['criteria_md'], '/api/save-criteria')}
   {editable_panel('offer', 'Contact/Offer Template', project['offer_template_md'], '/api/save-outreach')}
@@ -495,11 +554,12 @@ def main():
   {status_summary(active_rows)}
   {board_html}
   {archive_html}
-  {SCRIPT}
+  {read_only_script() if READ_ONLY else SCRIPT}
 </body></html>"""
-    OUT_PATH.write_text(doc, encoding="utf-8")
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(doc, encoding="utf-8")
     conn.close()
-    print(f"Wrote {OUT_PATH} with {len(rows)} listings ({len(archived_rows)} archived)")
+    print(f"Wrote {out_path} with {len(rows)} listings ({len(archived_rows)} archived)")
 
 
 if __name__ == "__main__":

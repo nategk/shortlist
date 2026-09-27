@@ -12,3 +12,6 @@
 # Python
 __pycache__/
 *.pyc
+
+# build_site.py output
+/_site/

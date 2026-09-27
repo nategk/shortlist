@@ -83,6 +83,17 @@ structured data), so real worked examples are published as-is:
 
 - `sources_status_bikes.csv`, `sources_status_apartments.csv`
 
+## Public site (GitHub Pages)
+
+`build_site.py` renders a read-only gallery for every project under
+`searches/` (`generate_gallery.py --read-only`: no edit controls, no
+`serve.py` calls) into `_site/`, with an index page. The
+`.github/workflows/pages.yml` workflow runs it and deploys to GitHub Pages
+on every push to `main` that touches `searches/` or the renderer. One-time
+setup: Settings → Pages → Source: **GitHub Actions**. Triage still happens
+locally (`serve.py`) or wherever you edit status/notes; the public page
+refreshes on the next push.
+
 ## searches/
 
 Projects kept alongside the code, run via `SHORTLIST_PROJECT`:
