@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Regenerate gallery.html from listings.db. Run after any edit to the DB."""
 import html
+import re
 import sqlite3
 
 from project_dir import PROJECT_DIR
@@ -145,6 +146,19 @@ def archive_section(rows):
 """
 
 
+def search_links(urls):
+    """Yield (label, url) for a source's space-separated saved searches. A token
+    may be `Label=https://...` to name it; otherwise its zip code is used when
+    the url has one, falling back to "search N"."""
+    for i, token in enumerate(urls.split()):
+        label, _, rest = token.partition("=")
+        if rest.startswith("http") and not label.startswith("http"):
+            yield label.replace("_", " "), rest
+            continue
+        m = re.search(r"[?&]postal=(\d+)", token)
+        yield (m.group(1) if m else ("search" if i == 0 else f"search {i + 1}")), token
+
+
 def sources_panel(conn):
     srows = conn.execute("SELECT * FROM sources_status ORDER BY source").fetchall()
     if not srows:
@@ -156,10 +170,15 @@ def sources_panel(conn):
         source = html.escape(r["source"])
         last_success = html.escape(r["last_success"] or "never")
         title = html.escape(r["notes"] or "")
+        urls = (r["search_url"] if "search_url" in r.keys() else "") or ""
+        links = "".join(
+            f' <a class="chip-link" href="{html.escape(u)}" target="_blank" rel="noopener">{html.escape(label)}&nbsp;&#8599;</a>'
+            for label, u in search_links(urls)
+        )
         chips.append(
             f'<span class="source-chip" title="{title}">'
             f'<span class="dot" style="background:{color}"></span>'
-            f'{source} <span class="chip-sub">({status}, last success {last_success})</span></span>'
+            f'{source} <span class="chip-sub">({status}, last success {last_success})</span>{links}</span>'
         )
     return f'<div class="sources-panel"><span class="sources-label">Sources:</span> {"".join(chips)}</div>'
 
@@ -427,6 +446,8 @@ def main():
   .source-chip {{ display: inline-flex; align-items: center; margin-right: 14px; cursor: default; }}
   .source-chip .dot {{ width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; display: inline-block; }}
   .chip-sub {{ color: #a1a1aa; margin-left: 4px; }}
+  .chip-link {{ margin-left: 6px; color: #2563eb; text-decoration: none; font-weight: 600; }}
+  .chip-link:hover {{ text-decoration: underline; }}
   .status-summary {{ margin-bottom: 20px; }}
   .status-chip {{ display: inline-block; color: #fff; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; margin-right: 8px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .03em; border: none; cursor: pointer; font-family: inherit; opacity: .55; }}
   .status-chip.active {{ opacity: 1; box-shadow: 0 0 0 2px #18181b; }}

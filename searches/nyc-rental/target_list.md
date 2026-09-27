@@ -19,15 +19,37 @@ Weak spots: Riverside Blvd towers (W 59–70) are right on the greenway but
 from the greenway; West Chelsea (10th–11th Ave, W 20s) is on the greenway but
 far from trains until the 7 at 34th.
 
-## Manual queue (bot-walled sources)
-StreetEasy has the deepest inventory and blocks automation. Run these by hand
-with filters $3,500–$5,500, 1+ bed, available by Oct 15, then add anything
-good with `add_listing.py`:
-- https://streeteasy.com/for-rent/lincoln-square
-- https://streeteasy.com/for-rent/upper-west-side
-- https://streeteasy.com/for-rent/chelsea
+## Saved searches (public links)
+Also linked from the gallery's Sources strip. Source of truth:
+`config/sources_status.csv` (`search_url`).
+
+Automated (checked 2026-09-27):
+- Craigslist, 1BR+, $3.5–5.5k, by zip + radius:
+  [Lincoln Sq 10023](https://www.craigslist.org/search/city/new-york-ny?cat=apa&min_bedrooms=1&min_price=3500&max_price=5500&postal=10023&radius=1) ·
+  [UWS 70s–80s 10024](https://www.craigslist.org/search/city/new-york-ny?cat=apa&min_bedrooms=1&min_price=3500&max_price=5500&postal=10024&radius=1) ·
+  [UWS 90s 10025](https://www.craigslist.org/search/city/new-york-ny?cat=apa&min_bedrooms=1&min_price=3500&max_price=5500&postal=10025&radius=0.8) ·
+  [Chelsea 10011](https://www.craigslist.org/search/city/new-york-ny?cat=apa&min_bedrooms=1&min_price=3500&max_price=5500&postal=10011&radius=1) ·
+  [W Chelsea 10001](https://www.craigslist.org/search/city/new-york-ny?cat=apa&min_bedrooms=1&min_price=3500&max_price=5500&postal=10001&radius=0.6)
+- Listings Project (no URL filters; scan for Manhattan):
+  [rentals](https://www.listingsproject.com/real-estate/new-york-city/rentals) ·
+  [sublets](https://www.listingsproject.com/real-estate/new-york-city/sublets)
+
+Manual — bot-walled, check by hand with filters $3,500–$5,500, 1+ bed,
+move-in by Oct 15, then add anything good with `add_listing.py`:
+- LeaseBreak (lease takeovers, good for mid-cycle starts):
+  [leasebreak.com](https://www.leasebreak.com/) — filter Manhattan >
+  Lincoln Square / Upper West Side / Chelsea
+- StreetEasy (deepest inventory):
+  [Lincoln Sq](https://streeteasy.com/for-rent/lincoln-square) ·
+  [UWS](https://streeteasy.com/for-rent/upper-west-side) ·
+  [Chelsea](https://streeteasy.com/for-rent/chelsea)
+- Zillow: [UWS](https://www.zillow.com/upper-west-side-new-york-ny/rentals/) ·
+  [Chelsea](https://www.zillow.com/chelsea-new-york-ny/rentals/)
+- Zumper: [UWS](https://www.zumper.com/apartments-for-rent/new-york-ny/upper-west-side) ·
+  [Chelsea](https://www.zumper.com/apartments-for-rent/new-york-ny/chelsea)
 
 ## Notes
-- 2026-09-27 pass: Craigslist had only ~9 unique in-zone 1BRs at $3.5–5.5k;
+- 2026-09-27 pass: Listings Project (216 listings) had no in-zone
+  1BRs; LeaseBreak is Cloudflare-walled. Craigslist had only ~9 unique in-zone 1BRs at $3.5–5.5k;
   mid-UWS (W 72–96) was nearly empty. Expect StreetEasy to carry most of the
   real options this late in the cycle.

@@ -25,7 +25,8 @@ CREATE TABLE IF NOT EXISTS sources_status (
     last_success  TEXT DEFAULT '',
     status        TEXT DEFAULT 'untested',
     method        TEXT DEFAULT '',
-    notes         TEXT DEFAULT ''
+    notes         TEXT DEFAULT '',
+    search_url    TEXT DEFAULT ''   -- saved-search link(s), space-separated; optional Label=url
 );
 
 -- Singleton row (id always 1) holding this project's identity and config -
