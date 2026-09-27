@@ -19,7 +19,7 @@ python3 serve.py 127.0.0.1               # edit statuses/notes from the gallery
 Status and notes are triaged in Airtable (base `NYC Rental Shortlist`,
 `appknc5zHh2CKAJw3`, table `Listings` `tblrxY7CBYUGXBJYc`). The card view is
 the **Apartment Triage** interface → **Listings** page (gallery, tabs for
-Active / New / Shortlist / In progress / Passed). Each record carries
+All / To review / Shortlist / In progress / Passed; each card links to the listing). Each record carries
 `Shortlist ID` = the row id in `listings.db`, which is how the two sync.
 Airtable status names map to the db like this: New=new, Shortlist=flagged,
 Contacted, Replied, Viewing booked=viewing_scheduled, Viewed,
