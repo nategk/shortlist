@@ -34,6 +34,11 @@ cached on the device and stored permanently in Vercel Blob.
    into Blob). POST a snapshot JSON body (`{searches, listings, sources}`) to
    load your own.
 
+6. **Optional, for crawl scoring**: add `ANTHROPIC_API_KEY` (a key from
+   console.anthropic.com) so new listings found by **Run crawl** get scored
+   by Claude against the search's criteria. Without it, crawls still add
+   listings, unscored.
+
 Open `https://YOUR-APP.vercel.app` on any device. The pill in the header
 shows which database is live.
 

@@ -4,13 +4,45 @@
   "buildCommand": "echo 'static app, no build step'",
   "outputDirectory": "app",
   "functions": {
-    "api/health.js": { "includeFiles": "app/demo/**" },
-    "api/snapshot.js": { "includeFiles": "app/demo/**" },
-    "api/listings/[id].js": { "includeFiles": "app/demo/**" },
-    "api/admin/import.js": { "maxDuration": 300, "includeFiles": "app/demo/**" }
+    "api/health.js": {
+      "includeFiles": "app/demo/**"
+    },
+    "api/snapshot.js": {
+      "includeFiles": "app/demo/**"
+    },
+    "api/listings/[id].js": {
+      "includeFiles": "app/demo/**"
+    },
+    "api/admin/import.js": {
+      "maxDuration": 300,
+      "includeFiles": "app/demo/**"
+    },
+    "api/searches/[id].js": {
+      "includeFiles": "app/demo/**"
+    },
+    "api/crawl.js": {
+      "maxDuration": 300,
+      "includeFiles": "app/demo/**"
+    }
   },
   "headers": [
-    { "source": "/sw.js", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] },
-    { "source": "/api/(.*)", "headers": [{ "key": "Cache-Control", "value": "no-store" }] }
+    {
+      "source": "/sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        }
+      ]
+    }
   ]
 }

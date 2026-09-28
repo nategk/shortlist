@@ -115,6 +115,16 @@ export function create(config) {
       return { searches, listings, sources };
     },
 
+    async pushSearch(id, patch) {
+      const fields = {};
+      if ("criteria" in patch) fields[F.search.criteria] = patch.criteria;
+      if ("contactTemplate" in patch) fields[F.search.contactTemplate] = patch.contactTemplate;
+      await request(encodeURIComponent(tables.searches), {
+        method: "PATCH",
+        body: JSON.stringify({ records: [{ id, fields }], typecast: true }),
+      });
+    },
+
     // patch uses model keys (status, notes); only those two are written.
     async pushListing(id, patch) {
       const fields = {};

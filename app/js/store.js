@@ -84,10 +84,10 @@ export class Store {
   get hasData() { return this.state.listings.length > 0 || this.state.searches.length > 0; }
 
   // Overlay edits that haven't uploaded yet so a pull never undoes them.
-  withPending(listings) {
+  withPending(rows, kind = "listing") {
     const pending = new Map();
-    for (const op of this.state.outbox) pending.set(op.id, { ...(pending.get(op.id) || {}), ...op.patch });
-    return listings.map(l => (pending.has(l.id) ? { ...l, ...pending.get(l.id) } : l));
+    for (const op of this.state.outbox) if ((op.kind || "listing") === kind) pending.set(op.id, { ...(pending.get(op.id) || {}), ...op.patch });
+    return rows.map(r => (pending.has(r.id) ? { ...r, ...pending.get(r.id) } : r));
   }
 
   async pull() {
@@ -95,7 +95,8 @@ export class Store {
     this.status.syncing = true; this.status.error = ""; this.emit();
     try {
       const snap = await this.adapter.pull();
-      snap.listings = this.withPending(snap.listings);
+      snap.listings = this.withPending(snap.listings, "listing");
+      snap.searches = this.withPending(snap.searches, "search");
       await tx(this.db, ["searches", "listings", "sources", "meta"], "readwrite", t => {
         for (const s of ["searches", "listings", "sources"]) {
           const os = t.objectStore(s);
@@ -114,13 +115,15 @@ export class Store {
     }
   }
 
-  // Instant local write + queued upload.
-  async update(id, patch) {
-    this.state.listings = this.state.listings.map(l => (l.id === id ? { ...l, ...patch } : l));
-    const op = { id, patch, at: Date.now() };
-    await tx(this.db, ["listings", "outbox"], "readwrite", t => {
-      const row = this.state.listings.find(l => l.id === id);
-      if (row) t.objectStore("listings").put(row);
+  // Instant local write + queued upload. kind: "listing" (status, notes) or
+  // "search" (criteria, contact template...).
+  async update(id, patch, kind = "listing") {
+    const store = kind === "search" ? "searches" : "listings";
+    this.state[store] = this.state[store].map(r => (r.id === id ? { ...r, ...patch } : r));
+    const op = { kind, id, patch, at: Date.now() };
+    await tx(this.db, [store, "outbox"], "readwrite", t => {
+      const row = this.state[store].find(r => r.id === id);
+      if (row) t.objectStore(store).put(row);
       t.objectStore("outbox").add(op);
     });
     this.state.outbox = await getAll(this.db, "outbox");
@@ -138,14 +141,16 @@ export class Store {
     if (!this.adapter.describe().writable) { this.status.readOnly = true; return; }
     this.flushing = true;
     const ops = [...this.state.outbox];
-    const byId = new Map();
-    for (const op of ops) byId.set(op.id, { ...(byId.get(op.id) || {}), ...op.patch });
+    const byKey = new Map();   // "kind:id" -> merged patch (latest wins)
+    for (const op of ops) { const k = (op.kind || "listing") + ":" + op.id; byKey.set(k, { ...(byKey.get(k) || {}), ...op.patch }); }
     const done = [];
     let failed = null;
-    for (const [id, patch] of byId) {
+    for (const [key, patch] of byKey) {
+      const [kind, ...rest] = key.split(":"), id = rest.join(":");
       try {
-        await this.adapter.pushListing(id, patch);
-        done.push(...ops.filter(o => o.id === id).map(o => o.seq));
+        if (kind === "search") await this.adapter.pushSearch(id, patch);
+        else await this.adapter.pushListing(id, patch);
+        done.push(...ops.filter(o => (o.kind || "listing") === kind && o.id === id).map(o => o.seq));
       } catch (e) {
         if (e.readOnly) { this.status.readOnly = true; break; }
         failed = e;

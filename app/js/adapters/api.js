@@ -47,6 +47,23 @@ export function create(config) {
     async pushListing(id, patch) {
       await call("listings/" + encodeURIComponent(id), { method: "PATCH", body: JSON.stringify(patch) });
     },
+    async pushSearch(id, patch) {
+      await call("searches/" + encodeURIComponent(id), { method: "PATCH", body: JSON.stringify(patch) });
+    },
+    // Crawls can take a few minutes; runs server-side and reports per source.
+    async crawl(searchId) {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 300000);
+      try {
+        const res = await fetch(base + "/api/crawl", { method: "POST", signal: ctrl.signal,
+          headers: { "content-type": "application/json" }, body: JSON.stringify({ searchId }) });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(body.error || "Crawl failed (HTTP " + res.status + ")");
+        return body;
+      } catch (e) {
+        throw new Error(e.name === "AbortError" ? "The crawl is taking longer than 5 minutes; check back shortly." : e.message);
+      } finally { clearTimeout(timer); }
+    },
   };
 }
 
