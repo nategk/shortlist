@@ -85,10 +85,17 @@ export function card(search, l, pendingIds) {
 
 export function sources(list) {
   return list.map(s => {
-    const cls = /auto/i.test(s.access) ? "ok" : /partial/i.test(s.access) ? "warn" : /manual|blocked/i.test(s.access) ? "bad" : "";
+    // Crawled sources show their last run; the rest show how they're accessed.
+    const run = s.crawler && s.lastRunAt;
+    const cls = run ? (s.lastStatus === "ok" ? "ok" : s.lastStatus === "blocked" ? "warn" : "bad")
+      : /auto/i.test(s.access) ? "ok" : /partial/i.test(s.access) ? "warn" : /manual|blocked/i.test(s.access) ? "bad" : "";
+    const meta = s.crawler
+      ? (run ? `crawled ${ago(new Date(s.lastRunAt).getTime())} · ${esc(s.lastStatus)}` : "crawler ready · not run yet")
+      : `${esc(s.access || "manual")}${s.lastChecked ? " · checked " + esc(s.lastChecked) : ""}`;
     const links = s.links.map(k => `<a href="${esc(k.url)}" target="_blank" rel="noopener">${esc(k.label)} ↗</a>`).join("");
-    return `<li><span class="name"><i class="dot ${cls}"></i>${esc(s.name)} <span class="meta">${esc(s.access)}${s.lastChecked ? " · checked " + esc(s.lastChecked) : ""}</span></span>
-      <span class="links">${links || '<span class="meta">no saved search</span>'}</span></li>`;
+    return `<li><span class="name"><i class="dot ${cls}"></i>${esc(s.name)} <span class="meta">${meta}</span></span>
+      <span class="links">${links || '<span class="meta">no saved search</span>'}</span>
+      ${run && s.lastResult ? `<span class="result${s.lastStatus === "ok" ? "" : " bad"}">${esc(s.lastResult)}</span>` : ""}</li>`;
   }).join("");
 }
 

@@ -5,10 +5,10 @@
    "name": "West Side 1BR Hunt",
    "lookingFor": "1BR+ rental near the Hudson River Greenway, ≤2 blocks to the subway",
    "budget": "$3,500–$5,500/mo",
-   "area": "Lincoln Square · lower/mid UWS · Chelsea",
+   "area": "UWS (preferred) · Lincoln Square above W 60th · 2nd tier: Chelsea/West Chelsea and the Lincoln Square edge of the W 50s · no Hell's Kitchen",
    "timing": "Lease start Oct 1, 2026",
    "state": "Active",
-   "criteria": "## Context\nLease starting **October 1, 2026** (acceptable window: available now through\n~Oct 15). Bike is the primary way around town, so the Hudson River Greenway /\nWest Side Highway path is the spine of daily life; the subway is the backup\nfor weather and late nights.\n\n## Budget\n- $3,500–$4,500 — great\n- $4,500–$5,000 — good\n- $5,000–$5,500 — ok, needs to earn it\n- $5,500+ — out of range unless exceptional (and no fee)\n\nNYC FARE Act (in force since June 2025): a broker hired by the landlord can't\ncharge the tenant a fee. Treat \"tenant pays broker fee\" on a landlord listing\nas a flag, not a cost of doing business.\n\n## Unit\n- **1 bedroom minimum.** A true 1BR — separate, windowed bedroom with a door.\n- Junior 1BR / \"flex 1\" / alcove studio / convertible = not a 1BR; hard pass\n  unless it's clearly a real wall-and-door bedroom.\n- Studios are out.\n\n## Location (must-have)\nTarget zones, in no particular order:\n1. **Lincoln Square** — W 59th–W 72nd, west of Central Park West.\n2. **Lower/mid UWS** — W 72nd–W ~96th, west of Central Park West.\n3. **Chelsea** — W 14th–W 30th, west of 6th Ave.\n\nTwo hard constraints on top of the zone:\n- **Close to the West Side Highway / Hudson River Greenway.** Measured as\n  straight-line distance to the greenway corridor.\n- **Within a couple of blocks of a subway entrance.** ~0.15 mi or less is\n  ideal; beyond ~0.25 mi fails the must-have.\n\n## Deal-breakers / red flags\n- Move-in later than ~Oct 15.\n- Outside the three zones (Hell's Kitchen / Hudson Yards / West Village are\n  near-misses: note them, don't score them up).\n- \"Model pictures represent finishes\" — photos aren't the actual unit.\n- The same agent template reused across listings with contradictory details\n  (e.g. a West 28th St pin whose copy describes NoMad) — flag and score low.\n- Rent far below comparable market for the block — treat as a scam signal.\n- Any request for a deposit/application money before a viewing.\n\n## Scoring rubric (100 pts + modifiers)\n\n| Category | Weight | What earns the points |\n|---|---|---|\n| Greenway / WSH proximity | 25 | ≤0.30 mi: 25 · ≤0.50: 20 · ≤0.75: 12 · farther: 5 |\n| Subway within ~2 blocks | 20 | ≤0.12 mi: 20 · ≤0.20: 16 · ≤0.25: 10 · farther: 3 |\n| Price | 15 | ≤$4,500: 15 · ≤$5,000: 12 · ≤$5,500: 8 |\n| True 1BR | 15 | Real 1BR: 15 · jr/flex: 6 · studio: 0 (hard pass) |\n| Oct 1 move-in | 10 | Available now/Oct 1: 10 · unconfirmed: 6 · by Oct 15: 6 · later: 0 |\n| Building | 10 | Elevator, laundry, doorman/package handling, bike storage |\n| Light & character | 5 | Exposure, ceilings, prewar detail, architecture that's actually good |\n\n### Modifiers\n- +3 washer/dryer in unit\n- +2 bike room / bike storage explicitly offered\n- +2 no fee / tenant-friendly move-in costs (first + security only)\n- −3 walk-up above 2nd floor (daily bike carry)\n- −5 must-have miss: subway farther than ~0.25 mi\n- −5 must-have miss: greenway farther than ~0.75 mi\n- −5 model photos / unverified unit\n- −10 inconsistent reused-template listing\n- −20 outside the Oct 1 move-in window\n\n## Status flow\n`new` → `flagged` (worth contacting) → `contacted` → `replied` →\n`negotiating` → `viewing_scheduled` → `viewed` → `offer_made` → `purchased`\n(= lease signed)\n\nArchive: `no_go`, `rejected`, `sold_elsewhere` (rented), `scam_suspected`\n\n## Sort order\nBoard sorted by `fit_score` descending.\n",
+   "criteria": "## Context\nLease starting October 1, 2026 (acceptable window: available now through ~Oct 15). Bike is the primary way around town, so the Hudson River Greenway / West Side Highway path is the spine of daily life. Train access still matters: the subway is the backup for weather and late nights.\n\n## Budget\n- $3,500–$4,500: great\n- $4,500–$5,000: good\n- $5,000–$5,500: ok, needs to earn it\n- $5,500+: out of range unless exceptional (and no fee)\n\nNYC FARE Act (since June 2025): a landlord-hired broker can't charge the tenant a fee.\n\n## Unit\n- 1 bedroom minimum: a true 1BR, separate windowed bedroom with a door.\n- Junior 1BR / flex 1 / alcove studio / convertible = not a 1BR.\n- Studios are out.\n\n## Location (must-have)\nStay above W 60th St where possible: it keeps home outside the congestion-pricing zone. Tiers:\n1. **Upper West Side, W 72nd–W ~96th, west of CPW**: first choice (slight preference).\n2. **Lincoln Square, W 60th–W 72nd, west of CPW**: fully in.\n3. **Second tier** (inside the congestion zone; worth it only when the unit is clearly better):\n   - **Chelsea / West Chelsea, W 14th–W 30th, west of 7th Ave** (west of 9th best, for the greenway).\n   - **The Lincoln Square edge of the W 50s**: roughly W 55th–W 59th that reads as Columbus Circle / Lincoln Square rather than Hell's Kitchen: the Columbus Circle blocks, W 57th–59th west toward the river (e.g. VIA 57 West at 12th Ave). A judgment call, not a hard line: a block that feels like Hell's Kitchen (8th–10th Aves in the low-to-mid 50s) is out.\n- **Out:** Hell's Kitchen / Midtown West / Hudson Yards proper (W 30th–W ~55th), and anything else below W 60th that isn't in tier 3.\n\nOn top of the zone:\n- Close to the West Side Hwy / Hudson River Greenway (straight-line distance).\n- Within ~2 blocks of a subway entrance: ≤0.15 mi ideal, >0.25 mi fails.\n\n## Red flags\n- Move-in later than ~Oct 15.\n- Outside the zones above.\n- \"Model pictures represent finishes\".\n- Same agent template reused with contradictory details.\n- Rent far below market for the block.\n- Any deposit/application money requested before a viewing.\n\n## Scoring (100 pts + modifiers)\n| Category | Weight | Points |\n|---|---|---|\n| Greenway proximity | 25 | ≤0.30 mi: 25 · ≤0.50: 20 · ≤0.75: 12 · farther: 5 |\n| Subway within ~2 blocks | 20 | ≤0.12 mi: 20 · ≤0.20: 16 · ≤0.25: 10 · farther: 3 |\n| Price | 15 | ≤$4,500: 15 · ≤$5,000: 12 · ≤$5,500: 8 |\n| True 1BR | 15 | Real: 15 · jr/flex: 6 · studio: 0 |\n| Oct 1 move-in | 10 | Now/Oct 1: 10 · unconfirmed or by Oct 15: 6 · later: 0 |\n| Building | 10 | Elevator, laundry, doorman/packages, bike storage |\n| Light & character | 5 | Exposure, ceilings, prewar detail, good architecture |\n\nZone modifiers: +3 UWS (W 72nd–96th) · 0 Lincoln Square (W 60th–72nd) · −8 second tier (Chelsea / West Chelsea / Lincoln Square edge of the W 50s) · −30 anywhere else (out of zone).\nOther modifiers: +3 W/D in unit · +2 bike room · +2 no fee · −3 walk-up above 2F · −5 subway >0.25 mi · −5 greenway >0.75 mi · −5 model photos · −10 reused template · −20 outside move-in window",
    "contactTemplate": "Hi — I'm interested in [ADDRESS / UNIT] listed at $[PRICE]. I'm looking for an October 1 lease start...",
    "statuses": [
     {
@@ -99,7 +99,7 @@
    "url": "https://www.craigslist.org/view/d/new-york-rare-massive-uws-1br-corner/pRhVruQxqRgNAhxCoBou52",
    "location": "Lincoln Square · W 70th btw West End & Amsterdam",
    "description": "THIS IS IT!!! Better Than Anything You Will Find on StreetEasy or Zillow\n\nPresenting Unit 6E Listing:\n\nRare Dual Exposure Jumbo 1BR Corner Unit in Video Intercom Elevator/Laundry Bldg\n\n*Recorded Video of Actual Apartment Available Upon Request*\n\nClassic Prewar Details & Old World Charm With Modern Finishes\n\nEntry Foyer Leads to Oversize Living Room Larger Than Many Studios\n\nHuge Bedroom Fits King Bed + Desk + Dresser\n\nNewly Renovated Windowed Eat-In Kitchen w/ Dining Alcove\n\n(Custom Cabinetry, Stone Counters, New Appliances incl Dishwasher)\n\nWindowed Modern White Tile Bathroom\n\nAbundant Storage Space – 3 Large Walk-In Closets\n\nBoutique Video Intercom Elevator Building w/ Laundry Room & Live-In Super\n\n72nd Street Subway Entrance & Starbucks Around Corner\n\nParking Garage & CVS/Pharmacy Across Street\n\nPrime UWS Lincoln Square Location Steps to Trader Joes, Restaurants, Cafes, Central Park\n\nMost Pets Permitted w/ Landlord Consent\n\nShowings By Appointment Only - Email/Call/Text (Call or Text For Fastest Response)\n\nTotal Tenant Paid Costs/Fees on This Listing:\n\n$20 Non-Refundable Application Fee Per Applicant\n\nFirst Month Rent + Security Deposit (Equal To 1 Month Rent) Due At Lease Signing\n\nDisclaimers: All information is from sources deemed reliable but not guaranteed and subject to change without notice. Lawful conditions may apply; contact us for full details. Apartment will be rented unfurnished and images may be virtually staged. Landlord paid utilities are heat and water (tenant paid utilities are cooking gas and electricity). EQUAL HOUSING OPPORTUNITY. © 2013-2026. Kiess Realty, L.L.C. All Rights Reserved. Listed By: Kiess Realty, L.L.C., Licensed Real Estate Broker (N.Y./Fla.), 701 Brickell Ave., Ste. 1550, Miami, Fla. 33131-2824",
-   "summary": "Top pick. Hits both must-haves cleanly: Riverside Park South a short ride west, 1/2/3 express at 72nd around the corner. Move-in date not stated — confirm Oct 1. Reposted at $5,000 earlier; newer post is $4,850, so ask which is current. Costs: $20 app fee + first + security, no fee listed. Video of the actual unit available on request.",
+   "summary": "Top pick. Hits both must-haves cleanly: Riverside Park South a short ride west, 1/2/3 express at 72nd around the corner. Move-in date not stated — confirm Oct 1. Reposted at $5,000 earlier; newer post is $4,850, so ask which is current. Costs: $20 app fee + first + security, no fee listed. Video of the actual unit available on request. Zone (updated Sep 28): Lincoln Square, above W 60th: in zone (0). Score now 92.",
    "source": "Craigslist",
    "photos": [
     {
@@ -198,13 +198,13 @@
    ],
    "title": "234 W 14th St — renovated 1BR, W/D in unit, NO FEE",
    "price": 5295,
-   "score": 88,
+   "score": 80,
    "status": "Shortlist",
    "notes": "",
    "url": "https://www.craigslist.org/view/d/new-york-no-fee-d-in-unit-exposed-brick/v1f9qJPmQL7cc6aLboQFhZ",
    "location": "Chelsea/Village line · W 14th btw 7th & 8th",
    "description": "BUILDING & UNIT FEATURES\n\n Elevator\n\n Virtual Doorman\n\n NO FEE\n\n Renovated\n\n Granite Kitchen\n\n Stainless Steel Appliances\n\n Microwave\n\n Dishwasher\n\n Marble Bath\n\n Laundry In Unit\n\n Hardwood\n\n High Ceilings\n\n \n\n234 W 14TH ST (BETWEEN 7TH AVE & 8TH AVE)\n\nBeautifully renovated 1 bedroom apartment features a granite kitchen with dishwasher, washer & dryer, and a marble bathroom. Unit is accented by hardwood floors and exposed brick.\n\nLocated just steps from the West Village, Chelsea and Meatpacking Districts it is just seconds from some of the city's best shopping, nightlife and restaurants. Less than a block to public transportation including the L, 1, 2, 3, A, C, and E subway lines in addition to the 14th Street crosstown bus.\n\nPlease call Ramón for access. 212-810-2786",
-   "summary": "Best transit of the lot (A/C/E/L/1/2/3 within a block) and W/D in unit. Caveats: even-numbered = south side of 14th, so technically West Village, and it's on a loud crosstown bus street — ask about unit orientation (rear-facing?). Upper end of budget. Call Ramón 212-810-2786.",
+   "summary": "Best transit of the lot (A/C/E/L/1/2/3 within a block) and W/D in unit. Caveats: even-numbered = south side of 14th, so technically West Village, and it's on a loud crosstown bus street — ask about unit orientation (rear-facing?). Upper end of budget. Call Ramón 212-810-2786. Zone (updated Sep 28): Chelsea/Village line on W 14th: 2nd-tier zone (−8). Score now 80.",
    "source": "Craigslist",
    "photos": [
     {
@@ -253,7 +253,7 @@
    "url": "https://www.craigslist.org/view/d/new-york-sunny-south-facing-renovated/3922en6rrQyH3m9uwmMRf8",
    "location": "Lincoln Square/UWS · ~W 70s off Central Park West (exact address not given)",
    "description": "",
-   "summary": "Most character of the group (skylight, beamed 10' ceilings, south light, doorman). Loses points on the West Side Hwy constraint — CPW side is ~4 long avenue blocks from Riverside Park; it's a crosstown ride on W 72nd, not a roll-out-the-door greenway. Map pin is approximate: get the address. BOND NY / José Xavier Chavez (917) 859-3992.",
+   "summary": "Most character of the group (skylight, beamed 10' ceilings, south light, doorman). Loses points on the West Side Hwy constraint — CPW side is ~4 long avenue blocks from Riverside Park; it's a crosstown ride on W 72nd, not a roll-out-the-door greenway. Map pin is approximate: get the address. BOND NY / José Xavier Chavez (917) 859-3992. Zone (updated Sep 28): Lincoln Square/UWS off CPW: in zone (0). Score now 82.",
    "source": "Craigslist",
    "photos": [
     {
@@ -276,13 +276,13 @@
    ],
    "title": "XL prewar 1BR, south Chelsea brownstone block — NO FEE, available Oct 1",
    "price": 5500,
-   "score": 78,
+   "score": 70,
    "status": "Passed",
    "notes": "",
    "url": "https://www.craigslist.org/view/d/new-york-no-fee-lovely-xl-1br-prime/h1Q1WTF52ZLp9vKGzZTGEu",
    "location": "South Chelsea · ~W 15th–17th near 7th Ave (exact address not given)",
    "description": "NO BROKER FEE\n\nBRAND NEW TO MARKET\n\nAVAILABLE OCT 1\n\nCHARMING AND SUNNY\n\nSPACIOUS LAYOUT\n\nMINT RENO\n\nCHEF'S KITCHEN\n\nHIGH CEILINGS\n\nCLASSIC PREWAR DIMENSIONS\n\nELEVATOR \n\nLAUNDRY \n\nFULL SERVICE DOORMAN BUILDING \n\nSUPER PRIME TREE LINED BROWNSTONE BLOCK \n\nENDLESSLY CONVENIENT SOUTH CHELSEA LOCATION STEPS TO MULTIPLE SUBWAY LINES, TOP NOTCH DINING, RETAIL AND NIGHTLIFE\n\nPETS WELCOME \n\nEXCELLENT LANDLORD \n\nVIDEO OF APARTMENT LAYOIT HERE:\n\nhttps://youtube.com/shorts/Rhb3CXStYzw?is=lByMJlXa1WeHBGdH\n\nVIDEO OF BLOCK HERE:\n\nhttps://youtube.com/shorts/yu3bELqQlpM?is=foJ0Pd1nG9riH_-S\n\nTEXT PAM AT 516.262.3693 TO SCHEDULE A VIRTUAL OR IN PERSON VIEWING \n\nImmaculate condition, modern renovation with generous pre-war dimensions, cheerful, bright and warm. Great vibes. Fabulous chef's kitchen. Good closet space, room to unwind. Bright all day and quiet too! Super prime location in south Chelsea steps to multiple trains.\n\nLive the dream in this endlessly convenient location among all the best dining, retail, theaters, and nightlife in Manhattan's highly desirable Lower West Side.\n\nThis is a convenient residential NYC neighborhood with tons of supermarkets, drycleaners, hardware stores, take-out spots, 24 hr bodegas, etc. Easy walking distance to West Village, Soho, Tribeca, Union Square, Nolita, Little Italy, Flatiron, etc.\n\nHighly reputable local landlord requires one month rent and one month security and qualified US based personal guarantors are accepted as needed.\n\nWe are a five star rated local realtor specializing in the areas we know and love best, happy to help our clients successfully navigate competitive markets.\n\nThe landlord requires that we ask prospective tenants a few questions before showing the unit, text 516.262.3693 for immediate response, otherwise if you need to email please add a US contact number. Thank you!\n\nCheers,\n\nPam and Julia \n\n516.262.3693",
-   "summary": "Only listing that explicitly says available Oct 1. Top of budget. Pin is approximate (Craigslist accuracy 22) — confirm block and which avenue before a viewing; 8th Ave side would push this up. Video tour links in the post. Posted 4x by the same agent (Pam, 516-262-3693) — volume reposting, not a scam template (details are consistent and specific).",
+   "summary": "Only listing that explicitly says available Oct 1. Top of budget. Pin is approximate (Craigslist accuracy 22) — confirm block and which avenue before a viewing; 8th Ave side would push this up. Video tour links in the post. Posted 4x by the same agent (Pam, 516-262-3693) — volume reposting, not a scam template (details are consistent and specific). Zone (updated Sep 28): South Chelsea: 2nd-tier zone (−8). Score now 70.",
    "source": "Craigslist",
    "photos": [
     {
@@ -363,7 +363,7 @@
    "url": "https://www.craigslist.org/view/d/new-york-33-wea-spacious-one-bedroom/8iwf7muuinPCi66GcWrPWP",
    "location": "Lincoln Square · West End Ave at W 61st (Riverside South)",
    "description": "Spacious Low-Floor 1 Bedroom with Tall Ceilings Residence with Northeast-facing Views.\n\nAvailable ASAP.\n\nDon’t miss this incredible opportunity—schedule your tour today before it’s gone! Your monthly rent includes heat, hot water, gas, access to building amenities, 24-hour concierge services, pet fees, and convenient shuttle bus service to 59th Street–Columbus Circle.\n\nTouring is Tuesdays to Saturdays from 10a to 6p with viewings being by appointment only, no open house.\n\nRiver Views\n\nCity Views\n\nFloor to Ceiling Windows\n\nGreat Natural Light\n\nStainless Steel Appliances\n\nGranite Countertops\n\nMarble Bath\n\nState of the art Fitness Center\n\nTenant Lounge\n\nPets Welcome – Including Dogs up to 40 lbs\n\nAny Broker formally retained or informally engaged by a prospective tenant shall be acting solely on that Tenant's behalf.",
-   "summary": "Best value and closest to the greenway (Riverside Park South is right there). Fails the subway-within-2-blocks must-have: nearest entrance ~0.4 mi, so the -5 applies. Open houses Tue 9/29 and Wed 9/30 by appointment. Low floor — ask for anything higher in the line.",
+   "summary": "Best value and closest to the greenway (Riverside Park South is right there). Fails the subway-within-2-blocks must-have: nearest entrance ~0.4 mi, so the -5 applies. Open houses Tue 9/29 and Wed 9/30 by appointment. Low floor — ask for anything higher in the line. Zone (updated Sep 28): Lincoln Square at W 61st: in zone, just above the congestion line (0). Score now 75.",
    "source": "Craigslist",
    "photos": [
     {
@@ -434,13 +434,13 @@
    ],
    "title": "207 W 20th St — 3rd-floor walk-up 1BR, decorative fireplace, NO FEE",
    "price": 4100,
-   "score": 73,
+   "score": 65,
    "status": "Passed",
    "notes": "",
    "url": "https://www.craigslist.org/view/d/new-york-open-house-sunday-pm-one/2KSscfhUatELVb7rp32Pqt",
    "location": "Chelsea · W 20th btw 7th & 8th",
    "description": "Sunny Walk up Building in the center of chelsea betwn 20th street and 7th ave.\n\nhard wood 3F 3 big closets and bathroom w window  EIK w chemney on living room . one min to laundramt room on 7th ave and steps to PathTrain and Subway and Bus and close to Chelsea Market.\n\nOPEN HOUSE FOR RENT , NO FEE APT.\n\nSunday 09/6/2026  11-2 pm.\n\nstudent welcome , credit check needed \n\n207 W20th street, NY \n\nbroker: nancy \n\nfortune realty cell: 9172385338",
-   "summary": "Cheapest real 1BR in-zone. Walk-up 3F means carrying the bike three flights daily (-3). Open house in the post was 9/6 — may already be rented; also cross-posted as 'Manhattan Chealse One Bedroom'. Broker: Nancy, Fortune Realty 917-238-5338.",
+   "summary": "Cheapest real 1BR in-zone. Walk-up 3F means carrying the bike three flights daily (-3). Open house in the post was 9/6 — may already be rented; also cross-posted as 'Manhattan Chealse One Bedroom'. Broker: Nancy, Fortune Realty 917-238-5338. Zone (updated Sep 28): Chelsea: 2nd-tier zone (−8). Score now 65.",
    "source": "Craigslist",
    "photos": [
     {
@@ -463,13 +463,13 @@
    ],
    "title": "Furnished corner 1BR at W 95th & Riverside — from late Nov",
    "price": 4700,
-   "score": 65,
+   "score": 68,
    "status": "Shortlist",
    "notes": "",
    "url": "https://www.craigslist.org/view/d/new-york-large-fully-furnished-uws-one/uLVG7GprwzfJ4j8QgU4agS",
    "location": "UWS · W 95th near Riverside Dr",
    "description": "Renting out my large, upper west side fully furnished and light-filled corner one bedroom apartment from the last week of November onwards. It’s a doorman building so very secure and in-unit dishwasher, washer and dryer, central air, rooftop. 5 minute walk to riverside and 1/2/3 lines. Furnished (can be repainted normal colors for a longer term tenant I know not everyone loves pink haha). \n\nReach out if interested and can share more pics and further details! 4.6k and tenant covers wifi/electric. Price negotiable depending on term of lease!",
-   "summary": "Great location for both must-haves but misses the Oct 1 window by ~2 months (-20). Tenant-subletting their own unit — confirm the lease allows it. Backup only if nothing lands in October.",
+   "summary": "Great location for both must-haves but misses the Oct 1 window by ~2 months (-20). Tenant-subletting their own unit — confirm the lease allows it. Backup only if nothing lands in October. Zone (updated Sep 28): UWS at W 95th: preferred zone (+3). Score now 68.",
    "source": "Craigslist",
    "photos": [
     {
@@ -524,13 +524,13 @@
    ],
    "title": "'Flex 1BR' high floor, W 28th St — model photos",
    "price": 4795,
-   "score": 48,
+   "score": 40,
    "status": "Passed",
    "notes": "Not a 1br",
    "url": "https://www.craigslist.org/view/d/new-york-chelsea-flex-1bd-1ba-high/1EewMvX6faTCho8kL9YfqE",
    "location": "Chelsea · W 28th St (pin near 11th Ave; copy describes NoMad)",
    "description": "CHELSEA | FLEX 1-BED\n\nThe Apartment\n\n• Flexible 1-Bed Setup\n\n• High-Floor Apartment\n\n• Floor-to-Ceiling Windows\n\n• Granite Countertops\n\n• Stainless Steel Appliances\n\n• Dishwasher\n\n• Central Air\n\n• Modern Finishes\n\nThe Building\n\n• 24-Hour Doorman + Concierge\n\n• Fitness Center\n\n• Package Room\n\n• Laundry Facilities\n\n• Live-In Super\n\n• Storage Available\n\n• Elevator\n\n• Pet Friendly\n\nPrime Chelsea\n\n• 28th Street R + W Nearby\n\n• 1 Train Nearby\n\n• F + M Nearby\n\n• PATH Nearby\n\n• Madison Square Park Nearby\n\n• Restaurants + Nightlife\n\n• Easy Access to NoMad + Flatiron\n\nModel Pictures Represent the Finishes of the Apartment\n\nInquire for a tour today!\n\nAbu Shahbaz\n\n646.852.8125",
-   "summary": "Red flags per criteria: 'model pictures represent finishes', 'flex' not a true 1BR, and the copy lists R/W at 28th + Madison Sq Park (east side) while the pin is West 28th near 11th — same agent posts studio/'flex 2' Chelsea units with the identical template. Keep only to track; don't prioritize.",
+   "summary": "Red flags per criteria: 'model pictures represent finishes', 'flex' not a true 1BR, and the copy lists R/W at 28th + Madison Sq Park (east side) while the pin is West 28th near 11th — same agent posts studio/'flex 2' Chelsea units with the identical template. Keep only to track; don't prioritize. Zone (updated Sep 28): West Chelsea: 2nd-tier zone (−8). Score now 40.",
    "source": "Craigslist",
    "photos": [
     {
@@ -583,7 +583,7 @@
    "url": "https://www.leasebreak.com/short-term-rental-details/404121/75-west-end-avenue",
    "location": "Lincoln Square · West End Ave at W 63rd–64th",
    "description": "Bright and spacious 12th-floor 1bed 1bath apartment with tons of natural light, high ceilings, large windows, and beautiful city views. Open layout, modern kitchen with updated appliances, ample closet/storage. Lincoln Square, a few blocks from Riverside Park and the Hudson River.\n\nWest End Towers amenities: indoor pool, fitness center, landscaped outdoor spaces + sundeck, residents' lounge, 24-hour package room, bike storage, playroom, 24-hour doorman and concierge, shuttle to subways.\n\nLease assignment (tenant, landlord's permission) · renewal: yes · no broker fee · tours + virtual tours · south exposure · unfurnished.\n$4,825/mo · earliest move-in Oct 1, 2026 · move-out May 31, 2027\nVideo: https://youtu.be/hI9d0eCGKT4",
-   "summary": "Strong on the greenway (Riverside Park South a couple of blocks west), bike storage and full-service building; south light on a high floor. Misses the 2-blocks-to-subway rule (~0.3 mi to the 66 St 1; building runs a shuttle). 8-month lease assignment to May 31, 2027, renewable. Score 78.",
+   "summary": "Strong on the greenway (Riverside Park South a couple of blocks west), bike storage and full-service building; south light on a high floor. Misses the 2-blocks-to-subway rule (~0.3 mi to the 66 St 1; building runs a shuttle). 8-month lease assignment to May 31, 2027, renewable. Score 78. Zone (updated Sep 28): Lincoln Square at W 63rd–64th: in zone (0). Score now 78.",
    "source": "LeaseBreak",
    "photos": [],
    "fields": {
@@ -601,21 +601,54 @@
    ],
    "title": "VIA 57 West (625 W 57th) — 1BR in the BIG pyramid, W/D, floor-to-ceiling windows, NO FEE",
    "price": 4750,
-   "score": 82,
+   "score": 74,
    "status": "Shortlist",
    "notes": "",
    "url": "https://www.leasebreak.com/short-term-rental-details/400679/625-west-57th-street",
-   "location": "Hell's Kitchen (near-miss zone) · W 57th at West Side Hwy / 12th Ave",
+   "location": "Lincoln Square edge of the W 50s (2nd tier) · W 57th at West Side Hwy / 12th Ave",
    "description": "1BR at VIA 57 WEST, $4,750/mo — below market. Renewed in April off-peak; similar 1BRs in the building are $5,200+, studios $4,800+.\n\n1 bed/1 bath, floor-to-ceiling windows in every room, walk-in closet, in-unit washer/dryer, dishwasher, hardwood.\n\nAmenities: indoor pool, gym, basketball court, library, courtyard garden, golf simulator, screening room, game room, full-time doorman, pet friendly, bike storage, roof deck.\n\nLease assignment (tenant, landlord's permission) · renewal: yes · no broker fee · tours + virtual tours · west exposure.\n$4,750/mo · move-in immediate · move-out May 24, 2027 · updated Sep 24, 2026\nhttps://www.via57west.com",
-   "summary": "Best greenway access so far (the West Side Hwy path is across 12th Ave) and genuinely great architecture: BIG's tetrahedron, with W/D in unit and the full VIA amenity set, below the building's current asks. Misses: Hell's Kitchen (near-miss zone) and ~0.6 mi to the subway at Columbus Circle. Score 82.",
+   "summary": "Best greenway access so far (the West Side Hwy path is across 12th Ave) and genuinely great architecture: BIG's tetrahedron, with W/D in unit and the full VIA amenity set, below the building's current asks. Misses: ~0.6 mi to the subway at Columbus Circle. Score 82. Zone (updated Sep 28): W 57th toward the river reads as the Lincoln Square edge, so it's 2nd tier (−8) like Chelsea, not out. Still ~0.6 mi to the subway. Score now 74.",
    "source": "LeaseBreak",
-   "photos": [],
+   "photos": [
+    {
+     "id": "lb-4628244",
+     "url": "https://images.leasebreak.com/uploads/PropertyPhotosModel/4/6/2/8/2/4/4/4628244/image/a41cc7c00e366b5436c172cb09223f04.large.png"
+    },
+    {
+     "id": "lb-4628242",
+     "url": "https://images.leasebreak.com/uploads/PropertyPhotosModel/4/6/2/8/2/4/2/4628242/image/9464e529ed73209bdd5eb663f12a6825.large.png"
+    }
+   ],
    "fields": {
     "Greenway (mi)": 0.08,
     "Subway (mi)": 0.6,
     "Subway line": "1/A/B/C/D · 59 St-Columbus Circle",
     "Move-in": "Now",
-    "Neighborhood": "Hell's Kitchen"
+    "Neighborhood": "W 57th (Lincoln Sq edge)"
+   }
+  },
+  {
+   "id": "listing-45w81",
+   "searchIds": [
+    "search-west-side"
+   ],
+   "title": "45 W 81st (the old Excelsior, off CPW) — furnished 1BR, 4D $5,900 or 8i $6,100",
+   "price": 5900,
+   "score": 60,
+   "status": "Contacted",
+   "notes": "Emailing Tyrone Uchima (turuchima@findrealestate.com). Original listing is down.\nOption A: 4D, $5,900 furnished. Option B: 8i, $6,100 furnished. Term Oct 1 to Dec 13, 2027 (confirm the year: ~14.5 months if it starts Oct 1, 2026).\nDeposit $3,000 if credit score >750 · cleaning fee $150 · application fee $20.\nElectricity extra; gas + internet included; gym $75/mo.",
+   "url": "https://streeteasy.com/building/45-west-81-street-new_york",
+   "location": "UWS · W 81st btw CPW & Columbus, across from the Museum of Natural History",
+   "description": "Two furnished 1BR/1BA units offered by email (listing since taken down):\n- Unit 4D: $5,900/mo furnished\n- Unit 8i: $6,100/mo furnished\nTerm: Oct 1 to Dec 13, 2027. Deposit $3,000 (credit >750), cleaning $150, application $20. Electricity not included; gas and internet included; gym $75/mo.\n\nBuilding (public listings): the former Hotel Standish Hall / Excelsior Hotel, converted in 2022–23 to 143 condo units (studio to 3BR) with oversized windows, engineered wood floors, quartz kitchens, video intercoms. Attended lobby, elevator, package room, private storage, fitness studio, central laundry room; pets allowed. Across from the American Museum of Natural History, half a block from Central Park. B/C at 81 St (at the corner), 1 at 79 St/Broadway.\nOther 1BRs in the building have listed unfurnished around $5,000–5,600 (12-month).",
+   "summary": "Best subway access on the board (B/C at the corner) and a top UWS block by the park, the museum and Columbus Ave. Central Park's loop is half a block away, but the Hudson Greenway is ~0.85 mi west (−5). Over budget: $5,900–6,100, partly offset by furnished + gas + internet; the $75/mo gym and electricity are extra. Central laundry, no W/D in unit. Score 60: price is the drag; only worth it if the furnished, ~14-month term is a plus.",
+   "source": "Email (Tyrone Uchima)",
+   "photos": [],
+   "fields": {
+    "Greenway (mi)": 0.85,
+    "Subway (mi)": 0.05,
+    "Subway line": "B/C · 81 St–Museum of Natural History",
+    "Move-in": "Oct 1",
+    "Neighborhood": "UWS"
    }
   }
  ],
@@ -647,11 +680,50 @@
     {
      "label": "W Chelsea",
      "url": "https://www.craigslist.org/search/city/new-york-ny?cat=apa&min_bedrooms=1&min_price=3500&max_price=5500&postal=10001&radius=0.6"
+    },
+    {
+     "label": "W 57th",
+     "url": "https://www.craigslist.org/search/city/new-york-ny?cat=apa&min_bedrooms=1&min_price=3500&max_price=5500&postal=10019&radius=0.5"
     }
    ],
    "method": "sapi JSON + detail pages",
    "lastChecked": "2026-09-27",
-   "notes": "Best route: sapi.craigslist.org/web/v8/postings/search/full with searchPath=apa&min_bedrooms=1&min_price=3500&max_price=5500&postal=<zip>&search_distance=<mi> returns lat/lon per posting - query 10023/10024/10025/10011/10001/10019 and filter by grid position. The static /search page ignores most of the pool (~200 cap). Detail pages give address, data-accuracy (5-10 = exact, 20+ = approximate), availability, laundry. Watch for agents reposting the same template with shifting prices; 'Galaxy Towers' / 'Two Bedroom Two Bath Condominium' at lon ~-73.999 are in NJ (North Bergen/Guttenberg), not the UWS."
+   "notes": "Best route: sapi.craigslist.org/web/v8/postings/search/full with searchPath=apa&min_bedrooms=1&min_price=3500&max_price=5500&postal=<zip>&search_distance=<mi> returns lat/lon per posting - query 10023/10024/10025/10011/10001/10019 and filter by grid position. The static /search page ignores most of the pool (~200 cap). Detail pages give address, data-accuracy (5-10 = exact, 20+ = approximate), availability, laundry. Watch for agents reposting the same template with shifting prices; 'Galaxy Towers' / 'Two Bedroom Two Bath Condominium' at lon ~-73.999 are in NJ (North Bergen/Guttenberg), not the UWS.",
+   "crawler": "craigslist",
+   "config": {
+    "area": "newyork",
+    "subarea": "mnh",
+    "category": "apa",
+    "minPrice": 3500,
+    "maxPrice": 5500,
+    "minBedrooms": 1,
+    "searches": [
+     {
+      "postal": "10023",
+      "radius": 1
+     },
+     {
+      "postal": "10024",
+      "radius": 1
+     },
+     {
+      "postal": "10025",
+      "radius": 0.8
+     },
+     {
+      "postal": "10011",
+      "radius": 1
+     },
+     {
+      "postal": "10001",
+      "radius": 0.6
+     },
+     {
+      "postal": "10019",
+      "radius": 0.5
+     }
+    ]
+   }
   },
   {
    "id": "source-leasebreak",
@@ -689,7 +761,16 @@
    ],
    "method": "WebFetch",
    "lastChecked": "2026-09-27",
-   "notes": "No bot wall. Paginated /rentals and /sublets fully (216 listings across ~15 pages each) - explicit availability range on every card. No in-zone 1BRs at $3.5-5.5k this pass: inventory is rooms, short sublets and Brooklyn; closest was a 1-week UWS sublet (Oct 6-12). Filters (borough/price) aren't URL-addressable, so the saved links are the category pages."
+   "notes": "No bot wall. Paginated /rentals and /sublets fully (216 listings across ~15 pages each) - explicit availability range on every card. No in-zone 1BRs at $3.5-5.5k this pass: inventory is rooms, short sublets and Brooklyn; closest was a 1-week UWS sublet (Oct 6-12). Filters (borough/price) aren't URL-addressable, so the saved links are the category pages.",
+   "crawler": "listingsproject",
+   "config": {
+    "city": "new-york-city",
+    "categories": [
+     "rentals",
+     "sublets"
+    ],
+    "maxPages": 15
+   }
   },
   {
    "id": "source-renthop",

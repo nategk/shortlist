@@ -31,13 +31,22 @@
   <main class="grid" id="grid"></main>
 
   <section class="panel" id="criteria-panel" hidden>
-    <details class="more"><summary>Criteria</summary><pre class="text" id="criteria"></pre></details>
-    <details class="more"><summary>Contact template</summary><pre class="text" id="contact"></pre>
-      <div class="actions"><button class="btn" type="button" id="copy-contact">Copy template</button></div></details>
+    <details class="more" id="criteria-details"><summary>Criteria</summary>
+      <textarea id="criteria" class="doc" spellcheck="true" aria-label="Criteria"></textarea>
+      <div class="actions"><button class="btn primary" type="button" id="save-criteria" disabled>Save criteria</button><span class="hint" id="criteria-hint"></span></div>
+    </details>
+    <details class="more"><summary>Contact template</summary>
+      <textarea id="contact" class="doc" spellcheck="true" aria-label="Contact template"></textarea>
+      <div class="actions"><button class="btn primary" type="button" id="save-contact" disabled>Save template</button>
+        <button class="btn" type="button" id="copy-contact">Copy</button><span class="hint" id="contact-hint"></span></div>
+    </details>
   </section>
 
   <section class="panel" id="sources-panel" hidden>
-    <h2>Sources</h2>
+    <div class="panel-head">
+      <h2>Sources</h2>
+      <span class="actions"><span class="hint" id="crawl-hint"></span><button class="btn primary" type="button" id="run-crawl" hidden>Run crawl</button></span>
+    </div>
     <ul class="rows" id="sources"></ul>
   </section>
 </div>

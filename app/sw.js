@@ -7,7 +7,7 @@
 //   signed URLs (Airtable) still hit the cache later.
 // - The page can post {type: "warm-photos", photos: [{id, url}]} to download
 //   every photo in the background.
-const SHELL = "shortlist-shell-v3";
+const SHELL = "shortlist-shell-v4";
 const PHOTOS = "shortlist-photos-v1";
 const SHELL_FILES = [
   "./", "index.html", "styles.css", "manifest.webmanifest",

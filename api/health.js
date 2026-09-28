@@ -15,6 +15,7 @@ export async function GET() {
         photoStorage: !!blobToken(),
         adminToken: (process.env.ADMIN_TOKEN || "").length >= 16,
         airtable: !!(process.env.AIRTABLE_TOKEN && process.env.AIRTABLE_BASE_ID),
+        scoring: !!process.env.ANTHROPIC_API_KEY,
       },
     });
   } catch (e) {

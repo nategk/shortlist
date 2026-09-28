@@ -19,6 +19,7 @@ export function create(config) {
       const j = await res.json();
       return { searches: j.searches || [], listings: j.listings || [], sources: j.sources || [] };
     },
+    async pushSearch() { return this.pushListing(); },
     async pushListing() {
       const err = new Error("This snapshot is read-only; the change is saved on this device only.");
       err.readOnly = true;

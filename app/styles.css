@@ -105,6 +105,11 @@ section.panel h2 { font-size: 15px; margin: 0; }
 .rows .meta { font: 400 11px var(--mono); color: var(--muted); }
 .rows .links { display: flex; flex-wrap: wrap; gap: 6px 12px; }
 .rows .links a { color: var(--accent); font-weight: 600; font-size: 13px; text-decoration: none; }
+textarea.doc { min-height: 260px; font: 13px/1.55 var(--mono); margin-top: 8px; }
+.hint { font: 400 12px var(--mono); color: var(--muted); }
+.panel-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.rows .result { flex-basis: 100%; font: 400 11px var(--mono); color: var(--muted); }
+.rows .result.bad { color: var(--bad); }
 pre.text { white-space: pre-wrap; font: 13px/1.55 var(--font); margin: 8px 0 0; color: var(--ink); max-width: 80ch; }
 
 dialog { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--ink); padding: 20px; width: min(520px, calc(100vw - 32px)); }

@@ -85,13 +85,24 @@ function render() {
   });
 
   // Criteria + sources
-  $("#criteria-panel").hidden = !(search && (search.criteria || search.contactTemplate));
-  if (search) { $("#criteria").textContent = search.criteria || "—"; $("#contact").textContent = search.contactTemplate || "—"; }
+  $("#criteria-panel").hidden = !search;
+  if (search) {
+    fillDoc("#criteria", search.criteria);
+    fillDoc("#contact", search.contactTemplate);
+  }
+  $("#run-crawl").hidden = !(search && adapter.crawl && d.writable);
   const srcs = state.sources.filter(s => !search || !s.searchIds.length || s.searchIds.includes(search.id));
   $("#sources-panel").hidden = !srcs.length;
   $("#sources").innerHTML = ui.sources(srcs);
 
   warmPhotos(listings);
+}
+
+// Editable text areas: refresh from data unless the user has unsaved edits.
+function fillDoc(sel, value) {
+  const el = $(sel);
+  if (el.dataset.dirty === "1") return;
+  if (el.value !== (value || "")) el.value = value || "";
 }
 
 // Re-rendering must not eat a note the user is typing.
@@ -142,7 +153,43 @@ document.addEventListener("error", e => {
   if (img.tagName === "IMG" && img.dataset.fallback && img.src !== img.dataset.fallback) img.src = img.dataset.fallback;
 }, true);
 $("#copy-contact").addEventListener("click", async () => {
-  try { await navigator.clipboard.writeText($("#contact").textContent); $("#copy-contact").textContent = "Copied"; } catch (e) {}
+  try { await navigator.clipboard.writeText($("#contact").value); $("#copy-contact").textContent = "Copied"; }
+  catch (e) { $("#contact").select(); }
+});
+
+// Criteria / contact template: edit, then Save (saved on this device at once,
+// uploaded in the background like triage).
+for (const [sel, btn, hint, field, label] of [["#criteria", "#save-criteria", "#criteria-hint", "criteria", "Criteria"],
+                                              ["#contact", "#save-contact", "#contact-hint", "contactTemplate", "Template"]]) {
+  $(sel).addEventListener("input", () => { $(sel).dataset.dirty = "1"; $(btn).disabled = false; $(hint).textContent = "Unsaved changes"; });
+  $(btn).addEventListener("click", async () => {
+    const search = currentSearch(store.state);
+    if (!search) return;
+    await store.update(search.id, { [field]: $(sel).value }, "search");
+    $(sel).dataset.dirty = ""; $(btn).disabled = true;
+    $(hint).textContent = label + " saved" + (navigator.onLine ? "" : " on this device; uploads when you're back online");
+  });
+}
+
+// Crawl: runs on the server (a few minutes at most), then pulls fresh data.
+$("#run-crawl").addEventListener("click", async () => {
+  const search = currentSearch(store.state);
+  if (!search || !adapter.crawl) return;
+  const btn = $("#run-crawl"), hint = $("#crawl-hint");
+  btn.disabled = true; btn.textContent = "Crawling…";
+  hint.textContent = "Checking sources and scoring new listings. This can take a few minutes.";
+  try {
+    const r = await adapter.crawl(search.id);
+    hint.textContent = r.added
+      ? `${r.added} new listing${r.added === 1 ? "" : "s"} added to To review${r.scored ? "" : " (unscored)"}.`
+      : "No new listings this time.";
+    if (r.added) { view.tab = "review"; pref.set("tab", "review"); }
+  } catch (e) {
+    hint.textContent = e.message;
+  } finally {
+    btn.disabled = false; btn.textContent = "Run crawl";
+    await store.pull();
+  }
 });
 
 // ---- settings ----

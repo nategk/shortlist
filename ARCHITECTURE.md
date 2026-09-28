@@ -135,6 +135,29 @@ commit it.
 Conflicts are last-writer-wins per field, which is fine for one person
 triaging on a couple of devices.
 
+## Crawling
+
+**Run crawl** (Sources panel) calls `POST /api/crawl {searchId}`. For each
+source with a `crawler` (`lib/crawlers/`: `craigslist`, `listingsproject`):
+
+1. `discover(config)` lists current items; anything already seen (per-source
+   `seen` ids) or already a listing is dropped.
+2. Claude screens all new candidates in one call against the search's
+   criteria (`lib/score.js`), keeping at most 12 per source.
+3. Keepers get their full page fetched (`details`), then one Claude call
+   each for fit score, card summary, and the search's card-metric values.
+4. Photos are copied to Blob; the listing is saved with the search's first
+   "review" status.
+5. The source records `last_run_at`, `last_status` (ok / blocked / error) and
+   a one-line result, shown in the UI.
+
+One crawl per search per 10 minutes (the endpoint is public). Scoring needs
+`ANTHROPIC_API_KEY`; without it listings are added unscored. Sites that
+refuse automated access are recorded as `blocked`, never worked around.
+
+Criteria and the contact template are editable in the UI
+(`PATCH /api/searches/:id`), queued offline like triage.
+
 ## Adding a new search
 
 Add a row to Searches (statuses, metrics, criteria), add its Sources, and
