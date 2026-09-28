@@ -168,6 +168,8 @@ Criteria, features and the contact template are editable in the UI
 
 ## Working on a live deployment
 
+`node scripts/remote.mjs set <id> status=… [notes=…]` triages one listing
+through the open `PATCH /api/listings/:id`.
 `node scripts/remote.mjs pull snap.json` saves the live snapshot (public);
 edit it, then `node scripts/remote.mjs push snap.json` upserts it through
 `/api/admin/import?keepTriage=1`, so status, notes and features set in the

@@ -2,6 +2,8 @@
 //   node scripts/remote.mjs pull [file]    save the live snapshot (public read)
 //   node scripts/remote.mjs push <file>    upsert a snapshot, keeping triage
 //                                          (status/notes/features) as it is live
+//   node scripts/remote.mjs set <listingId> status=Contacted [notes=...]
+//                                          triage one listing (open endpoint)
 // Env: SHORTLIST_URL (e.g. https://your-app.vercel.app), ADMIN_TOKEN for push.
 import { readFile, writeFile } from "node:fs/promises";
 
@@ -23,7 +25,23 @@ if (cmd === "pull") {
   });
   console.log(res.status, await res.text());
   if (!res.ok) process.exit(1);
+} else if (cmd === "set" && file) {
+  const patch = {};
+  for (const arg of process.argv.slice(4)) {
+    const i = arg.indexOf("=");
+    const key = arg.slice(0, i), value = arg.slice(i + 1);
+    if (key === "status" || key === "notes") patch[key] = value;
+    else if (key === "features") patch.features = value ? value.split(",").map(f => f.trim()) : [];
+    else { console.error("Unknown field: " + arg); process.exit(1); }
+  }
+  const res = await fetch(base + "/api/listings/" + encodeURIComponent(file), {
+    method: "PATCH",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(patch),
+  });
+  console.log(res.status, await res.text());
+  if (!res.ok) process.exit(1);
 } else {
-  console.error("Usage: node scripts/remote.mjs pull [file] | push <file>");
+  console.error("Usage: node scripts/remote.mjs pull [file] | push <file> | set <id> field=value...");
   process.exit(1);
 }
