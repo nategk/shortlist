@@ -18,6 +18,7 @@ before(async () => {
     importer: await import("../api/admin/import.js"),
     snapshot: await import("../api/snapshot.js"),
     search: await import("../api/searches/[id].js"),
+    listing: await import("../api/listings/[id].js"),
     crawl: await import("../api/crawl.js"),
   };
   await api.importer.POST(req("/api/admin/import?photos=0", { method: "POST", headers: { authorization: "Bearer " + process.env.ADMIN_TOKEN } }));
@@ -33,6 +34,22 @@ test("PATCH /api/searches/:id saves criteria", { skip }, async () => {
   assert.equal(r.status, 200);
   assert.equal((await snap()).searches[0].criteria, "Above 60th only.");
   assert.equal((await api.search.PATCH(req("/api/searches/nope", { method: "PATCH", body: JSON.stringify({ criteria: "x" }) }))).status, 404);
+});
+
+test("features: seeded, editable on the search, toggled on a listing", { skip }, async () => {
+  let s = await snap();
+  assert.deepEqual(s.searches[0].features.map(f => f.label), ["Garage", "Gym", "Hot tub", "Sauna", "Cold plunge"]);
+  assert.deepEqual(s.listings.find(l => l.id === "listing-lb-400679").features, ["Gym", "Garage"]);
+
+  const r = await api.search.PATCH(req("/api/searches/search-west-side", { method: "PATCH",
+    body: JSON.stringify({ features: [{ label: " Sauna ", points: "5" }, { label: "" }, { label: "Roof", points: 999 }] }) }));
+  assert.equal(r.status, 200);
+  s = await snap();
+  assert.deepEqual(s.searches[0].features, [{ label: "Sauna", points: 5 }, { label: "Roof", points: 50 }]);
+
+  const lr = await api.listing.PATCH(req("/api/listings/listing-1", { method: "PATCH", body: JSON.stringify({ features: ["Sauna", 7] }) }));
+  assert.equal(lr.status, 200);
+  assert.deepEqual((await snap()).listings.find(l => l.id === "listing-1").features, ["Sauna"]);
 });
 
 test("crawl adds new listings, skips known ones, records source status", { skip }, async () => {

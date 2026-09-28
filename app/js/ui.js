@@ -1,7 +1,7 @@
 // Rendering. Pure functions of (state, view) -> HTML strings, plus the few
 // helpers the event handlers in main.js need. Nothing here talks to a
 // database; writes go through the store.
-import { GROUPS, DEFAULT_STATUSES, groupOf, rateMetric } from "./model.js";
+import { GROUPS, DEFAULT_STATUSES, groupOf, rateMetric, fit } from "./model.js";
 
 export const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
@@ -51,6 +51,14 @@ export function card(search, l, pendingIds) {
     const cls = rateMetric(m, v);
     return `<div class="metric"><span class="k">${esc(m.label)}</span><span class="v ${cls}">${esc(v)}${m.unit ? " " + esc(m.unit) : ""}</span></div>`;
   }).join("");
+  // Features that matter: the ones this listing has are lit and add points;
+  // tap a chip to mark it present or not (e.g. after a viewing).
+  const f = fit(search, l);
+  const has = new Set(f.matched.map(x => x.label));
+  const features = (search && search.features || []).map(x =>
+    `<button class="chip${has.has(x.label) ? " on" : ""}" type="button" data-feature="${esc(x.label)}" aria-pressed="${has.has(x.label)}" title="${has.has(x.label) ? "Has it" : "Not known to have it"}: tap to toggle">${has.has(x.label) ? "✓ " : ""}${esc(x.label)}${has.has(x.label) && x.points ? ` <span class="pts">${x.points > 0 ? "+" : ""}${esc(x.points)}</span>` : ""}</button>`
+  ).join("");
+  const scoreTitle = f.boost ? `${f.base} on the criteria ${f.boost > 0 ? "+" : "−"} ${Math.abs(f.boost)} for ${f.matched.map(x => x.label).join(", ")}` : "Fit score on the criteria";
   const opts = statuses.map(s => `<option${s.label === l.status ? " selected" : ""}>${esc(s.label)}</option>`).join("")
     + (l.status && !statuses.some(s => s.label === l.status) ? `<option selected>${esc(l.status)}</option>` : "");
   const quick = group === "shortlist"
@@ -59,7 +67,7 @@ export function card(search, l, pendingIds) {
   return `<article class="card${group === "archived" ? " archived" : ""}" data-id="${esc(l.id)}">
   <a class="photo${cover ? "" : " nophoto"}" href="${esc(l.url)}" target="_blank" rel="noopener" aria-label="Open listing">
     ${cover ? `<img src="${esc(photoSrc(cover))}" data-fallback="${esc(cover.url)}" alt="">` : `<span class="nophoto-label">No photos saved · open listing ↗</span>`}
-    ${l.score !== null && l.score !== undefined ? `<span class="score">${esc(l.score)} fit</span>` : ""}
+    ${f.total !== null ? `<span class="score" title="${esc(scoreTitle)}">${esc(f.total)} fit${f.boost ? ` <span class="boost">${f.boost > 0 ? "+" : "−"}${esc(Math.abs(f.boost))}</span>` : ""}</span>` : ""}
     ${l.status ? `<span class="pill g-${group}">${esc(l.status)}</span>` : ""}
     ${pendingIds.has(l.id) ? `<span class="pending" title="Saved on this device, waiting to upload">● not synced</span>` : ""}
   </a>
@@ -68,6 +76,7 @@ export function card(search, l, pendingIds) {
     <h3 class="title">${esc(l.title)}</h3>
     ${l.location ? `<p class="loc">${esc(l.location)}</p>` : ""}
     ${metrics ? `<div class="metrics">${metrics}</div>` : ""}
+    ${features ? `<div class="chips" aria-label="Features that matter">${features}</div>` : ""}
     ${l.summary ? `<p class="summary">${esc(l.summary)}</p>` : ""}
     ${rest.length ? `<div class="strip">${rest.map(p => `<img src="${esc(photoSrc(p))}" data-fallback="${esc(p.url)}" alt="" loading="lazy">`).join("")}</div>` : ""}
     ${l.description ? `<details class="more"><summary>Full listing description</summary><p>${esc(l.description)}</p></details>` : ""}

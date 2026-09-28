@@ -5,7 +5,7 @@
 // The token is a personal access token entered on this device and kept in
 // its localStorage. Scope it to data.records:read + data.records:write on
 // this one base.
-import { parseStatuses, parseMetrics, parseLinks } from "../model.js";
+import { parseStatuses, parseMetrics, parseLinks, parseFeatures, featuresText } from "../model.js";
 
 export const DEFAULTS = {
   tables: { searches: "Searches", listings: "Listings", sources: "Sources" },
@@ -13,12 +13,12 @@ export const DEFAULTS = {
     search: {
       name: "Name", lookingFor: "Looking for", budget: "Budget", area: "Area", timing: "Timing",
       state: "State", criteria: "Criteria", contactTemplate: "Contact template",
-      statuses: "Statuses", metrics: "Card metrics",
+      statuses: "Statuses", metrics: "Card metrics", features: "Features",
     },
     listing: {
       title: "Listing", search: "Search", price: "Price", score: "Fit score", status: "Status",
       notes: "Notes", url: "URL", location: "Location", description: "Description",
-      summary: "Summary", source: "Source", photos: "Photos",
+      summary: "Summary", source: "Source", photos: "Photos", features: "Features",
     },
     source: {
       name: "Name", search: "Search", access: "Access", links: "Search links",
@@ -90,6 +90,7 @@ export function create(config) {
           state: str(f[F.search.state]) || "Active", criteria: str(f[F.search.criteria]),
           contactTemplate: str(f[F.search.contactTemplate]),
           statuses: parseStatuses(f[F.search.statuses]), metrics: parseMetrics(f[F.search.metrics]),
+          features: parseFeatures(f[F.search.features]),
         };
       });
       const listings = l.map(r => {
@@ -101,7 +102,7 @@ export function create(config) {
           description: str(f[F.listing.description]), summary: str(f[F.listing.summary]),
           source: str(f[F.listing.source]),
           photos: (f[F.listing.photos] || []).map(a => ({ id: a.id, url: (a.thumbnails && a.thumbnails.large && a.thumbnails.large.url) || a.url })),
-          fields: f,
+          fields: f, features: Array.isArray(f[F.listing.features]) ? f[F.listing.features] : [],
         };
       });
       const sources = src.map(r => {
@@ -119,17 +120,19 @@ export function create(config) {
       const fields = {};
       if ("criteria" in patch) fields[F.search.criteria] = patch.criteria;
       if ("contactTemplate" in patch) fields[F.search.contactTemplate] = patch.contactTemplate;
+      if ("features" in patch) fields[F.search.features] = featuresText(patch.features);
       await request(encodeURIComponent(tables.searches), {
         method: "PATCH",
         body: JSON.stringify({ records: [{ id, fields }], typecast: true }),
       });
     },
 
-    // patch uses model keys (status, notes); only those two are written.
+    // patch uses model keys (status, notes, features); only those are written.
     async pushListing(id, patch) {
       const fields = {};
       if ("status" in patch) fields[F.listing.status] = patch.status;
       if ("notes" in patch) fields[F.listing.notes] = patch.notes;
+      if ("features" in patch) fields[F.listing.features] = patch.features;
       await request(encodeURIComponent(tables.listings), {
         method: "PATCH",
         body: JSON.stringify({ records: [{ id, fields }], typecast: true }),

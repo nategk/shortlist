@@ -82,6 +82,28 @@
      "good": null,
      "ok": null
     }
+   ],
+   "features": [
+    {
+     "label": "Garage",
+     "points": 3
+    },
+    {
+     "label": "Gym",
+     "points": 3
+    },
+    {
+     "label": "Hot tub",
+     "points": 3
+    },
+    {
+     "label": "Sauna",
+     "points": 3
+    },
+    {
+     "label": "Cold plunge",
+     "points": 3
+    }
    ]
   }
  ],
@@ -189,7 +211,8 @@
     "Subway line": "1/2/3 · 72 St",
     "Move-in": "Not stated — ask",
     "Neighborhood": "Lincoln Square"
-   }
+   },
+   "features": []
   },
   {
    "id": "listing-2",
@@ -238,7 +261,8 @@
     "Subway line": "A/C/E/L · 14 St-8 Av",
     "Move-in": "Now",
     "Neighborhood": "Chelsea / Village"
-   }
+   },
+   "features": []
   },
   {
    "id": "listing-3",
@@ -267,7 +291,8 @@
     "Subway line": "B/C · 72 St",
     "Move-in": "Listing removed Sep 28",
     "Neighborhood": "Lincoln Square"
-   }
+   },
+   "features": []
   },
   {
    "id": "listing-4",
@@ -348,7 +373,8 @@
     "Subway line": "1 · 18 St",
     "Move-in": "Oct 1",
     "Neighborhood": "Chelsea"
-   }
+   },
+   "features": []
   },
   {
    "id": "listing-5",
@@ -425,7 +451,10 @@
     "Subway line": "1 · 66 St",
     "Move-in": "ASAP",
     "Neighborhood": "Lincoln Square"
-   }
+   },
+   "features": [
+    "Gym"
+   ]
   },
   {
    "id": "listing-6",
@@ -454,7 +483,8 @@
     "Subway line": "1 · 18 St",
     "Move-in": "Now",
     "Neighborhood": "Chelsea"
-   }
+   },
+   "features": []
   },
   {
    "id": "listing-7",
@@ -515,7 +545,8 @@
     "Subway line": "1/2/3 · 96 St",
     "Move-in": "Late Nov / Dec 1",
     "Neighborhood": "Upper West Side"
-   }
+   },
+   "features": []
   },
   {
    "id": "listing-8",
@@ -568,7 +599,10 @@
     "Subway line": "7 · 34 St-HY",
     "Move-in": "Now",
     "Neighborhood": "Chelsea"
-   }
+   },
+   "features": [
+    "Gym"
+   ]
   },
   {
    "id": "listing-lb-404121",
@@ -592,7 +626,10 @@
     "Subway line": "1 · 66 St (bldg shuttle)",
     "Move-in": "Oct 1",
     "Neighborhood": "Lincoln Square"
-   }
+   },
+   "features": [
+    "Gym"
+   ]
   },
   {
    "id": "listing-lb-400679",
@@ -625,7 +662,11 @@
     "Subway line": "1/A/B/C/D · 59 St-Columbus Circle",
     "Move-in": "Now",
     "Neighborhood": "W 57th (Lincoln Sq edge)"
-   }
+   },
+   "features": [
+    "Gym",
+    "Garage"
+   ]
   },
   {
    "id": "listing-45w81",
@@ -649,6 +690,37 @@
     "Subway line": "B/C · 81 St–Museum of Natural History",
     "Move-in": "Oct 1",
     "Neighborhood": "UWS"
+   },
+   "features": [
+    "Gym"
+   ]
+  },
+  {
+   "id": "listing-lb-403693",
+   "searchIds": [
+    "search-west-side"
+   ],
+   "title": "160 Riverside Blvd — 727 sf 1BR, N/S exposure, doorman + gym + garage, on Riverside Park South, NO FEE",
+   "price": 4583,
+   "score": 78,
+   "status": "Shortlist",
+   "notes": "",
+   "url": "https://www.leasebreak.com/short-term-rental-details/403693/160-riverside-boulevard",
+   "location": "Lincoln Square · Riverside Blvd at W 68th–69th (Riverside South)",
+   "description": "Large 727 sq ft one-bedroom, double exposure (north + south), lots of storage: 2 double closets, 1 large single closet, 3 medicine cabinets. Big kitchen with stainless appliances, granite counters, dishwasher; king-size bedroom; oversized windows. Floor plan (Residence E, floors 3–8): living/dining 18' × 11'8\", bedroom 14'9\" × 12'.\n\nBuilding: 24-hr doorman, on-site super, elevator, new full-service gym with Pelotons, new business lounge, garage parking, laundry in building, dry cleaning/maid/tailoring on site, children's room, storage, bike storage. Weekday shuttle every ~20 min to the 72 St express station. Citi Bike across the street. Dog friendly. Managed by A&E Real Estate (1898leasing.com).\n\nSublease (tenant, landlord's permission) · no broker fee · tours + virtual tours · video: https://drive.google.com/file/d/14nPs2jYRBJzkzsUax9KKq7F45PRukMa4/view\n$4,583/mo net after concessions (gross $5,000) · move-in Oct 1, 2026 · move-out Aug 31, 2027 (11 months). Or a new 12-month lease direct with the landlord at $5,000/mo.\nExtra: amenity fee $45/mo; utility share (boiler, water, sewer, admin) ~$60–70/mo; electric by usage; bike storage $25/mo, storage $200/mo (optional). Application $20; first month + 1 month deposit. Pets: $100–200 one-time + $25–50/mo.",
+   "summary": "Strong all-rounder: Riverside Park South and the greenway at the door, a real 727 sf 1BR with two exposures, and a full-service building with gym, garage and bike room. The miss is the subway: ~0.45 mi to the 72 St 1/2/3 (weekday shuttle helps, not at night). $4,583 net on the 11-month sublease is well inside budget; add ~$130/mo in fees. Ask: renewal after Aug 2027, which floor, bike room waitlist. Score 78 (greenway 25 · subway 3 · price 12 · 1BR 15 · Oct 1 10 · building 10 · light 4 · +2 bike room · +2 no fee · −5 subway), +6 Gym/Garage = 84.",
+   "source": "LeaseBreak",
+   "photos": [],
+   "features": [
+    "Gym",
+    "Garage"
+   ],
+   "fields": {
+    "Greenway (mi)": 0.1,
+    "Subway (mi)": 0.45,
+    "Subway line": "1/2/3 · 72 St (bldg shuttle)",
+    "Move-in": "Oct 1",
+    "Neighborhood": "Lincoln Square"
    }
   }
  ],
