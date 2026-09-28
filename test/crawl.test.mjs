@@ -60,11 +60,13 @@ test("crawl adds new listings, skips known ones, records source status", { skip 
         items: [
           [1, 0, 1, 4200, "1:0~40.7870~-73.9790", "x", [13, "a"], "Sunny 1BR on W 82nd", [6, "sunny-1br-w82"]],
           // same title as an existing listing -> skipped without a fetch
+          // repost of the W 82nd unit under a new title -> fetched, then skipped by body text
+          [3, 0, 1, 4200, "1:0~40.7870~-73.9790", "x", [13, "c"], "GORGEOUS 1BR W 82nd no fee", [6, "gorgeous-w82"]],
           [2, 0, 1, 4850, "1:0~40.7781~-73.9843", "x", [13, "b"], "267 W 70th St #6E — jumbo corner 1BR, prewar elevator bldg", [6, "dupe"]],
         ] } });
     }
-    if (url.includes("/sunny-1br-w82/7000000001.html")) {
-      return new Response(`<html><section id="postingbody">Big 1BR, elevator, near the 1 train.</section>
+    if (url.includes("/sunny-1br-w82/7000000001.html") || url.includes("/gorgeous-w82/7000000003.html")) {
+      return new Response(`<html><section id="postingbody">Big 1BR, elevator, near the 1 train. Sunny, quiet, renovated kitchen and bath, laundry in the building, pets ok.</section>
         <div id="map" data-latitude="40.7870" data-longitude="-73.9790" data-accuracy="10"></div>
         <img src="https://images.craigslist.org/00a0a_abc_600x450.jpg"></html>`, { status: 200 });
     }
@@ -85,7 +87,7 @@ test("crawl adds new listings, skips known ones, records source status", { skip 
     assert.match(added.description, /Big 1BR/);
     const cl = s.sources.find(x => x.crawler === "craigslist");
     assert.equal(cl.lastStatus, "ok");
-    assert.match(cl.lastResult, /2 found · 1 new · 1 worth a look · 1 added/);
+    assert.match(cl.lastResult, /3 found · 2 new · 2 worth a look · 1 added · 1 repost skipped/);
 
     // Rate limit: a second crawl right away is refused.
     const again = await api.crawl.POST(req("/api/crawl", { method: "POST", body: JSON.stringify({ searchId: "search-west-side" }) }));
