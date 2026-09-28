@@ -158,6 +158,9 @@ source with a `crawler` (`lib/crawlers/`: `craigslist`, `listingsproject`):
    "review" status.
 5. The source records `last_run_at`, `last_status` (ok / blocked / error) and
    a one-line result, shown in the UI.
+6. Any photo on the search's board not yet in Blob (a failed copy, an import
+   made without Blob) is copied now; what doesn't fit before the deadline is
+   retried next run. The UI reports saved / failed / left.
 
 One crawl per search per 10 minutes (the endpoint is public). Scoring needs
 `ANTHROPIC_API_KEY`; without it listings are added unscored. Sites that
