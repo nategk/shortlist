@@ -84,7 +84,7 @@ The search decides how its listings look:
   `good < ok`). The West Side hunt shows Greenway and Subway distance; a bike
   search might show frame size and weight.
 - **Features that matter**: attributes worth a bonus (the West Side hunt:
-  garage, gym, hot tub, sauna, cold plunge; +3 each), edited in the app as
+  garage, gym, hot tub, sauna, cold plunge, outdoor space; +3 each), edited in the app as
   `Label | points` lines. Cards show them as chips, lit when the listing
   has one; tapping a chip toggles it. The fit score shown and sorted on is
   `score` (the criteria's rubric) plus the lit features' points. Crawls ask
