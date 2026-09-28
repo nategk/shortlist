@@ -1,12 +1,12 @@
-# Publishes read-only galleries for everything under searches/ to GitHub Pages.
+# Publishes the Shortlist app (app/) and legacy read-only galleries to GitHub Pages.
 # One-time setup: repo Settings -> Pages -> Build and deployment -> Source:
 # "GitHub Actions".
-name: Publish galleries
+name: Publish site
 
 on:
   push:
     branches: [main]
-    paths: ["searches/**", "generate_gallery.py", "build_site.py", "project_dir.py", ".github/workflows/pages.yml"]
+    paths: ["app/**", "searches/**", "generate_gallery.py", "build_site.py", "project_dir.py", ".github/workflows/pages.yml"]
   workflow_dispatch:
 
 permissions:

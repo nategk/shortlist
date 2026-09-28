@@ -1,0 +1,15 @@
+{
+  "name": "shortlist",
+  "private": true,
+  "type": "module",
+  "description": "Offline-first triage board for any big decision. Static UI + Vercel functions + Postgres.",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@vercel/blob": "^2.8.0",
+    "pg": "^8.23.0"
+  }
+}

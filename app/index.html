@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shortlist</title>
+<meta name="theme-color" content="#127a5a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <span class="brand">Shortlist</span>
+    <button class="source-pill" id="source-pill" type="button" aria-label="Data source settings">
+      <i class="dot" id="source-dot"></i><span id="source-name">Loading…</span><span class="kind" id="source-kind"></span>
+    </button>
+  </div>
+
+  <header class="search">
+    <div class="eyebrow" id="eyebrow"></div>
+    <h1 id="title-wrap"></h1>
+    <p class="brief" id="brief"></p>
+    <div class="sync-line" id="sync" role="status"></div>
+  </header>
+
+  <nav class="tabs" id="tabs" aria-label="Filter listings"></nav>
+  <main class="grid" id="grid"></main>
+
+  <section class="panel" id="criteria-panel" hidden>
+    <details class="more"><summary>Criteria</summary><pre class="text" id="criteria"></pre></details>
+    <details class="more"><summary>Contact template</summary><pre class="text" id="contact"></pre>
+      <div class="actions"><button class="btn" type="button" id="copy-contact">Copy template</button></div></details>
+  </section>
+
+  <section class="panel" id="sources-panel" hidden>
+    <h2>Sources</h2>
+    <ul class="rows" id="sources"></ul>
+  </section>
+</div>
+
+<dialog id="settings">
+  <form method="dialog" id="settings-form">
+    <h2>Data source</h2>
+    <label>Type
+      <select id="set-adapter"></select>
+    </label>
+    <div id="set-fields" style="display:grid;gap:12px"></div>
+    <p class="hint" id="set-hint"></p>
+    <div class="row">
+      <button class="btn" type="button" id="set-clear">Clear offline copy</button>
+      <span style="display:flex;gap:8px">
+        <button class="btn" value="cancel" formnovalidate>Cancel</button>
+        <button class="btn primary" value="save" id="set-save">Connect</button>
+      </span>
+    </div>
+  </form>
+</dialog>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

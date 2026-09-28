@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Build the public static site (GitHub Pages) from every project under
-searches/: a read-only gallery per search at _site/<name>/, its cached
-photos alongside, and an index page linking them. Run locally to preview
-(`python3 build_site.py && python3 -m http.server -d _site`); CI runs it on
-every push to main (.github/workflows/pages.yml)."""
+"""Build the public static site (GitHub Pages):
+- the Shortlist app (app/) at the site root, and
+- a read-only legacy gallery per searches/<name>/ at _site/galleries/<name>/.
+Run locally to preview (`python3 build_site.py && python3 -m http.server -d _site`);
+CI runs it on every push to main (.github/workflows/pages.yml)."""
 import html
 import os
 import shutil
@@ -20,10 +20,12 @@ SITE = APP_DIR / "_site"
 def main():
     if SITE.exists():
         shutil.rmtree(SITE)
-    SITE.mkdir()
+    shutil.copytree(APP_DIR / "app", SITE)
+    galleries = SITE / "galleries"
+    galleries.mkdir()
     entries = []
     for proj in sorted(p for p in SEARCHES.iterdir() if (p / "listings.db").exists()):
-        out = SITE / proj.name
+        out = galleries / proj.name
         env = {**os.environ, "SHORTLIST_PROJECT": str(proj)}
         subprocess.run(
             [sys.executable, str(APP_DIR / "generate_gallery.py"), "--read-only", "--out", str(out / "index.html")],
@@ -40,7 +42,7 @@ def main():
         f'<li><a href="{html.escape(name)}/">{html.escape(title)}</a> <span>{count} listings</span></li>'
         for name, title, count in entries
     )
-    (SITE / "index.html").write_text(f"""<!DOCTYPE html>
+    (galleries / "index.html").write_text(f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Shortlist</title>
@@ -59,7 +61,7 @@ def main():
 """, encoding="utf-8")
     # Pages serves files as-is; skip Jekyll processing.
     (SITE / ".nojekyll").write_text("")
-    print(f"Built {SITE} with {len(entries)} search(es)")
+    print(f"Built {SITE}: app at /, {len(entries)} legacy gallery(ies) at /galleries/")
 
 
 if __name__ == "__main__":

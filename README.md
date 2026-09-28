@@ -1,12 +1,66 @@
 # Shortlist
 
 Track and score candidates for any big purchase decision — an apartment, a
-bike, a car, whatever's next — against your own criteria, in one gallery
-board per project.
+bike, a car, whatever's next — against your own criteria.
 
-This repo is a generic engine. It has no idea what you're shopping for.
+This repo is a generic engine. It has no idea what you're shopping for:
+each search (criteria, statuses, listings, photos, sources) lives in your
+own database.
 
-## The app (this repo)
+## The app
+
+A fast, offline-first triage board you open from any device. It's a Vercel
+app: static UI (`app/`) + small API functions (`api/`) + Postgres. Edits
+apply instantly, save offline, and sync in the background; every photo is
+cached on the device and stored permanently in Vercel Blob.
+
+### Deploy your own (about 5 minutes)
+
+1. **Import the repo** at [vercel.com/new](https://vercel.com/new) (sign in
+   with GitHub, pick your fork). Keep the defaults; there's no build step.
+2. **Add storage**: in the project, Storage → Create → **Neon (Postgres)**,
+   then Storage → Create → **Blob**. Connect both to the project. This sets
+   `DATABASE_URL` and `BLOB_READ_WRITE_TOKEN` for you.
+3. **Set an admin token**: Settings → Environment Variables →
+   `ADMIN_TOKEN` = any long random string (16+ characters). It's only needed
+   to import data; keep it private.
+4. **Redeploy** (Deployments → ⋯ → Redeploy) so the functions see the new
+   variables.
+5. **Load data**, from your own terminal:
+   ```sh
+   curl -X POST -H "Authorization: Bearer $ADMIN_TOKEN" https://YOUR-APP.vercel.app/api/admin/import
+   ```
+   With no body this loads the bundled demo search (and copies its photos
+   into Blob). POST a snapshot JSON body (`{searches, listings, sources}`) to
+   load your own.
+
+Open `https://YOUR-APP.vercel.app` on any device. The pill in the header
+shows which database is live.
+
+**Access model:** the site and triage (status, notes) are open to anyone
+with the link; nothing else is writable from the browser. Database, Blob
+and admin credentials exist only as Vercel environment variables.
+
+### Run locally
+
+```sh
+npm install
+npm run dev                                   # demo data, read-only
+DATABASE_URL=postgres://user:pass@localhost/shortlist npm run dev   # real Postgres
+npm test                                      # API tests (need DATABASE_URL)
+```
+
+### Other databases
+
+The server picks its backend from env vars: Postgres when `DATABASE_URL`
+is set, or Airtable with `AIRTABLE_TOKEN` + `AIRTABLE_BASE_ID`
+(`SHORTLIST_BACKEND` forces one). The browser can also connect to Airtable
+directly, or to a JSON snapshot, from the data-source dialog.
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the layers, the data model, the
+Airtable schema and how to add an adapter for another database.
+
+## Python engine (older, still works)
 
 - `add_listing.py` — CLI to add one candidate, score it, and regenerate the
   gallery.
@@ -85,14 +139,9 @@ structured data), so real worked examples are published as-is:
 
 ## Public site (GitHub Pages)
 
-`build_site.py` renders a read-only gallery for every project under
-`searches/` (`generate_gallery.py --read-only`: no edit controls, no
-`serve.py` calls) into `_site/`, with an index page. The
-`.github/workflows/pages.yml` workflow runs it and deploys to GitHub Pages
-on every push to `main` that touches `searches/` or the renderer. One-time
-setup: Settings → Pages → Source: **GitHub Actions**. Triage still happens
-locally (`serve.py`) or wherever you edit status/notes; the public page
-refreshes on the next push.
+`build_site.py` copies `app/` to the site root and renders a read-only
+legacy gallery for every `searches/<name>/` under `/galleries/`.
+`.github/workflows/pages.yml` runs it on every push to `main`.
 
 ## searches/
 

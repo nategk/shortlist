@@ -1,0 +1,774 @@
+{
+ "searches": [
+  {
+   "id": "search-west-side",
+   "name": "West Side 1BR Hunt",
+   "lookingFor": "1BR+ rental near the Hudson River Greenway, ≤2 blocks to the subway",
+   "budget": "$3,500–$5,500/mo",
+   "area": "Lincoln Square · lower/mid UWS · Chelsea",
+   "timing": "Lease start Oct 1, 2026",
+   "state": "Active",
+   "criteria": "## Context\nLease starting **October 1, 2026** (acceptable window: available now through\n~Oct 15). Bike is the primary way around town, so the Hudson River Greenway /\nWest Side Highway path is the spine of daily life; the subway is the backup\nfor weather and late nights.\n\n## Budget\n- $3,500–$4,500 — great\n- $4,500–$5,000 — good\n- $5,000–$5,500 — ok, needs to earn it\n- $5,500+ — out of range unless exceptional (and no fee)\n\nNYC FARE Act (in force since June 2025): a broker hired by the landlord can't\ncharge the tenant a fee. Treat \"tenant pays broker fee\" on a landlord listing\nas a flag, not a cost of doing business.\n\n## Unit\n- **1 bedroom minimum.** A true 1BR — separate, windowed bedroom with a door.\n- Junior 1BR / \"flex 1\" / alcove studio / convertible = not a 1BR; hard pass\n  unless it's clearly a real wall-and-door bedroom.\n- Studios are out.\n\n## Location (must-have)\nTarget zones, in no particular order:\n1. **Lincoln Square** — W 59th–W 72nd, west of Central Park West.\n2. **Lower/mid UWS** — W 72nd–W ~96th, west of Central Park West.\n3. **Chelsea** — W 14th–W 30th, west of 6th Ave.\n\nTwo hard constraints on top of the zone:\n- **Close to the West Side Highway / Hudson River Greenway.** Measured as\n  straight-line distance to the greenway corridor.\n- **Within a couple of blocks of a subway entrance.** ~0.15 mi or less is\n  ideal; beyond ~0.25 mi fails the must-have.\n\n## Deal-breakers / red flags\n- Move-in later than ~Oct 15.\n- Outside the three zones (Hell's Kitchen / Hudson Yards / West Village are\n  near-misses: note them, don't score them up).\n- \"Model pictures represent finishes\" — photos aren't the actual unit.\n- The same agent template reused across listings with contradictory details\n  (e.g. a West 28th St pin whose copy describes NoMad) — flag and score low.\n- Rent far below comparable market for the block — treat as a scam signal.\n- Any request for a deposit/application money before a viewing.\n\n## Scoring rubric (100 pts + modifiers)\n\n| Category | Weight | What earns the points |\n|---|---|---|\n| Greenway / WSH proximity | 25 | ≤0.30 mi: 25 · ≤0.50: 20 · ≤0.75: 12 · farther: 5 |\n| Subway within ~2 blocks | 20 | ≤0.12 mi: 20 · ≤0.20: 16 · ≤0.25: 10 · farther: 3 |\n| Price | 15 | ≤$4,500: 15 · ≤$5,000: 12 · ≤$5,500: 8 |\n| True 1BR | 15 | Real 1BR: 15 · jr/flex: 6 · studio: 0 (hard pass) |\n| Oct 1 move-in | 10 | Available now/Oct 1: 10 · unconfirmed: 6 · by Oct 15: 6 · later: 0 |\n| Building | 10 | Elevator, laundry, doorman/package handling, bike storage |\n| Light & character | 5 | Exposure, ceilings, prewar detail, architecture that's actually good |\n\n### Modifiers\n- +3 washer/dryer in unit\n- +2 bike room / bike storage explicitly offered\n- +2 no fee / tenant-friendly move-in costs (first + security only)\n- −3 walk-up above 2nd floor (daily bike carry)\n- −5 must-have miss: subway farther than ~0.25 mi\n- −5 must-have miss: greenway farther than ~0.75 mi\n- −5 model photos / unverified unit\n- −10 inconsistent reused-template listing\n- −20 outside the Oct 1 move-in window\n\n## Status flow\n`new` → `flagged` (worth contacting) → `contacted` → `replied` →\n`negotiating` → `viewing_scheduled` → `viewed` → `offer_made` → `purchased`\n(= lease signed)\n\nArchive: `no_go`, `rejected`, `sold_elsewhere` (rented), `scam_suspected`\n\n## Sort order\nBoard sorted by `fit_score` descending.\n",
+   "contactTemplate": "Hi — I'm interested in [ADDRESS / UNIT] listed at $[PRICE]. I'm looking for an October 1 lease start...",
+   "statuses": [
+    {
+     "label": "New",
+     "group": "review"
+    },
+    {
+     "label": "Shortlist",
+     "group": "shortlist"
+    },
+    {
+     "label": "Contacted",
+     "group": "active"
+    },
+    {
+     "label": "Replied",
+     "group": "active"
+    },
+    {
+     "label": "Viewing booked",
+     "group": "active"
+    },
+    {
+     "label": "Viewed",
+     "group": "active"
+    },
+    {
+     "label": "Applied",
+     "group": "active"
+    },
+    {
+     "label": "Lease signed",
+     "group": "done"
+    },
+    {
+     "label": "Passed",
+     "group": "archived"
+    },
+    {
+     "label": "Landlord passed",
+     "group": "archived"
+    },
+    {
+     "label": "Rented",
+     "group": "archived"
+    },
+    {
+     "label": "Scam suspected",
+     "group": "archived"
+    }
+   ],
+   "metrics": [
+    {
+     "field": "Greenway (mi)",
+     "label": "Greenway",
+     "unit": "mi",
+     "good": 0.3,
+     "ok": 0.6
+    },
+    {
+     "field": "Subway (mi)",
+     "label": "Subway",
+     "unit": "mi",
+     "good": 0.15,
+     "ok": 0.25
+    },
+    {
+     "field": "Move-in",
+     "label": "Move-in",
+     "unit": "",
+     "good": null,
+     "ok": null
+    }
+   ]
+  }
+ ],
+ "listings": [
+  {
+   "id": "listing-1",
+   "searchIds": [
+    "search-west-side"
+   ],
+   "title": "267 W 70th St #6E — jumbo corner 1BR, prewar elevator bldg",
+   "price": 4850,
+   "score": 92,
+   "status": "Shortlist",
+   "notes": "",
+   "url": "https://www.craigslist.org/view/d/new-york-rare-massive-uws-1br-corner/pRhVruQxqRgNAhxCoBou52",
+   "location": "Lincoln Square · W 70th btw West End & Amsterdam",
+   "description": "THIS IS IT!!! Better Than Anything You Will Find on StreetEasy or Zillow\n\nPresenting Unit 6E Listing:\n\nRare Dual Exposure Jumbo 1BR Corner Unit in Video Intercom Elevator/Laundry Bldg\n\n*Recorded Video of Actual Apartment Available Upon Request*\n\nClassic Prewar Details & Old World Charm With Modern Finishes\n\nEntry Foyer Leads to Oversize Living Room Larger Than Many Studios\n\nHuge Bedroom Fits King Bed + Desk + Dresser\n\nNewly Renovated Windowed Eat-In Kitchen w/ Dining Alcove\n\n(Custom Cabinetry, Stone Counters, New Appliances incl Dishwasher)\n\nWindowed Modern White Tile Bathroom\n\nAbundant Storage Space – 3 Large Walk-In Closets\n\nBoutique Video Intercom Elevator Building w/ Laundry Room & Live-In Super\n\n72nd Street Subway Entrance & Starbucks Around Corner\n\nParking Garage & CVS/Pharmacy Across Street\n\nPrime UWS Lincoln Square Location Steps to Trader Joes, Restaurants, Cafes, Central Park\n\nMost Pets Permitted w/ Landlord Consent\n\nShowings By Appointment Only - Email/Call/Text (Call or Text For Fastest Response)\n\nTotal Tenant Paid Costs/Fees on This Listing:\n\n$20 Non-Refundable Application Fee Per Applicant\n\nFirst Month Rent + Security Deposit (Equal To 1 Month Rent) Due At Lease Signing\n\nDisclaimers: All information is from sources deemed reliable but not guaranteed and subject to change without notice. Lawful conditions may apply; contact us for full details. Apartment will be rented unfurnished and images may be virtually staged. Landlord paid utilities are heat and water (tenant paid utilities are cooking gas and electricity). EQUAL HOUSING OPPORTUNITY. © 2013-2026. Kiess Realty, L.L.C. All Rights Reserved. Listed By: Kiess Realty, L.L.C., Licensed Real Estate Broker (N.Y./Fla.), 701 Brickell Ave., Ste. 1550, Miami, Fla. 33131-2824",
+   "summary": "Top pick. Hits both must-haves cleanly: Riverside Park South a short ride west, 1/2/3 express at 72nd around the corner. Move-in date not stated — confirm Oct 1. Reposted at $5,000 earlier; newer post is $4,850, so ask which is current. Costs: $20 app fee + first + security, no fee listed. Video of the actual unit available on request.",
+   "source": "Craigslist",
+   "photos": [
+    {
+     "id": "cl-00202_5U75xapFdKk_0lM0t2",
+     "url": "https://images.craigslist.org/00202_5U75xapFdKk_0lM0t2_1200x900.jpg"
+    },
+    {
+     "id": "cl-00a0a_ksb0NHkUPu2_0CI0t2",
+     "url": "https://images.craigslist.org/00a0a_ksb0NHkUPu2_0CI0t2_1200x900.jpg"
+    },
+    {
+     "id": "cl-00C0C_bPmW9By7j8T_0CI0t2",
+     "url": "https://images.craigslist.org/00C0C_bPmW9By7j8T_0CI0t2_1200x900.jpg"
+    },
+    {
+     "id": "cl-00B0B_jU4Rd5AkruD_0CI0t2",
+     "url": "https://images.craigslist.org/00B0B_jU4Rd5AkruD_0CI0t2_1200x900.jpg"
+    },
+    {
+     "id": "cl-00Z0Z_lTLrS4tSfuk_0CI0t2",
+     "url": "https://images.craigslist.org/00Z0Z_lTLrS4tSfuk_0CI0t2_1200x900.jpg"
+    },
+    {
+     "id": "cl-00V0V_hTTjyCAJznZ_0CI0t2",
+     "url": "https://images.craigslist.org/00V0V_hTTjyCAJznZ_0CI0t2_1200x900.jpg"
+    },
+    {
+     "id": "cl-00F0F_ghAqp3mb2RG_0CI0t2",
+     "url": "https://images.craigslist.org/00F0F_ghAqp3mb2RG_0CI0t2_1200x900.jpg"
+    },
+    {
+     "id": "cl-00w0w_eKIqtleKmfQ_0CI0t2",
+     "url": "https://images.craigslist.org/00w0w_eKIqtleKmfQ_0CI0t2_1200x900.jpg"
+    },
+    {
+     "id": "cl-00L0L_1j88RhvHr7x_0CI0t2",
+     "url": "https://images.craigslist.org/00L0L_1j88RhvHr7x_0CI0t2_1200x900.jpg"
+    },
+    {
+     "id": "cl-00303_cESVpn3TtSY_0CI0t2",
+     "url": "https://images.craigslist.org/00303_cESVpn3TtSY_0CI0t2_1200x900.jpg"
+    },
+    {
+     "id": "cl-00a0a_2c6WBvWItaY_0CI0t2",
+     "url": "https://images.craigslist.org/00a0a_2c6WBvWItaY_0CI0t2_1200x900.jpg"
+    },
+    {
+     "id": "cl-00Y0Y_9UM6YbdeKtC_0lM0t2",
+     "url": "https://images.craigslist.org/00Y0Y_9UM6YbdeKtC_0lM0t2_1200x900.jpg"
+    },
+    {
+     "id": "cl-00U0U_2XKfDVXSh9M_0lM0t2",
+     "url": "https://images.craigslist.org/00U0U_2XKfDVXSh9M_0lM0t2_1200x900.jpg"
+    },
+    {
+     "id": "cl-00W0W_hsY4qLTCuQt_0lM0t2",
+     "url": "https://images.craigslist.org/00W0W_hsY4qLTCuQt_0lM0t2_1200x900.jpg"
+    },
+    {
+     "id": "cl-00s0s_6YlHjVuYxbH_0lM0t2",
+     "url": "https://images.craigslist.org/00s0s_6YlHjVuYxbH_0lM0t2_1200x900.jpg"
+    },
+    {
+     "id": "cl-00303_jcctWdwkmEa_0lM0t2",
+     "url": "https://images.craigslist.org/00303_jcctWdwkmEa_0lM0t2_1200x900.jpg"
+    },
+    {
+     "id": "cl-00J0J_bxX2VcvfbMN_0lM0t2",
+     "url": "https://images.craigslist.org/00J0J_bxX2VcvfbMN_0lM0t2_1200x900.jpg"
+    },
+    {
+     "id": "cl-00n0n_93kHBILljpL_0lM0t2",
+     "url": "https://images.craigslist.org/00n0n_93kHBILljpL_0lM0t2_1200x900.jpg"
+    },
+    {
+     "id": "cl-00j0j_7YxTyUCUPgX_0lM0t2",
+     "url": "https://images.craigslist.org/00j0j_7YxTyUCUPgX_0lM0t2_1200x900.jpg"
+    },
+    {
+     "id": "cl-00J0J_aUxq58EFq2y_0lM0t2",
+     "url": "https://images.craigslist.org/00J0J_aUxq58EFq2y_0lM0t2_1200x900.jpg"
+    }
+   ],
+   "fields": {
+    "Greenway (mi)": 0.29,
+    "Subway (mi)": 0.12,
+    "Subway line": "1/2/3 · 72 St",
+    "Move-in": "Not stated — ask",
+    "Neighborhood": "Lincoln Square"
+   }
+  },
+  {
+   "id": "listing-2",
+   "searchIds": [
+    "search-west-side"
+   ],
+   "title": "234 W 14th St — renovated 1BR, W/D in unit, NO FEE",
+   "price": 5295,
+   "score": 88,
+   "status": "Shortlist",
+   "notes": "",
+   "url": "https://www.craigslist.org/view/d/new-york-no-fee-d-in-unit-exposed-brick/v1f9qJPmQL7cc6aLboQFhZ",
+   "location": "Chelsea/Village line · W 14th btw 7th & 8th",
+   "description": "BUILDING & UNIT FEATURES\n\n Elevator\n\n Virtual Doorman\n\n NO FEE\n\n Renovated\n\n Granite Kitchen\n\n Stainless Steel Appliances\n\n Microwave\n\n Dishwasher\n\n Marble Bath\n\n Laundry In Unit\n\n Hardwood\n\n High Ceilings\n\n \n\n234 W 14TH ST (BETWEEN 7TH AVE & 8TH AVE)\n\nBeautifully renovated 1 bedroom apartment features a granite kitchen with dishwasher, washer & dryer, and a marble bathroom. Unit is accented by hardwood floors and exposed brick.\n\nLocated just steps from the West Village, Chelsea and Meatpacking Districts it is just seconds from some of the city's best shopping, nightlife and restaurants. Less than a block to public transportation including the L, 1, 2, 3, A, C, and E subway lines in addition to the 14th Street crosstown bus.\n\nPlease call Ramón for access. 212-810-2786",
+   "summary": "Best transit of the lot (A/C/E/L/1/2/3 within a block) and W/D in unit. Caveats: even-numbered = south side of 14th, so technically West Village, and it's on a loud crosstown bus street — ask about unit orientation (rear-facing?). Upper end of budget. Call Ramón 212-810-2786.",
+   "source": "Craigslist",
+   "photos": [
+    {
+     "id": "cl-00J0J_4hI22PggHN6_0gw0b2",
+     "url": "https://images.craigslist.org/00J0J_4hI22PggHN6_0gw0b2_1200x900.jpg"
+    },
+    {
+     "id": "cl-00a0a_g6fsN8T46UC_0gw0b1",
+     "url": "https://images.craigslist.org/00a0a_g6fsN8T46UC_0gw0b1_1200x900.jpg"
+    },
+    {
+     "id": "cl-00G0G_2CEdtD9tvRi_08g0co",
+     "url": "https://images.craigslist.org/00G0G_2CEdtD9tvRi_08g0co_1200x900.jpg"
+    },
+    {
+     "id": "cl-00b0b_hCg5rg8KgqZ_08g0co",
+     "url": "https://images.craigslist.org/00b0b_hCg5rg8KgqZ_08g0co_1200x900.jpg"
+    },
+    {
+     "id": "cl-00m0m_b4I8Xt9hj2M_08g0co",
+     "url": "https://images.craigslist.org/00m0m_b4I8Xt9hj2M_08g0co_1200x900.jpg"
+    },
+    {
+     "id": "cl-00m0m_kEGZxx3Yo5y_08f0co",
+     "url": "https://images.craigslist.org/00m0m_kEGZxx3Yo5y_08f0co_1200x900.jpg"
+    }
+   ],
+   "fields": {
+    "Greenway (mi)": 0.43,
+    "Subway (mi)": 0.07,
+    "Subway line": "A/C/E/L · 14 St-8 Av",
+    "Move-in": "Now",
+    "Neighborhood": "Chelsea / Village"
+   }
+  },
+  {
+   "id": "listing-3",
+   "searchIds": [
+    "search-west-side"
+   ],
+   "title": "Prewar doorman 1BR off CPW — 10' beamed ceilings, skylight, NO FEE",
+   "price": 5400,
+   "score": 82,
+   "status": "Rented",
+   "notes": "",
+   "url": "https://www.craigslist.org/view/d/new-york-sunny-south-facing-renovated/3922en6rrQyH3m9uwmMRf8",
+   "location": "Lincoln Square/UWS · ~W 70s off Central Park West (exact address not given)",
+   "description": "",
+   "summary": "Most character of the group (skylight, beamed 10' ceilings, south light, doorman). Loses points on the West Side Hwy constraint — CPW side is ~4 long avenue blocks from Riverside Park; it's a crosstown ride on W 72nd, not a roll-out-the-door greenway. Map pin is approximate: get the address. BOND NY / José Xavier Chavez (917) 859-3992.",
+   "source": "Craigslist",
+   "photos": [
+    {
+     "id": "repo-3",
+     "url": "https://raw.githubusercontent.com/nategk/shortlist/main/searches/nyc-rental/photos/3.jpg"
+    }
+   ],
+   "fields": {
+    "Greenway (mi)": 0.63,
+    "Subway (mi)": 0.14,
+    "Subway line": "B/C · 72 St",
+    "Move-in": "Listing removed Sep 28",
+    "Neighborhood": "Lincoln Square"
+   }
+  },
+  {
+   "id": "listing-4",
+   "searchIds": [
+    "search-west-side"
+   ],
+   "title": "XL prewar 1BR, south Chelsea brownstone block — NO FEE, available Oct 1",
+   "price": 5500,
+   "score": 78,
+   "status": "Passed",
+   "notes": "",
+   "url": "https://www.craigslist.org/view/d/new-york-no-fee-lovely-xl-1br-prime/h1Q1WTF52ZLp9vKGzZTGEu",
+   "location": "South Chelsea · ~W 15th–17th near 7th Ave (exact address not given)",
+   "description": "NO BROKER FEE\n\nBRAND NEW TO MARKET\n\nAVAILABLE OCT 1\n\nCHARMING AND SUNNY\n\nSPACIOUS LAYOUT\n\nMINT RENO\n\nCHEF'S KITCHEN\n\nHIGH CEILINGS\n\nCLASSIC PREWAR DIMENSIONS\n\nELEVATOR \n\nLAUNDRY \n\nFULL SERVICE DOORMAN BUILDING \n\nSUPER PRIME TREE LINED BROWNSTONE BLOCK \n\nENDLESSLY CONVENIENT SOUTH CHELSEA LOCATION STEPS TO MULTIPLE SUBWAY LINES, TOP NOTCH DINING, RETAIL AND NIGHTLIFE\n\nPETS WELCOME \n\nEXCELLENT LANDLORD \n\nVIDEO OF APARTMENT LAYOIT HERE:\n\nhttps://youtube.com/shorts/Rhb3CXStYzw?is=lByMJlXa1WeHBGdH\n\nVIDEO OF BLOCK HERE:\n\nhttps://youtube.com/shorts/yu3bELqQlpM?is=foJ0Pd1nG9riH_-S\n\nTEXT PAM AT 516.262.3693 TO SCHEDULE A VIRTUAL OR IN PERSON VIEWING \n\nImmaculate condition, modern renovation with generous pre-war dimensions, cheerful, bright and warm. Great vibes. Fabulous chef's kitchen. Good closet space, room to unwind. Bright all day and quiet too! Super prime location in south Chelsea steps to multiple trains.\n\nLive the dream in this endlessly convenient location among all the best dining, retail, theaters, and nightlife in Manhattan's highly desirable Lower West Side.\n\nThis is a convenient residential NYC neighborhood with tons of supermarkets, drycleaners, hardware stores, take-out spots, 24 hr bodegas, etc. Easy walking distance to West Village, Soho, Tribeca, Union Square, Nolita, Little Italy, Flatiron, etc.\n\nHighly reputable local landlord requires one month rent and one month security and qualified US based personal guarantors are accepted as needed.\n\nWe are a five star rated local realtor specializing in the areas we know and love best, happy to help our clients successfully navigate competitive markets.\n\nThe landlord requires that we ask prospective tenants a few questions before showing the unit, text 516.262.3693 for immediate response, otherwise if you need to email please add a US contact number. Thank you!\n\nCheers,\n\nPam and Julia \n\n516.262.3693",
+   "summary": "Only listing that explicitly says available Oct 1. Top of budget. Pin is approximate (Craigslist accuracy 22) — confirm block and which avenue before a viewing; 8th Ave side would push this up. Video tour links in the post. Posted 4x by the same agent (Pam, 516-262-3693) — volume reposting, not a scam template (details are consistent and specific).",
+   "source": "Craigslist",
+   "photos": [
+    {
+     "id": "cl-00t0t_7cqiIgrLOb7_0LE11w",
+     "url": "https://images.craigslist.org/00t0t_7cqiIgrLOb7_0LE11w_1200x900.jpg"
+    },
+    {
+     "id": "cl-00s0s_6iEWQ7N3aDM_0K90Zy",
+     "url": "https://images.craigslist.org/00s0s_6iEWQ7N3aDM_0K90Zy_1200x900.jpg"
+    },
+    {
+     "id": "cl-00x0x_5wnZGLUevWd_0Mo12w",
+     "url": "https://images.craigslist.org/00x0x_5wnZGLUevWd_0Mo12w_1200x900.jpg"
+    },
+    {
+     "id": "cl-00B0B_ipLAMoIB304_0CI0t2",
+     "url": "https://images.craigslist.org/00B0B_ipLAMoIB304_0CI0t2_1200x900.jpg"
+    },
+    {
+     "id": "cl-00u0u_8xTU6Fb0QYg_0Mo12w",
+     "url": "https://images.craigslist.org/00u0u_8xTU6Fb0QYg_0Mo12w_1200x900.jpg"
+    },
+    {
+     "id": "cl-00u0u_fGGoezAzZMZ_0Mo12w",
+     "url": "https://images.craigslist.org/00u0u_fGGoezAzZMZ_0Mo12w_1200x900.jpg"
+    },
+    {
+     "id": "cl-00707_eXGjLVnUIaV_0L010G",
+     "url": "https://images.craigslist.org/00707_eXGjLVnUIaV_0L010G_1200x900.jpg"
+    },
+    {
+     "id": "cl-00I0I_3Fq1M15I4Y5_0Mo12w",
+     "url": "https://images.craigslist.org/00I0I_3Fq1M15I4Y5_0Mo12w_1200x900.jpg"
+    },
+    {
+     "id": "cl-00t0t_lrd2UIynM6E_0CI0t2",
+     "url": "https://images.craigslist.org/00t0t_lrd2UIynM6E_0CI0t2_1200x900.jpg"
+    },
+    {
+     "id": "cl-00000_83g5c4wHSED_0CI0t2",
+     "url": "https://images.craigslist.org/00000_83g5c4wHSED_0CI0t2_1200x900.jpg"
+    },
+    {
+     "id": "cl-00M0M_6gvxHuGyj3W_0t20CI",
+     "url": "https://images.craigslist.org/00M0M_6gvxHuGyj3W_0t20CI_1200x900.jpg"
+    },
+    {
+     "id": "cl-00101_6rve8hDmvKZ_0t20CI",
+     "url": "https://images.craigslist.org/00101_6rve8hDmvKZ_0t20CI_1200x900.jpg"
+    },
+    {
+     "id": "cl-00n0n_83fUMWAyxio_0CI0t2",
+     "url": "https://images.craigslist.org/00n0n_83fUMWAyxio_0CI0t2_1200x900.jpg"
+    },
+    {
+     "id": "cl-00q0q_amSA1mnl5EO_0t20CI",
+     "url": "https://images.craigslist.org/00q0q_amSA1mnl5EO_0t20CI_1200x900.jpg"
+    }
+   ],
+   "fields": {
+    "Greenway (mi)": 0.51,
+    "Subway (mi)": 0.11,
+    "Subway line": "1 · 18 St",
+    "Move-in": "Oct 1",
+    "Neighborhood": "Chelsea"
+   }
+  },
+  {
+   "id": "listing-5",
+   "searchIds": [
+    "search-west-side"
+   ],
+   "title": "33 West End Ave — full-service 1BR, heat/gas included",
+   "price": 4500,
+   "score": 75,
+   "status": "Shortlist",
+   "notes": "",
+   "url": "https://www.craigslist.org/view/d/new-york-33-wea-spacious-one-bedroom/8iwf7muuinPCi66GcWrPWP",
+   "location": "Lincoln Square · West End Ave at W 61st (Riverside South)",
+   "description": "Spacious Low-Floor 1 Bedroom with Tall Ceilings Residence with Northeast-facing Views.\n\nAvailable ASAP.\n\nDon’t miss this incredible opportunity—schedule your tour today before it’s gone! Your monthly rent includes heat, hot water, gas, access to building amenities, 24-hour concierge services, pet fees, and convenient shuttle bus service to 59th Street–Columbus Circle.\n\nTouring is Tuesdays to Saturdays from 10a to 6p with viewings being by appointment only, no open house.\n\nRiver Views\n\nCity Views\n\nFloor to Ceiling Windows\n\nGreat Natural Light\n\nStainless Steel Appliances\n\nGranite Countertops\n\nMarble Bath\n\nState of the art Fitness Center\n\nTenant Lounge\n\nPets Welcome – Including Dogs up to 40 lbs\n\nAny Broker formally retained or informally engaged by a prospective tenant shall be acting solely on that Tenant's behalf.",
+   "summary": "Best value and closest to the greenway (Riverside Park South is right there). Fails the subway-within-2-blocks must-have: nearest entrance ~0.4 mi, so the -5 applies. Open houses Tue 9/29 and Wed 9/30 by appointment. Low floor — ask for anything higher in the line.",
+   "source": "Craigslist",
+   "photos": [
+    {
+     "id": "cl-00X0X_8rSCbgOsjYm_0fa0au",
+     "url": "https://images.craigslist.org/00X0X_8rSCbgOsjYm_0fa0au_1200x900.jpg"
+    },
+    {
+     "id": "cl-00Q0Q_envmSQezxMh_09H06s",
+     "url": "https://images.craigslist.org/00Q0Q_envmSQezxMh_09H06s_1200x900.jpg"
+    },
+    {
+     "id": "cl-00Y0Y_ckfeTnzilRf_0ef0aE",
+     "url": "https://images.craigslist.org/00Y0Y_ckfeTnzilRf_0ef0aE_1200x900.jpg"
+    },
+    {
+     "id": "cl-00N0N_bu7uzcyuCAl_0CI0pO",
+     "url": "https://images.craigslist.org/00N0N_bu7uzcyuCAl_0CI0pO_1200x900.jpg"
+    },
+    {
+     "id": "cl-00707_6Aw6lfGd4bB_0h10bh",
+     "url": "https://images.craigslist.org/00707_6Aw6lfGd4bB_0h10bh_1200x900.jpg"
+    },
+    {
+     "id": "cl-01212_945G8w8UzmJ_0fT0bl",
+     "url": "https://images.craigslist.org/01212_945G8w8UzmJ_0fT0bl_1200x900.jpg"
+    },
+    {
+     "id": "cl-00M0M_h3VEGQN77Eb_04j06s",
+     "url": "https://images.craigslist.org/00M0M_h3VEGQN77Eb_04j06s_1200x900.jpg"
+    },
+    {
+     "id": "cl-00P0P_7eieoRmQv7m_04h06n",
+     "url": "https://images.craigslist.org/00P0P_7eieoRmQv7m_04h06n_1200x900.jpg"
+    },
+    {
+     "id": "cl-00h0h_5pTqVZfD5jw_09X06z",
+     "url": "https://images.craigslist.org/00h0h_5pTqVZfD5jw_09X06z_1200x900.jpg"
+    },
+    {
+     "id": "cl-00I0I_csnxaQKEuyJ_0ev09G",
+     "url": "https://images.craigslist.org/00I0I_csnxaQKEuyJ_0ev09G_1200x900.jpg"
+    },
+    {
+     "id": "cl-00f0f_i84l1ZSxnv1_09a06v",
+     "url": "https://images.craigslist.org/00f0f_i84l1ZSxnv1_09a06v_1200x900.jpg"
+    },
+    {
+     "id": "cl-00R0R_4WIBR4oTMF8_08I0bC",
+     "url": "https://images.craigslist.org/00R0R_4WIBR4oTMF8_08I0bC_1200x900.jpg"
+    },
+    {
+     "id": "cl-00T0T_bctqDe54jSH_0hS0gv",
+     "url": "https://images.craigslist.org/00T0T_bctqDe54jSH_0hS0gv_1200x900.jpg"
+    }
+   ],
+   "fields": {
+    "Greenway (mi)": 0.18,
+    "Subway (mi)": 0.38,
+    "Subway line": "1 · 66 St",
+    "Move-in": "ASAP",
+    "Neighborhood": "Lincoln Square"
+   }
+  },
+  {
+   "id": "listing-6",
+   "searchIds": [
+    "search-west-side"
+   ],
+   "title": "207 W 20th St — 3rd-floor walk-up 1BR, decorative fireplace, NO FEE",
+   "price": 4100,
+   "score": 73,
+   "status": "Passed",
+   "notes": "",
+   "url": "https://www.craigslist.org/view/d/new-york-open-house-sunday-pm-one/2KSscfhUatELVb7rp32Pqt",
+   "location": "Chelsea · W 20th btw 7th & 8th",
+   "description": "Sunny Walk up Building in the center of chelsea betwn 20th street and 7th ave.\n\nhard wood 3F 3 big closets and bathroom w window  EIK w chemney on living room . one min to laundramt room on 7th ave and steps to PathTrain and Subway and Bus and close to Chelsea Market.\n\nOPEN HOUSE FOR RENT , NO FEE APT.\n\nSunday 09/6/2026  11-2 pm.\n\nstudent welcome , credit check needed \n\n207 W20th street, NY \n\nbroker: nancy \n\nfortune realty cell: 9172385338",
+   "summary": "Cheapest real 1BR in-zone. Walk-up 3F means carrying the bike three flights daily (-3). Open house in the post was 9/6 — may already be rented; also cross-posted as 'Manhattan Chealse One Bedroom'. Broker: Nancy, Fortune Realty 917-238-5338.",
+   "source": "Craigslist",
+   "photos": [
+    {
+     "id": "cl-00o0o_7ddALBNPHG1_0d30dV",
+     "url": "https://images.craigslist.org/00o0o_7ddALBNPHG1_0d30dV_1200x900.jpg"
+    }
+   ],
+   "fields": {
+    "Greenway (mi)": 0.58,
+    "Subway (mi)": 0.13,
+    "Subway line": "1 · 18 St",
+    "Move-in": "Now",
+    "Neighborhood": "Chelsea"
+   }
+  },
+  {
+   "id": "listing-7",
+   "searchIds": [
+    "search-west-side"
+   ],
+   "title": "Furnished corner 1BR at W 95th & Riverside — from late Nov",
+   "price": 4700,
+   "score": 65,
+   "status": "Shortlist",
+   "notes": "",
+   "url": "https://www.craigslist.org/view/d/new-york-large-fully-furnished-uws-one/uLVG7GprwzfJ4j8QgU4agS",
+   "location": "UWS · W 95th near Riverside Dr",
+   "description": "Renting out my large, upper west side fully furnished and light-filled corner one bedroom apartment from the last week of November onwards. It’s a doorman building so very secure and in-unit dishwasher, washer and dryer, central air, rooftop. 5 minute walk to riverside and 1/2/3 lines. Furnished (can be repainted normal colors for a longer term tenant I know not everyone loves pink haha). \n\nReach out if interested and can share more pics and further details! 4.6k and tenant covers wifi/electric. Price negotiable depending on term of lease!",
+   "summary": "Great location for both must-haves but misses the Oct 1 window by ~2 months (-20). Tenant-subletting their own unit — confirm the lease allows it. Backup only if nothing lands in October.",
+   "source": "Craigslist",
+   "photos": [
+    {
+     "id": "cl-00X0X_e8dcbt4G7UN_0t20CI",
+     "url": "https://images.craigslist.org/00X0X_e8dcbt4G7UN_0t20CI_1200x900.jpg"
+    },
+    {
+     "id": "cl-00i0i_dnLaJlOsFiK_0t20CI",
+     "url": "https://images.craigslist.org/00i0i_dnLaJlOsFiK_0t20CI_1200x900.jpg"
+    },
+    {
+     "id": "cl-00p0p_1QaXk3onFss_0t20CI",
+     "url": "https://images.craigslist.org/00p0p_1QaXk3onFss_0t20CI_1200x900.jpg"
+    },
+    {
+     "id": "cl-00p0p_454uhNaOfBZ_0t20CI",
+     "url": "https://images.craigslist.org/00p0p_454uhNaOfBZ_0t20CI_1200x900.jpg"
+    },
+    {
+     "id": "cl-00x0x_21PjfPVryZP_0t20CI",
+     "url": "https://images.craigslist.org/00x0x_21PjfPVryZP_0t20CI_1200x900.jpg"
+    },
+    {
+     "id": "cl-00v0v_75CVn9wt7W6_0do0t2",
+     "url": "https://images.craigslist.org/00v0v_75CVn9wt7W6_0do0t2_1200x900.jpg"
+    },
+    {
+     "id": "cl-00I0I_2ED05Wqy90_0do0t2",
+     "url": "https://images.craigslist.org/00I0I_2ED05Wqy90_0do0t2_1200x900.jpg"
+    },
+    {
+     "id": "cl-00303_g7s7TMrUPGv_0do0t2",
+     "url": "https://images.craigslist.org/00303_g7s7TMrUPGv_0do0t2_1200x900.jpg"
+    },
+    {
+     "id": "cl-00G0G_78xt019rVFu_0do0t2",
+     "url": "https://images.craigslist.org/00G0G_78xt019rVFu_0do0t2_1200x900.jpg"
+    }
+   ],
+   "fields": {
+    "Greenway (mi)": 0.2,
+    "Subway (mi)": 0.17,
+    "Subway line": "1/2/3 · 96 St",
+    "Move-in": "Late Nov / Dec 1",
+    "Neighborhood": "Upper West Side"
+   }
+  },
+  {
+   "id": "listing-8",
+   "searchIds": [
+    "search-west-side"
+   ],
+   "title": "'Flex 1BR' high floor, W 28th St — model photos",
+   "price": 4795,
+   "score": 48,
+   "status": "Passed",
+   "notes": "Not a 1br",
+   "url": "https://www.craigslist.org/view/d/new-york-chelsea-flex-1bd-1ba-high/1EewMvX6faTCho8kL9YfqE",
+   "location": "Chelsea · W 28th St (pin near 11th Ave; copy describes NoMad)",
+   "description": "CHELSEA | FLEX 1-BED\n\nThe Apartment\n\n• Flexible 1-Bed Setup\n\n• High-Floor Apartment\n\n• Floor-to-Ceiling Windows\n\n• Granite Countertops\n\n• Stainless Steel Appliances\n\n• Dishwasher\n\n• Central Air\n\n• Modern Finishes\n\nThe Building\n\n• 24-Hour Doorman + Concierge\n\n• Fitness Center\n\n• Package Room\n\n• Laundry Facilities\n\n• Live-In Super\n\n• Storage Available\n\n• Elevator\n\n• Pet Friendly\n\nPrime Chelsea\n\n• 28th Street R + W Nearby\n\n• 1 Train Nearby\n\n• F + M Nearby\n\n• PATH Nearby\n\n• Madison Square Park Nearby\n\n• Restaurants + Nightlife\n\n• Easy Access to NoMad + Flatiron\n\nModel Pictures Represent the Finishes of the Apartment\n\nInquire for a tour today!\n\nAbu Shahbaz\n\n646.852.8125",
+   "summary": "Red flags per criteria: 'model pictures represent finishes', 'flex' not a true 1BR, and the copy lists R/W at 28th + Madison Sq Park (east side) while the pin is West 28th near 11th — same agent posts studio/'flex 2' Chelsea units with the identical template. Keep only to track; don't prioritize.",
+   "source": "Craigslist",
+   "photos": [
+    {
+     "id": "cl-00l0l_2hL7jyBU7Bp_0mW0cU",
+     "url": "https://images.craigslist.org/00l0l_2hL7jyBU7Bp_0mW0cU_1200x900.jpg"
+    },
+    {
+     "id": "cl-00404_2V3XzyUmOMs_0mW0cU",
+     "url": "https://images.craigslist.org/00404_2V3XzyUmOMs_0mW0cU_1200x900.jpg"
+    },
+    {
+     "id": "cl-00J0J_A0KYVJvqQg_0mW0cU",
+     "url": "https://images.craigslist.org/00J0J_A0KYVJvqQg_0mW0cU_1200x900.jpg"
+    },
+    {
+     "id": "cl-00T0T_i7OUrVowzGg_0mW0cU",
+     "url": "https://images.craigslist.org/00T0T_i7OUrVowzGg_0mW0cU_1200x900.jpg"
+    },
+    {
+     "id": "cl-00B0B_giwP7YRgLlm_0mW0cU",
+     "url": "https://images.craigslist.org/00B0B_giwP7YRgLlm_0mW0cU_1200x900.jpg"
+    },
+    {
+     "id": "cl-00l0l_d8H38b6fTVs_0mW0cU",
+     "url": "https://images.craigslist.org/00l0l_d8H38b6fTVs_0mW0cU_1200x900.jpg"
+    },
+    {
+     "id": "cl-00707_eQoyREDogDb_0mW0cU",
+     "url": "https://images.craigslist.org/00707_eQoyREDogDb_0mW0cU_1200x900.jpg"
+    }
+   ],
+   "fields": {
+    "Greenway (mi)": 0.12,
+    "Subway (mi)": 0.27,
+    "Subway line": "7 · 34 St-HY",
+    "Move-in": "Now",
+    "Neighborhood": "Chelsea"
+   }
+  },
+  {
+   "id": "listing-lb-404121",
+   "searchIds": [
+    "search-west-side"
+   ],
+   "title": "75 West End Ave (West End Towers) — 12th-fl 1BR, south light, pool + bike room, NO FEE",
+   "price": 4825,
+   "score": 78,
+   "status": "Contacted",
+   "notes": "Sep 28: messaged the tenant on LeaseBreak asking for an in-person or video tour Tuesday. Thread: https://www.leasebreak.com/thread/376664?listingId=404121 · Video tour: https://youtu.be/hI9d0eCGKT4",
+   "url": "https://www.leasebreak.com/short-term-rental-details/404121/75-west-end-avenue",
+   "location": "Lincoln Square · West End Ave at W 63rd–64th",
+   "description": "Bright and spacious 12th-floor 1bed 1bath apartment with tons of natural light, high ceilings, large windows, and beautiful city views. Open layout, modern kitchen with updated appliances, ample closet/storage. Lincoln Square, a few blocks from Riverside Park and the Hudson River.\n\nWest End Towers amenities: indoor pool, fitness center, landscaped outdoor spaces + sundeck, residents' lounge, 24-hour package room, bike storage, playroom, 24-hour doorman and concierge, shuttle to subways.\n\nLease assignment (tenant, landlord's permission) · renewal: yes · no broker fee · tours + virtual tours · south exposure · unfurnished.\n$4,825/mo · earliest move-in Oct 1, 2026 · move-out May 31, 2027\nVideo: https://youtu.be/hI9d0eCGKT4",
+   "summary": "Strong on the greenway (Riverside Park South a couple of blocks west), bike storage and full-service building; south light on a high floor. Misses the 2-blocks-to-subway rule (~0.3 mi to the 66 St 1; building runs a shuttle). 8-month lease assignment to May 31, 2027, renewable. Score 78.",
+   "source": "LeaseBreak",
+   "photos": [],
+   "fields": {
+    "Greenway (mi)": 0.21,
+    "Subway (mi)": 0.32,
+    "Subway line": "1 · 66 St (bldg shuttle)",
+    "Move-in": "Oct 1",
+    "Neighborhood": "Lincoln Square"
+   }
+  },
+  {
+   "id": "listing-lb-400679",
+   "searchIds": [
+    "search-west-side"
+   ],
+   "title": "VIA 57 West (625 W 57th) — 1BR in the BIG pyramid, W/D, floor-to-ceiling windows, NO FEE",
+   "price": 4750,
+   "score": 82,
+   "status": "Shortlist",
+   "notes": "",
+   "url": "https://www.leasebreak.com/short-term-rental-details/400679/625-west-57th-street",
+   "location": "Hell's Kitchen (near-miss zone) · W 57th at West Side Hwy / 12th Ave",
+   "description": "1BR at VIA 57 WEST, $4,750/mo — below market. Renewed in April off-peak; similar 1BRs in the building are $5,200+, studios $4,800+.\n\n1 bed/1 bath, floor-to-ceiling windows in every room, walk-in closet, in-unit washer/dryer, dishwasher, hardwood.\n\nAmenities: indoor pool, gym, basketball court, library, courtyard garden, golf simulator, screening room, game room, full-time doorman, pet friendly, bike storage, roof deck.\n\nLease assignment (tenant, landlord's permission) · renewal: yes · no broker fee · tours + virtual tours · west exposure.\n$4,750/mo · move-in immediate · move-out May 24, 2027 · updated Sep 24, 2026\nhttps://www.via57west.com",
+   "summary": "Best greenway access so far (the West Side Hwy path is across 12th Ave) and genuinely great architecture: BIG's tetrahedron, with W/D in unit and the full VIA amenity set, below the building's current asks. Misses: Hell's Kitchen (near-miss zone) and ~0.6 mi to the subway at Columbus Circle. Score 82.",
+   "source": "LeaseBreak",
+   "photos": [],
+   "fields": {
+    "Greenway (mi)": 0.08,
+    "Subway (mi)": 0.6,
+    "Subway line": "1/A/B/C/D · 59 St-Columbus Circle",
+    "Move-in": "Now",
+    "Neighborhood": "Hell's Kitchen"
+   }
+  }
+ ],
+ "sources": [
+  {
+   "id": "source-craigslist",
+   "searchIds": [
+    "search-west-side"
+   ],
+   "name": "craigslist",
+   "access": "Automated",
+   "links": [
+    {
+     "label": "Lincoln Sq",
+     "url": "https://www.craigslist.org/search/city/new-york-ny?cat=apa&min_bedrooms=1&min_price=3500&max_price=5500&postal=10023&radius=1"
+    },
+    {
+     "label": "UWS 70s-80s",
+     "url": "https://www.craigslist.org/search/city/new-york-ny?cat=apa&min_bedrooms=1&min_price=3500&max_price=5500&postal=10024&radius=1"
+    },
+    {
+     "label": "UWS 90s",
+     "url": "https://www.craigslist.org/search/city/new-york-ny?cat=apa&min_bedrooms=1&min_price=3500&max_price=5500&postal=10025&radius=0.8"
+    },
+    {
+     "label": "Chelsea",
+     "url": "https://www.craigslist.org/search/city/new-york-ny?cat=apa&min_bedrooms=1&min_price=3500&max_price=5500&postal=10011&radius=1"
+    },
+    {
+     "label": "W Chelsea",
+     "url": "https://www.craigslist.org/search/city/new-york-ny?cat=apa&min_bedrooms=1&min_price=3500&max_price=5500&postal=10001&radius=0.6"
+    }
+   ],
+   "method": "sapi JSON + detail pages",
+   "lastChecked": "2026-09-27",
+   "notes": "Best route: sapi.craigslist.org/web/v8/postings/search/full with searchPath=apa&min_bedrooms=1&min_price=3500&max_price=5500&postal=<zip>&search_distance=<mi> returns lat/lon per posting - query 10023/10024/10025/10011/10001/10019 and filter by grid position. The static /search page ignores most of the pool (~200 cap). Detail pages give address, data-accuracy (5-10 = exact, 20+ = approximate), availability, laundry. Watch for agents reposting the same template with shifting prices; 'Galaxy Towers' / 'Two Bedroom Two Bath Condominium' at lon ~-73.999 are in NJ (North Bergen/Guttenberg), not the UWS."
+  },
+  {
+   "id": "source-leasebreak",
+   "searchIds": [
+    "search-west-side"
+   ],
+   "name": "leasebreak",
+   "access": "Manual only",
+   "links": [
+    {
+     "label": "home",
+     "url": "https://www.leasebreak.com/"
+    }
+   ],
+   "method": "curl+WebFetch",
+   "lastChecked": "2026-09-28",
+   "notes": "Blocks automated access (Cloudflare), so checked by hand. Two good lease assignments found Sep 28: 75 West End Ave (contacted) and VIA 57 West."
+  },
+  {
+   "id": "source-listingsproject",
+   "searchIds": [
+    "search-west-side"
+   ],
+   "name": "listingsproject",
+   "access": "Automated",
+   "links": [
+    {
+     "label": "rentals",
+     "url": "https://www.listingsproject.com/real-estate/new-york-city/rentals"
+    },
+    {
+     "label": "sublets",
+     "url": "https://www.listingsproject.com/real-estate/new-york-city/sublets"
+    }
+   ],
+   "method": "WebFetch",
+   "lastChecked": "2026-09-27",
+   "notes": "No bot wall. Paginated /rentals and /sublets fully (216 listings across ~15 pages each) - explicit availability range on every card. No in-zone 1BRs at $3.5-5.5k this pass: inventory is rooms, short sublets and Brooklyn; closest was a 1-week UWS sublet (Oct 6-12). Filters (borough/price) aren't URL-addressable, so the saved links are the category pages."
+  },
+  {
+   "id": "source-renthop",
+   "searchIds": [
+    "search-west-side"
+   ],
+   "name": "renthop",
+   "access": "Manual only",
+   "links": [],
+   "method": "WebFetch+chromium",
+   "lastChecked": "2026-07-20",
+   "notes": "From the earlier apartment search: cards load via async API, detail pages 403. Not retested."
+  },
+  {
+   "id": "source-streeteasy",
+   "searchIds": [
+    "search-west-side"
+   ],
+   "name": "streeteasy",
+   "access": "Manual only",
+   "links": [
+    {
+     "label": "Lincoln Sq",
+     "url": "https://streeteasy.com/for-rent/lincoln-square"
+    },
+    {
+     "label": "UWS",
+     "url": "https://streeteasy.com/for-rent/upper-west-side"
+    },
+    {
+     "label": "Chelsea",
+     "url": "https://streeteasy.com/for-rent/chelsea"
+    }
+   ],
+   "method": "curl",
+   "lastChecked": "2026-09-27",
+   "notes": "PerimeterX press-and-hold captcha (HTTP 403). Manual-only; not attempting to bypass. Biggest inventory for this search - check by hand (see target_list.md)."
+  },
+  {
+   "id": "source-zillow",
+   "searchIds": [
+    "search-west-side"
+   ],
+   "name": "zillow",
+   "access": "Manual only",
+   "links": [
+    {
+     "label": "UWS",
+     "url": "https://www.zillow.com/upper-west-side-new-york-ny/rentals/"
+    },
+    {
+     "label": "Chelsea",
+     "url": "https://www.zillow.com/chelsea-new-york-ny/rentals/"
+    }
+   ],
+   "method": "curl",
+   "lastChecked": "2026-09-27",
+   "notes": "Same PerimeterX captcha as StreetEasy on the rentals search page this pass (403). Manual-only."
+  },
+  {
+   "id": "source-zumper",
+   "searchIds": [
+    "search-west-side"
+   ],
+   "name": "zumper",
+   "access": "Manual only",
+   "links": [
+    {
+     "label": "UWS",
+     "url": "https://www.zumper.com/apartments-for-rent/new-york-ny/upper-west-side"
+    },
+    {
+     "label": "Chelsea",
+     "url": "https://www.zumper.com/apartments-for-rent/new-york-ny/chelsea"
+    }
+   ],
+   "method": "curl",
+   "lastChecked": "2026-09-27",
+   "notes": "'Client Challenge' JS interstitial on search pages. Manual-only; not attempting to bypass."
+  }
+ ]
+}

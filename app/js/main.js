@@ -1,0 +1,194 @@
+// App wiring: pick the adapter from the saved connection, open its offline
+// store, render, and route UI events to store writes.
+import { ADAPTERS, loadConnection, saveConnection, createAdapter, connectionKey } from "./adapters/index.js";
+import { Store } from "./store.js";
+import { groupOf } from "./model.js";
+import * as ui from "./ui.js";
+
+const $ = s => document.querySelector(s);
+const pref = {
+  get(k, d) { try { return localStorage.getItem("shortlist." + k) ?? d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem("shortlist." + k, v); } catch (e) {} },
+};
+
+let conn = null;
+let adapter = null;
+let store = null;
+let view = { searchId: pref.get("search", ""), tab: pref.get("tab", "review") };
+let warmedKey = "";
+
+async function boot() {
+  if (!conn) { conn = await loadConnection(); adapter = createAdapter(conn); }
+  store = await new Store(adapter, "shortlist:" + connectionKey(conn)).open();
+  store.subscribe(render);
+  render();
+  store.pull().then(() => store.flush());
+}
+
+function currentSearch(state) {
+  const active = state.searches.filter(s => s.state !== "Done");
+  return state.searches.find(s => s.id === view.searchId) || active[0] || state.searches[0] || null;
+}
+
+function listingsFor(state, search) {
+  if (!search) return state.listings;
+  return state.listings.filter(l => !l.searchIds || !l.searchIds.length || l.searchIds.includes(search.id));
+}
+
+function render() {
+  const { state, status } = store;
+  const search = currentSearch(state);
+  const d = adapter.describe();
+  const listings = listingsFor(state, search);
+
+  // Data source pill: always visible so it's clear where edits are going.
+  $("#source-name").textContent = d.name;
+  $("#source-kind").textContent = d.kind + (d.writable ? "" : " · read-only");
+  $("#source-dot").className = "dot " + (status.syncing ? "busy" : status.error ? "bad" : !status.online ? "warn" : status.lastPulled ? "ok" : "");
+
+  // Search header
+  if (search) {
+    $("#eyebrow").textContent = [search.timing, search.budget].filter(Boolean).join(" · ");
+    $("#title-wrap").innerHTML = state.searches.length > 1
+      ? `<select class="search-picker" id="search-picker" aria-label="Search">${state.searches.map(s => `<option value="${ui.esc(s.id)}"${s.id === search.id ? " selected" : ""}>${ui.esc(s.name)}</option>`).join("")}</select>`
+      : ui.esc(search.name);
+    $("#brief").textContent = [search.lookingFor, search.area].filter(Boolean).join(" · ");
+    document.title = search.name + " · Shortlist";
+  } else {
+    $("#eyebrow").textContent = "";
+    $("#title-wrap").textContent = store.hasData ? "Listings" : status.syncing ? "Loading…" : "No searches yet";
+    $("#brief").textContent = "";
+  }
+
+  // Sync line
+  const pending = state.outbox.length;
+  const bits = [];
+  if (status.syncing) bits.push("Syncing…");
+  else if (status.lastPulled) bits.push("Updated " + ui.ago(status.lastPulled));
+  if (!status.online) bits.push("offline, changes save on this device");
+  if (pending) bits.push(pending + " change" + (pending === 1 ? "" : "s") + (!d.writable ? " kept on this device (read-only source)" : " waiting to upload"));
+  if (status.error && !status.readOnly) bits.push(status.error);
+  $("#sync").textContent = bits.join(" · ");
+  $("#sync").classList.toggle("err", !!status.error && !status.readOnly);
+
+  // Tabs + cards
+  const tab = view.tab;
+  $("#tabs").innerHTML = ui.tabs(search, listings, tab);
+  const shown = listings
+    .filter(l => tab === "all" || groupOf(search, l.status) === tab)
+    .sort((a, b) => (b.score ?? -1) - (a.score ?? -1));
+  const pendingIds = new Set(state.outbox.map(o => o.id));
+  preserveDraft(() => {
+    $("#grid").innerHTML = shown.length
+      ? shown.map(l => ui.card(search, l, pendingIds)).join("")
+      : `<div class="empty">${store.hasData ? "Nothing in this tab." : status.error ? "Couldn't load: " + ui.esc(status.error) : "Loading listings…"}</div>`;
+  });
+
+  // Criteria + sources
+  $("#criteria-panel").hidden = !(search && (search.criteria || search.contactTemplate));
+  if (search) { $("#criteria").textContent = search.criteria || "—"; $("#contact").textContent = search.contactTemplate || "—"; }
+  const srcs = state.sources.filter(s => !search || !s.searchIds.length || s.searchIds.includes(search.id));
+  $("#sources-panel").hidden = !srcs.length;
+  $("#sources").innerHTML = ui.sources(srcs);
+
+  warmPhotos(listings);
+}
+
+// Re-rendering must not eat a note the user is typing.
+function preserveDraft(fn) {
+  const el = document.activeElement;
+  const draft = el && el.matches && el.matches("textarea[data-notes]") ? { id: el.id, value: el.value, pos: el.selectionStart } : null;
+  fn();
+  if (draft) {
+    const t = document.getElementById(draft.id);
+    if (t) { t.value = draft.value; t.focus(); t.setSelectionRange(draft.pos, draft.pos); }
+  }
+}
+
+// Ask the service worker to download every photo for offline use (once per
+// set of photos).
+function warmPhotos(listings) {
+  const sw = navigator.serviceWorker && navigator.serviceWorker.controller;
+  if (!sw) return;
+  const photos = listings.flatMap(l => l.photos || []).filter(p => p.id && p.url);
+  const key = photos.map(p => p.id).join(",");
+  if (!photos.length || key === warmedKey) return;
+  warmedKey = key;
+  sw.postMessage({ type: "warm-photos", photos });
+}
+
+// ---- events ----
+document.addEventListener("click", e => {
+  const tab = e.target.closest(".tab");
+  if (tab) { view.tab = tab.dataset.tab; pref.set("tab", view.tab); render(); return; }
+  const set = e.target.closest("button[data-set]");
+  if (set) { store.update(set.closest(".card").dataset.id, { status: set.dataset.set }); return; }
+  if (e.target.closest("#source-pill")) openSettings();
+});
+document.addEventListener("change", e => {
+  if (e.target.matches("select[data-status]")) store.update(e.target.closest(".card").dataset.id, { status: e.target.value });
+  if (e.target.id === "search-picker") { view.searchId = e.target.value; pref.set("search", view.searchId); render(); }
+});
+const noteTimers = {};
+document.addEventListener("input", e => {
+  if (!e.target.matches("textarea[data-notes]")) return;
+  const el = e.target, id = el.closest(".card").dataset.id;
+  clearTimeout(noteTimers[id]);
+  noteTimers[id] = setTimeout(() => store.update(id, { notes: el.value }), 700);
+});
+// Fall back to the remote photo if the cached route fails.
+document.addEventListener("error", e => {
+  const img = e.target;
+  if (img.tagName === "IMG" && img.dataset.fallback && img.src !== img.dataset.fallback) img.src = img.dataset.fallback;
+}, true);
+$("#copy-contact").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText($("#contact").textContent); $("#copy-contact").textContent = "Copied"; } catch (e) {}
+});
+
+// ---- settings ----
+function openSettings() {
+  const sel = $("#set-adapter");
+  sel.innerHTML = Object.entries(ADAPTERS).map(([k, a]) => `<option value="${k}"${k === conn.adapter ? " selected" : ""}>${ui.esc(a.label)}</option>`).join("");
+  fillFields(conn.adapter);
+  $("#settings").showModal();
+}
+function fillFields(kind) {
+  const fields = ADAPTERS[kind].module.FIELDS_FOR_SETTINGS;
+  $("#set-fields").innerHTML = fields.map(f => `<label>${ui.esc(f.label)}
+    <input id="set-${f.key}" name="${f.key}" ${f.secret ? 'type="password" autocomplete="off"' : ""} placeholder="${ui.esc(f.placeholder || "")}" value="${ui.esc(kind === conn.adapter ? conn[f.key] || "" : "")}" ${f.required ? "required" : ""}></label>`).join("");
+  $("#set-hint").textContent = {
+    api: "Uses the database this site is deployed with. Its credentials stay on the server; nothing to enter here.",
+    airtable: "Your token stays on this device (browser storage) and is only sent to api.airtable.com. Create it at airtable.com/create/tokens with data.records:read and data.records:write, limited to this base.",
+    json: "Loads a snapshot file in the app's own format. Edits stay on this device.",
+  }[kind] || "";
+}
+$("#set-adapter").addEventListener("change", e => fillFields(e.target.value));
+$("#settings-form").addEventListener("submit", async e => {
+  if (e.submitter && e.submitter.value !== "save") return;
+  const kind = $("#set-adapter").value;
+  const next = { adapter: kind };
+  for (const f of ADAPTERS[kind].module.FIELDS_FOR_SETTINGS) next[f.key] = $("#set-" + f.key).value.trim();
+  conn = next;
+  saveConnection(conn);
+  adapter = createAdapter(conn);
+  warmedKey = "";
+  await boot();
+});
+$("#set-clear").addEventListener("click", async () => {
+  if (store.state.outbox.length && !confirmInline()) return;
+  await store.destroy();
+  $("#settings").close();
+  await boot();
+});
+// The viewer can't show confirm(); refuse to drop unsynced edits instead.
+function confirmInline() {
+  $("#set-hint").textContent = "There are edits that haven't uploaded yet. Reconnect and let them sync before clearing.";
+  return false;
+}
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+  navigator.serviceWorker.addEventListener("controllerchange", () => { warmedKey = ""; if (store) render(); });
+}
+
+boot();
