@@ -67,8 +67,10 @@ Search   id, name, lookingFor, budget, area, timing, state,
          criteria, contactTemplate,
          statuses: [{label, group}]   group ∈ review | shortlist | active | done | archived
          metrics:  [{field, label, unit, good, ok}]
+         features: [{label, points}]
 Listing  id, searchIds[], title, price, score, status, notes, url, location,
-         description, summary, source, photos: [{id, url}], fields: {raw…}
+         description, summary, source, photos: [{id, url}], fields: {raw…},
+         features: [label]
 Source   id, searchIds[], name, access, links: [{label, url}], method, lastChecked, notes
 ```
 
@@ -81,6 +83,12 @@ The search decides how its listings look:
   green / amber / red from the search's own thresholds (lower is better when
   `good < ok`). The West Side hunt shows Greenway and Subway distance; a bike
   search might show frame size and weight.
+- **Features that matter**: attributes worth a bonus (the West Side hunt:
+  garage, gym, hot tub, sauna, cold plunge; +3 each), edited in the app as
+  `Label | points` lines. Cards show them as chips, lit when the listing
+  has one; tapping a chip toggles it. The fit score shown and sorted on is
+  `score` (the criteria's rubric) plus the lit features' points. Crawls ask
+  Claude which features a new listing has.
 
 ## Adapter contract
 
@@ -155,8 +163,15 @@ One crawl per search per 10 minutes (the endpoint is public). Scoring needs
 `ANTHROPIC_API_KEY`; without it listings are added unscored. Sites that
 refuse automated access are recorded as `blocked`, never worked around.
 
-Criteria and the contact template are editable in the UI
+Criteria, features and the contact template are editable in the UI
 (`PATCH /api/searches/:id`), queued offline like triage.
+
+## Working on a live deployment
+
+`node scripts/remote.mjs pull snap.json` saves the live snapshot (public);
+edit it, then `node scripts/remote.mjs push snap.json` upserts it through
+`/api/admin/import?keepTriage=1`, so status, notes and features set in the
+app survive. Needs `SHORTLIST_URL` and, for push, `ADMIN_TOKEN`.
 
 ## Adding a new search
 

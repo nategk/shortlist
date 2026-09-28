@@ -1,7 +1,7 @@
 // POST /api/admin/import   (Authorization: Bearer $ADMIN_TOKEN)
 //   body: a snapshot {searches, listings, sources}  -> upsert it
 //   no body / ?seed=demo                              -> load app/demo/west-side-1br.json
-//   ?keepTriage=1   keep existing status/notes for listings already in the DB
+//   ?keepTriage=1   keep existing status/notes/features for listings already in the DB
 //   ?photos=0       skip copying photos into Vercel Blob
 // This is how data gets into Postgres: the first migration, and later the
 // scraper/ingest pushing new listings.

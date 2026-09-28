@@ -2,7 +2,7 @@
 // store, render, and route UI events to store writes.
 import { ADAPTERS, loadConnection, saveConnection, createAdapter, connectionKey } from "./adapters/index.js";
 import { Store } from "./store.js";
-import { groupOf } from "./model.js";
+import { groupOf, fit, parseFeatures, featuresText } from "./model.js";
 import * as ui from "./ui.js";
 
 const $ = s => document.querySelector(s);
@@ -76,7 +76,9 @@ function render() {
   $("#tabs").innerHTML = ui.tabs(search, listings, tab);
   const shown = listings
     .filter(l => tab === "all" || groupOf(search, l.status) === tab)
-    .sort((a, b) => (b.score ?? -1) - (a.score ?? -1));
+    .map(l => [l, fit(search, l).total ?? -1])
+    .sort((a, b) => b[1] - a[1])
+    .map(([l]) => l);
   const pendingIds = new Set(state.outbox.map(o => o.id));
   preserveDraft(() => {
     $("#grid").innerHTML = shown.length
@@ -89,6 +91,7 @@ function render() {
   if (search) {
     fillDoc("#criteria", search.criteria);
     fillDoc("#contact", search.contactTemplate);
+    fillDoc("#features", featuresText(search.features));
   }
   $("#run-crawl").hidden = !(search && adapter.crawl && d.writable);
   const srcs = state.sources.filter(s => !search || !s.searchIds.length || s.searchIds.includes(search.id));
@@ -132,6 +135,16 @@ function warmPhotos(listings) {
 document.addEventListener("click", e => {
   const tab = e.target.closest(".tab");
   if (tab) { view.tab = tab.dataset.tab; pref.set("tab", view.tab); render(); return; }
+  const chip = e.target.closest("button[data-feature]");
+  if (chip) {
+    const id = chip.closest(".card").dataset.id;
+    const l = store.state.listings.find(x => x.id === id);
+    const label = chip.dataset.feature;
+    const now = (l.features || []).filter(x => x.toLowerCase() !== label.toLowerCase());
+    if (chip.getAttribute("aria-pressed") !== "true") now.push(label);
+    store.update(id, { features: now });
+    return;
+  }
   const set = e.target.closest("button[data-set]");
   if (set) { store.update(set.closest(".card").dataset.id, { status: set.dataset.set }); return; }
   if (e.target.closest("#source-pill")) openSettings();
@@ -159,13 +172,16 @@ $("#copy-contact").addEventListener("click", async () => {
 
 // Criteria / contact template: edit, then Save (saved on this device at once,
 // uploaded in the background like triage).
-for (const [sel, btn, hint, field, label] of [["#criteria", "#save-criteria", "#criteria-hint", "criteria", "Criteria"],
-                                              ["#contact", "#save-contact", "#contact-hint", "contactTemplate", "Template"]]) {
+for (const [sel, btn, hint, field, label, parse] of [["#criteria", "#save-criteria", "#criteria-hint", "criteria", "Criteria"],
+                                              ["#contact", "#save-contact", "#contact-hint", "contactTemplate", "Template"],
+                                              ["#features", "#save-features", "#features-hint", "features", "Features", parseFeatures]]) {
   $(sel).addEventListener("input", () => { $(sel).dataset.dirty = "1"; $(btn).disabled = false; $(hint).textContent = "Unsaved changes"; });
   $(btn).addEventListener("click", async () => {
     const search = currentSearch(store.state);
     if (!search) return;
-    await store.update(search.id, { [field]: $(sel).value }, "search");
+    const value = parse ? parse($(sel).value) : $(sel).value;
+    await store.update(search.id, { [field]: value }, "search");
+    if (parse) $(sel).value = featuresText(value);
     $(sel).dataset.dirty = ""; $(btn).disabled = true;
     $(hint).textContent = label + " saved" + (navigator.onLine ? "" : " on this device; uploads when you're back online");
   });

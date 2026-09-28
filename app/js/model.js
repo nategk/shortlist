@@ -2,13 +2,18 @@
 // everything above the adapters (store, UI) only ever sees these.
 //
 // Search   { id, name, lookingFor, budget, area, timing, state, criteria,
-//            contactTemplate, statuses: [{label, group}], metrics: [Metric] }
+//            contactTemplate, statuses: [{label, group}], metrics: [Metric],
+//            features: [Feature] }
 // Listing  { id, searchIds: [id], title, price, score, status, notes, url,
 //            location, description, summary, source,
-//            photos: [{id, url}], fields: {raw field name: value} }
+//            photos: [{id, url}], fields: {raw field name: value},
+//            features: [label] }  (which of the search's features it has)
 // Source   { id, searchIds: [id], name, access, links: [{label, url}],
 //            method, lastChecked, notes }
 // Metric   { field, label, unit, good, ok }  (good/ok null for text fields)
+// Feature  { label, points }  something that matters (e.g. an amenity); a
+//          listing that has it shows it on its card and gets the points
+//          added to its fit score.
 
 // Status groups drive the tabs and the quick actions on each card.
 export const GROUPS = [
@@ -79,4 +84,28 @@ export function rateMetric(metric, value) {
 export function groupOf(search, status) {
   const s = (search?.statuses || DEFAULT_STATUSES).find(x => x.label === status);
   return s ? s.group : "review";
+}
+
+// "Label | points" per line (points default to 3).
+export function parseFeatures(text) {
+  const out = [];
+  for (const line of String(text || "").split("\n")) {
+    const [label, pts] = line.split("|").map(s => s.trim());
+    if (!label || out.some(f => f.label.toLowerCase() === label.toLowerCase())) continue;
+    const n = Number(String(pts ?? "").replace(/[^\d.-]/g, ""));
+    out.push({ label: label.slice(0, 60), points: pts && isFinite(n) ? n : 3 });
+  }
+  return out;
+}
+
+export const featuresText = features => (features || []).map(f => `${f.label} | ${f.points > 0 ? "+" : ""}${f.points}`).join("\n");
+
+// The search's features this listing has, and the fit score with their
+// points added. listing.score stays the base score (the criteria's rubric).
+export function fit(search, listing) {
+  const has = new Set((listing.features || []).map(s => String(s).toLowerCase()));
+  const matched = (search?.features || []).filter(f => has.has(f.label.toLowerCase()));
+  const boost = matched.reduce((n, f) => n + (Number(f.points) || 0), 0);
+  const base = listing.score ?? null;
+  return { base, boost, matched, total: base === null ? null : base + boost };
 }
