@@ -1,12 +1,32 @@
 # Shortlist
 
 Track and score candidates for any big purchase decision — an apartment, a
-bike, a car, whatever's next — against your own criteria, in one gallery
-board per project.
+bike, a car, whatever's next — against your own criteria.
 
-This repo is a generic engine. It has no idea what you're shopping for.
+This repo is a generic engine. It has no idea what you're shopping for:
+each search (criteria, statuses, listings, photos, sources) lives in your
+own database.
 
-## The app (this repo)
+## The app (`app/`)
+
+A fast, offline-first triage board. Static files only, so it runs from
+GitHub Pages or any static host.
+
+```sh
+git clone https://github.com/nategk/shortlist && cd shortlist/app
+python3 -m http.server 8000   # open http://localhost:8000
+```
+
+It opens on a demo snapshot. Tap the data-source pill (top right) to
+connect your own database; **Airtable** is the first adapter (base ID and a
+personal access token that stays on your device). Edits apply instantly,
+save offline, and sync in the background; every photo is cached for
+offline use.
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the layers, the data model, the
+Airtable schema and how to add an adapter for another database.
+
+## Python engine (older, still works)
 
 - `add_listing.py` — CLI to add one candidate, score it, and regenerate the
   gallery.
@@ -85,14 +105,9 @@ structured data), so real worked examples are published as-is:
 
 ## Public site (GitHub Pages)
 
-`build_site.py` renders a read-only gallery for every project under
-`searches/` (`generate_gallery.py --read-only`: no edit controls, no
-`serve.py` calls) into `_site/`, with an index page. The
-`.github/workflows/pages.yml` workflow runs it and deploys to GitHub Pages
-on every push to `main` that touches `searches/` or the renderer. One-time
-setup: Settings → Pages → Source: **GitHub Actions**. Triage still happens
-locally (`serve.py`) or wherever you edit status/notes; the public page
-refreshes on the next push.
+`build_site.py` copies `app/` to the site root and renders a read-only
+legacy gallery for every `searches/<name>/` under `/galleries/`.
+`.github/workflows/pages.yml` runs it on every push to `main`.
 
 ## searches/
 
