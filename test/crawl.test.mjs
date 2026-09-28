@@ -38,8 +38,8 @@ test("PATCH /api/searches/:id saves criteria", { skip }, async () => {
 
 test("features: seeded, editable on the search, toggled on a listing", { skip }, async () => {
   let s = await snap();
-  assert.deepEqual(s.searches[0].features.map(f => f.label), ["Garage", "Gym", "Hot tub", "Sauna", "Cold plunge"]);
-  assert.deepEqual(s.listings.find(l => l.id === "listing-lb-400679").features, ["Gym", "Garage"]);
+  assert.deepEqual(s.searches[0].features.map(f => f.label), ["Garage", "Gym", "Hot tub", "Sauna", "Cold plunge", "Outdoor space"]);
+  assert.deepEqual(s.listings.find(l => l.id === "listing-lb-400679").features, ["Gym", "Garage", "Outdoor space"]);
 
   const r = await api.search.PATCH(req("/api/searches/search-west-side", { method: "PATCH",
     body: JSON.stringify({ features: [{ label: " Sauna ", points: "5" }, { label: "" }, { label: "Roof", points: 999 }] }) }));
