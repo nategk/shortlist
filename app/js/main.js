@@ -11,13 +11,14 @@ const pref = {
   set(k, v) { try { localStorage.setItem("shortlist." + k, v); } catch (e) {} },
 };
 
-let conn = loadConnection();
-let adapter = createAdapter(conn);
+let conn = null;
+let adapter = null;
 let store = null;
 let view = { searchId: pref.get("search", ""), tab: pref.get("tab", "review") };
 let warmedKey = "";
 
 async function boot() {
+  if (!conn) { conn = await loadConnection(); adapter = createAdapter(conn); }
   store = await new Store(adapter, "shortlist:" + connectionKey(conn)).open();
   store.subscribe(render);
   render();
@@ -155,9 +156,11 @@ function fillFields(kind) {
   const fields = ADAPTERS[kind].module.FIELDS_FOR_SETTINGS;
   $("#set-fields").innerHTML = fields.map(f => `<label>${ui.esc(f.label)}
     <input id="set-${f.key}" name="${f.key}" ${f.secret ? 'type="password" autocomplete="off"' : ""} placeholder="${ui.esc(f.placeholder || "")}" value="${ui.esc(kind === conn.adapter ? conn[f.key] || "" : "")}" ${f.required ? "required" : ""}></label>`).join("");
-  $("#set-hint").textContent = kind === "airtable"
-    ? "Your token stays on this device (browser storage) and is only sent to api.airtable.com. Create it at airtable.com/create/tokens with data.records:read and data.records:write, limited to this base."
-    : "Loads a snapshot file in the app's own format. Edits stay on this device.";
+  $("#set-hint").textContent = {
+    api: "Uses the database this site is deployed with. Its credentials stay on the server; nothing to enter here.",
+    airtable: "Your token stays on this device (browser storage) and is only sent to api.airtable.com. Create it at airtable.com/create/tokens with data.records:read and data.records:write, limited to this base.",
+    json: "Loads a snapshot file in the app's own format. Edits stay on this device.",
+  }[kind] || "";
 }
 $("#set-adapter").addEventListener("change", e => fillFields(e.target.value));
 $("#settings-form").addEventListener("submit", async e => {

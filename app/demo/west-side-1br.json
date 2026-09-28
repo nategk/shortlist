@@ -255,12 +255,17 @@
    "description": "",
    "summary": "Most character of the group (skylight, beamed 10' ceilings, south light, doorman). Loses points on the West Side Hwy constraint — CPW side is ~4 long avenue blocks from Riverside Park; it's a crosstown ride on W 72nd, not a roll-out-the-door greenway. Map pin is approximate: get the address. BOND NY / José Xavier Chavez (917) 859-3992.",
    "source": "Craigslist",
-   "photos": [],
+   "photos": [
+    {
+     "id": "repo-3",
+     "url": "https://raw.githubusercontent.com/nategk/shortlist/main/searches/nyc-rental/photos/3.jpg"
+    }
+   ],
    "fields": {
     "Greenway (mi)": 0.63,
     "Subway (mi)": 0.14,
     "Subway line": "B/C · 72 St",
-    "Move-in": "Removed Sep 28",
+    "Move-in": "Listing removed Sep 28",
     "Neighborhood": "Lincoln Square"
    }
   },
@@ -272,7 +277,7 @@
    "title": "XL prewar 1BR, south Chelsea brownstone block — NO FEE, available Oct 1",
    "price": 5500,
    "score": 78,
-   "status": "New",
+   "status": "Passed",
    "notes": "",
    "url": "https://www.craigslist.org/view/d/new-york-no-fee-lovely-xl-1br-prime/h1Q1WTF52ZLp9vKGzZTGEu",
    "location": "South Chelsea · ~W 15th–17th near 7th Ave (exact address not given)",
@@ -353,7 +358,7 @@
    "title": "33 West End Ave — full-service 1BR, heat/gas included",
    "price": 4500,
    "score": 75,
-   "status": "New",
+   "status": "Shortlist",
    "notes": "",
    "url": "https://www.craigslist.org/view/d/new-york-33-wea-spacious-one-bedroom/8iwf7muuinPCi66GcWrPWP",
    "location": "Lincoln Square · West End Ave at W 61st (Riverside South)",
@@ -430,7 +435,7 @@
    "title": "207 W 20th St — 3rd-floor walk-up 1BR, decorative fireplace, NO FEE",
    "price": 4100,
    "score": 73,
-   "status": "New",
+   "status": "Passed",
    "notes": "",
    "url": "https://www.craigslist.org/view/d/new-york-open-house-sunday-pm-one/2KSscfhUatELVb7rp32Pqt",
    "location": "Chelsea · W 20th btw 7th & 8th",
@@ -459,7 +464,7 @@
    "title": "Furnished corner 1BR at W 95th & Riverside — from late Nov",
    "price": 4700,
    "score": 65,
-   "status": "New",
+   "status": "Shortlist",
    "notes": "",
    "url": "https://www.craigslist.org/view/d/new-york-large-fully-furnished-uws-one/uLVG7GprwzfJ4j8QgU4agS",
    "location": "UWS · W 95th near Riverside Dr",
@@ -520,8 +525,8 @@
    "title": "'Flex 1BR' high floor, W 28th St — model photos",
    "price": 4795,
    "score": 48,
-   "status": "New",
-   "notes": "",
+   "status": "Passed",
+   "notes": "Not a 1br",
    "url": "https://www.craigslist.org/view/d/new-york-chelsea-flex-1bd-1ba-high/1EewMvX6faTCho8kL9YfqE",
    "location": "Chelsea · W 28th St (pin near 11th Ave; copy describes NoMad)",
    "description": "CHELSEA | FLEX 1-BED\n\nThe Apartment\n\n• Flexible 1-Bed Setup\n\n• High-Floor Apartment\n\n• Floor-to-Ceiling Windows\n\n• Granite Countertops\n\n• Stainless Steel Appliances\n\n• Dishwasher\n\n• Central Air\n\n• Modern Finishes\n\nThe Building\n\n• 24-Hour Doorman + Concierge\n\n• Fitness Center\n\n• Package Room\n\n• Laundry Facilities\n\n• Live-In Super\n\n• Storage Available\n\n• Elevator\n\n• Pet Friendly\n\nPrime Chelsea\n\n• 28th Street R + W Nearby\n\n• 1 Train Nearby\n\n• F + M Nearby\n\n• PATH Nearby\n\n• Madison Square Park Nearby\n\n• Restaurants + Nightlife\n\n• Easy Access to NoMad + Flatiron\n\nModel Pictures Represent the Finishes of the Apartment\n\nInquire for a tour today!\n\nAbu Shahbaz\n\n646.852.8125",
@@ -563,6 +568,54 @@
     "Subway line": "7 · 34 St-HY",
     "Move-in": "Now",
     "Neighborhood": "Chelsea"
+   }
+  },
+  {
+   "id": "listing-lb-404121",
+   "searchIds": [
+    "search-west-side"
+   ],
+   "title": "75 West End Ave (West End Towers) — 12th-fl 1BR, south light, pool + bike room, NO FEE",
+   "price": 4825,
+   "score": 78,
+   "status": "Contacted",
+   "notes": "Sep 28: messaged the tenant on LeaseBreak asking for an in-person or video tour Tuesday. Thread: https://www.leasebreak.com/thread/376664?listingId=404121 · Video tour: https://youtu.be/hI9d0eCGKT4",
+   "url": "https://www.leasebreak.com/short-term-rental-details/404121/75-west-end-avenue",
+   "location": "Lincoln Square · West End Ave at W 63rd–64th",
+   "description": "Bright and spacious 12th-floor 1bed 1bath apartment with tons of natural light, high ceilings, large windows, and beautiful city views. Open layout, modern kitchen with updated appliances, ample closet/storage. Lincoln Square, a few blocks from Riverside Park and the Hudson River.\n\nWest End Towers amenities: indoor pool, fitness center, landscaped outdoor spaces + sundeck, residents' lounge, 24-hour package room, bike storage, playroom, 24-hour doorman and concierge, shuttle to subways.\n\nLease assignment (tenant, landlord's permission) · renewal: yes · no broker fee · tours + virtual tours · south exposure · unfurnished.\n$4,825/mo · earliest move-in Oct 1, 2026 · move-out May 31, 2027\nVideo: https://youtu.be/hI9d0eCGKT4",
+   "summary": "Strong on the greenway (Riverside Park South a couple of blocks west), bike storage and full-service building; south light on a high floor. Misses the 2-blocks-to-subway rule (~0.3 mi to the 66 St 1; building runs a shuttle). 8-month lease assignment to May 31, 2027, renewable. Score 78.",
+   "source": "LeaseBreak",
+   "photos": [],
+   "fields": {
+    "Greenway (mi)": 0.21,
+    "Subway (mi)": 0.32,
+    "Subway line": "1 · 66 St (bldg shuttle)",
+    "Move-in": "Oct 1",
+    "Neighborhood": "Lincoln Square"
+   }
+  },
+  {
+   "id": "listing-lb-400679",
+   "searchIds": [
+    "search-west-side"
+   ],
+   "title": "VIA 57 West (625 W 57th) — 1BR in the BIG pyramid, W/D, floor-to-ceiling windows, NO FEE",
+   "price": 4750,
+   "score": 82,
+   "status": "Shortlist",
+   "notes": "",
+   "url": "https://www.leasebreak.com/short-term-rental-details/400679/625-west-57th-street",
+   "location": "Hell's Kitchen (near-miss zone) · W 57th at West Side Hwy / 12th Ave",
+   "description": "1BR at VIA 57 WEST, $4,750/mo — below market. Renewed in April off-peak; similar 1BRs in the building are $5,200+, studios $4,800+.\n\n1 bed/1 bath, floor-to-ceiling windows in every room, walk-in closet, in-unit washer/dryer, dishwasher, hardwood.\n\nAmenities: indoor pool, gym, basketball court, library, courtyard garden, golf simulator, screening room, game room, full-time doorman, pet friendly, bike storage, roof deck.\n\nLease assignment (tenant, landlord's permission) · renewal: yes · no broker fee · tours + virtual tours · west exposure.\n$4,750/mo · move-in immediate · move-out May 24, 2027 · updated Sep 24, 2026\nhttps://www.via57west.com",
+   "summary": "Best greenway access so far (the West Side Hwy path is across 12th Ave) and genuinely great architecture: BIG's tetrahedron, with W/D in unit and the full VIA amenity set, below the building's current asks. Misses: Hell's Kitchen (near-miss zone) and ~0.6 mi to the subway at Columbus Circle. Score 82.",
+   "source": "LeaseBreak",
+   "photos": [],
+   "fields": {
+    "Greenway (mi)": 0.08,
+    "Subway (mi)": 0.6,
+    "Subway line": "1/A/B/C/D · 59 St-Columbus Circle",
+    "Move-in": "Now",
+    "Neighborhood": "Hell's Kitchen"
    }
   }
  ],
@@ -614,8 +667,8 @@
     }
    ],
    "method": "curl+WebFetch",
-   "lastChecked": "2026-09-27",
-   "notes": "Cloudflare challenge (HTTP 403) on the homepage and search results for both curl and WebFetch. Manual-only; not attempting to bypass. Good fit for this search - lease takeovers often start mid-cycle, so check by hand: filter Manhattan > Upper West Side / Lincoln Square / Chelsea, 1BR, $3,500-5,500, move-in by Oct 15."
+   "lastChecked": "2026-09-28",
+   "notes": "Blocks automated access (Cloudflare), so checked by hand. Two good lease assignments found Sep 28: 75 West End Ave (contacted) and VIA 57 West."
   },
   {
    "id": "source-listingsproject",

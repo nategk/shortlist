@@ -5,6 +5,27 @@ car. The code is generic. Everything specific to one search (what you want,
 the scoring rubric, the statuses, which numbers matter, the listings and
 their photos) lives in **your database**, not in this repo.
 
+It deploys as one Vercel project:
+
+```
+browser (any device)                         Vercel
+┌─────────────────────────┐        ┌──────────────────────────────────────────┐
+│ app/  UI + offline store │ ─────► │ api/health     which backend is live     │
+│       + service worker   │  /api  │ api/snapshot   read everything           │
+│  (IndexedDB, photo cache)│ ◄───── │ api/listings/:id  PATCH status / notes   │
+└─────────────────────────┘        │ api/admin/import  (ADMIN_TOKEN) load data│
+                                   │        │ lib/backend.js picks by env      │
+                                   │        ▼                                  │
+                                   │  Postgres (Neon) · Blob (photos)          │
+                                   │  or Airtable · or JSON demo               │
+                                   └──────────────────────────────────────────┘
+```
+
+Secrets (database URL, Blob token, admin token, Airtable token) live only
+in Vercel environment variables. The browser only knows `/api`.
+
+Inside the browser app:
+
 ```
 ┌──────────────────────────── app/ (static, no build step) ────────────────────────────┐
 │                                                                                       │
@@ -15,7 +36,7 @@ their photos) lives in **your database**, not in this repo.
 │             (renders instantly,        │   (edits apply locally at once,        │      │
 │              works offline)            │    retried with backoff)               │      │
 │                                        │                                        ▼      │
-│  adapters/  airtable.js · json.js · (yours) ── same 3-method contract ──────────────   │
+│  adapters/  api.js (default) · airtable.js · json.js ── same 3-method contract ─────   │
 │                                                                                       │
 │  sw.js      service worker: app shell + every photo cached by a stable id             │
 └───────────────────────────────────────────────────────────────────────────────────────┘
@@ -33,7 +54,10 @@ their photos) lives in **your database**, not in this repo.
 | `app/js/store.js` | Offline-first store: IndexedDB snapshot, outbox of pending edits, background pull/flush. One database per connection, so switching sources never mixes data. |
 | `app/js/ui.js`, `main.js` | Rendering and event wiring. Never talks to a database directly. |
 | `app/sw.js` | Service worker. App shell is stale-while-revalidate; photos are fetched through `./photo/<id>?src=…` and cached under the stable id, so they survive expiring signed URLs and work offline. After each sync the app asks it to download every photo. |
-| `app/demo/*.json` | A snapshot in the model's own shape, used by the JSON adapter. A fresh clone opens on this, with no account. |
+| `app/demo/*.json` | A snapshot in the model's own shape: the demo backend, and the default seed for `/api/admin/import`. |
+| `api/` | Vercel functions (Web `Request`/`Response` handlers per HTTP method). |
+| `lib/backend.js` | Chooses the server backend from env vars; `lib/postgres.js` maps the model to tables (schema in `lib/db.js`, created on first use); `lib/photos.js` copies photos into Blob on import. |
+| `scripts/dev.mjs`, `test/` | Local stand-in for Vercel, and API tests against a real Postgres. |
 | `*.py`, `searches/`, `templates/` | The older Python engine (scraping notes, SQLite, static galleries). Still works; the app doesn't depend on it. |
 
 ## Data model

@@ -57,8 +57,8 @@ export function card(search, l, pendingIds) {
     ? (review ? `<button class="btn" type="button" data-set="${esc(review)}">Unshortlist</button>` : "")
     : (shortlist ? `<button class="btn primary" type="button" data-set="${esc(shortlist)}">Shortlist</button>` : "");
   return `<article class="card${group === "archived" ? " archived" : ""}" data-id="${esc(l.id)}">
-  <a class="photo" href="${esc(l.url)}" target="_blank" rel="noopener" aria-label="Open listing">
-    ${cover ? `<img src="${esc(photoSrc(cover))}" data-fallback="${esc(cover.url)}" alt="">` : ""}
+  <a class="photo${cover ? "" : " nophoto"}" href="${esc(l.url)}" target="_blank" rel="noopener" aria-label="Open listing">
+    ${cover ? `<img src="${esc(photoSrc(cover))}" data-fallback="${esc(cover.url)}" alt="">` : `<span class="nophoto-label">No photos saved · open listing ↗</span>`}
     ${l.score !== null && l.score !== undefined ? `<span class="score">${esc(l.score)} fit</span>` : ""}
     ${l.status ? `<span class="pill g-${group}">${esc(l.status)}</span>` : ""}
     ${pendingIds.has(l.id) ? `<span class="pending" title="Saved on this device, waiting to upload">● not synced</span>` : ""}
