@@ -86,8 +86,7 @@ function render() {
       : `<div class="empty">${store.hasData ? "Nothing in this tab." : status.error ? "Couldn't load: " + ui.esc(status.error) : "Loading listings…"}</div>`;
   });
 
-  // Criteria + sources
-  $("#criteria-panel").hidden = !search;
+  // Criteria + sources live in the sheet, opened from the database group.
   if (search) {
     fillDoc("#criteria", search.criteria);
     fillDoc("#contact", search.contactTemplate);
@@ -95,8 +94,10 @@ function render() {
   }
   $("#run-crawl").hidden = !(search && adapter.crawl && d.writable);
   const srcs = state.sources.filter(s => !search || !s.searchIds.length || s.searchIds.includes(search.id));
-  $("#sources-panel").hidden = !srcs.length;
   $("#sources").innerHTML = ui.sources(srcs);
+  $("#open-criteria").hidden = !search;
+  $("#open-sources").hidden = !srcs.length;
+  if (!search && $("#sheet").open) $("#sheet").close();
 
   warmPhotos(listings);
 }
@@ -147,7 +148,9 @@ document.addEventListener("click", e => {
   }
   const set = e.target.closest("button[data-set]");
   if (set) { store.update(set.closest(".card").dataset.id, { status: set.dataset.set }); return; }
-  if (e.target.closest("#source-pill")) openSettings();
+  if (e.target.closest("#source-pill")) { openSettings(); return; }
+  const sheetBtn = e.target.closest("[data-sheet]");
+  if (sheetBtn) { openSheet(sheetBtn.dataset.sheet); return; }
 });
 document.addEventListener("change", e => {
   if (e.target.matches("select[data-status]")) store.update(e.target.closest(".card").dataset.id, { status: e.target.value });
@@ -213,6 +216,16 @@ $("#run-crawl").addEventListener("click", async () => {
     await store.pull();
   }
 });
+
+// ---- criteria / sources sheet ----
+function openSheet(which) {
+  for (const b of document.querySelectorAll(".sheet-tab")) b.setAttribute("aria-pressed", String(b.dataset.sheet === which));
+  $("#sheet-criteria").hidden = which !== "criteria";
+  $("#sheet-sources").hidden = which !== "sources";
+  if (!$("#sheet").open) $("#sheet").showModal();
+}
+// Tap outside the sheet to close it.
+$("#sheet").addEventListener("click", e => { if (e.target === $("#sheet")) $("#sheet").close(); });
 
 // ---- settings ----
 function openSettings() {

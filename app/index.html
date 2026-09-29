@@ -15,9 +15,13 @@
 <div class="wrap">
   <div class="topbar">
     <span class="brand">Shortlist</span>
-    <button class="source-pill" id="source-pill" type="button" aria-label="Data source settings">
-      <i class="dot" id="source-dot"></i><span id="source-name">Loading…</span><span class="kind" id="source-kind"></span>
-    </button>
+    <div class="db-group" role="group" aria-label="Database">
+      <button class="source-pill" id="source-pill" type="button" aria-label="Data source settings">
+        <i class="dot" id="source-dot"></i><span id="source-name">Loading…</span><span class="kind" id="source-kind"></span>
+      </button>
+      <button class="db-btn" type="button" id="open-criteria" data-sheet="criteria" hidden>Criteria</button>
+      <button class="db-btn" type="button" id="open-sources" data-sheet="sources" hidden>Sources</button>
+    </div>
   </div>
 
   <header class="search">
@@ -30,16 +34,27 @@
   <nav class="tabs" id="tabs" aria-label="Filter listings"></nav>
   <main class="grid" id="grid"></main>
 
-  <section class="panel" id="criteria-panel" hidden>
-    <details class="more" id="criteria-details"><summary>Criteria</summary>
-      <textarea id="criteria" class="doc" spellcheck="true" aria-label="Criteria"></textarea>
-      <div class="actions"><button class="btn primary" type="button" id="save-criteria" disabled>Save criteria</button><span class="hint" id="criteria-hint"></span></div>
-    </details>
-    <details class="more"><summary>Features that matter</summary>
-      <p class="hint">One per line: <code>Label | points</code>. Cards show the ones a listing has, and their points are added to its fit score. Crawls check new listings for them; tap a chip on a card to correct it.</p>
-      <textarea id="features" class="doc short" spellcheck="true" aria-label="Features that matter" placeholder="Gym | +3"></textarea>
-      <div class="actions"><button class="btn primary" type="button" id="save-features" disabled>Save features</button><span class="hint" id="features-hint"></span></div>
-    </details>
+</div>
+
+<dialog id="sheet" class="sheet" aria-labelledby="sheet-title">
+  <div class="sheet-head">
+    <h2 class="visually-hidden" id="sheet-title">Search setup</h2>
+    <nav class="tabs" aria-label="Search setup">
+      <button class="sheet-tab" type="button" data-sheet="criteria" aria-pressed="true">Criteria</button>
+      <button class="sheet-tab" type="button" data-sheet="sources" aria-pressed="false">Sources</button>
+    </nav>
+    <form method="dialog"><button class="btn icon" value="close" aria-label="Close">✕</button></form>
+  </div>
+
+  <section class="sheet-body" id="sheet-criteria">
+    <textarea id="criteria" class="doc" spellcheck="true" aria-label="Criteria"></textarea>
+    <div class="actions"><button class="btn primary" type="button" id="save-criteria" disabled>Save criteria</button><span class="hint" id="criteria-hint"></span></div>
+
+    <h3>Features that matter</h3>
+    <p class="hint">One per line: <code>Label | points</code>. Cards show the ones a listing has, and their points are added to its fit score. Crawls check new listings for them; tap a chip on a card to correct it.</p>
+    <textarea id="features" class="doc short" spellcheck="true" aria-label="Features that matter" placeholder="Gym | +3"></textarea>
+    <div class="actions"><button class="btn primary" type="button" id="save-features" disabled>Save features</button><span class="hint" id="features-hint"></span></div>
+
     <details class="more"><summary>Contact template</summary>
       <textarea id="contact" class="doc" spellcheck="true" aria-label="Contact template"></textarea>
       <div class="actions"><button class="btn primary" type="button" id="save-contact" disabled>Save template</button>
@@ -47,14 +62,11 @@
     </details>
   </section>
 
-  <section class="panel" id="sources-panel" hidden>
-    <div class="panel-head">
-      <h2>Sources</h2>
-      <span class="actions"><span class="hint" id="crawl-hint"></span><button class="btn primary" type="button" id="run-crawl" hidden>Run crawl</button></span>
-    </div>
+  <section class="sheet-body" id="sheet-sources" hidden>
+    <div class="actions"><button class="btn primary" type="button" id="run-crawl" hidden>Run crawl</button><span class="hint" id="crawl-hint"></span></div>
     <ul class="rows" id="sources"></ul>
   </section>
-</div>
+</dialog>
 
 <dialog id="settings">
   <form method="dialog" id="settings-form">
