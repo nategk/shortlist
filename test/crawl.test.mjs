@@ -109,3 +109,27 @@ test("a blocked site is recorded as blocked, not a crash", { skip }, async () =>
     globalThis.fetch = realFetch;
   }
 });
+
+test("photos still on their source site are found and can be swapped for Blob copies", { skip }, async () => {
+  const pg = await import("../lib/postgres.js");
+  // The seed was imported with photos=0, so its photos still point at source sites.
+  const outside = await pg.listingsWithOutsidePhotos("search-west-side");
+  const l = outside.find(x => x.id === "listing-1");
+  assert.ok(l && l.photos.length, "listing-1 needs importing");
+  const blob = "https://abc.public.blob.vercel-storage.com/photos/listing-1/";
+  await pg.setListingPhotos("listing-1", l.photos.map(p => ({ ...p, original: p.url, url: blob + p.id + ".jpg" })));
+  assert.ok(!(await pg.listingsWithOutsidePhotos("search-west-side")).some(x => x.id === "listing-1"));
+  const saved = (await snap()).listings.find(x => x.id === "listing-1");
+  assert.ok(saved.photos.every(p => p.url.startsWith(blob)));
+});
+
+test("a crawl without a Blob store says photos weren't saved", { skip }, async () => {
+  await db().query("update searches set last_crawl_at = null");
+  globalThis.fetch = async () => new Response("no", { status: 403 });
+  try {
+    const body = await (await api.crawl.POST(req("/api/crawl", { method: "POST", body: JSON.stringify({ searchId: "search-west-side" }) }))).json();
+    assert.deepEqual(body.photos, { enabled: false, copied: 0, failed: 0, left: 0 });
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+});

@@ -199,6 +199,12 @@ $("#run-crawl").addEventListener("click", async () => {
     hint.textContent = r.added
       ? `${r.added} new listing${r.added === 1 ? "" : "s"} added to To review${r.scored ? "" : " (unscored)"}.`
       : "No new listings this time.";
+    const p = r.photos;
+    if (p && !p.enabled) hint.textContent += " Photos not saved: connect a Vercel Blob store.";
+    else if (p && (p.copied || p.failed || p.left)) {
+      hint.textContent += ` ${p.copied} photo${p.copied === 1 ? "" : "s"} saved to Blob` +
+        (p.failed ? `, ${p.failed} couldn't be fetched` : "") + (p.left ? `, ${p.left} left for next run` : "") + ".";
+    }
     if (r.added) { view.tab = "review"; pref.set("tab", "review"); }
   } catch (e) {
     hint.textContent = e.message;

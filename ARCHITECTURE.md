@@ -158,6 +158,9 @@ source with a `crawler` (`lib/crawlers/`: `craigslist`, `listingsproject`):
    "review" status.
 5. The source records `last_run_at`, `last_status` (ok / blocked / error) and
    a one-line result, shown in the UI.
+6. Any photo on the search's board not yet in Blob (a failed copy, an import
+   made without Blob) is copied now; what doesn't fit before the deadline is
+   retried next run. The UI reports saved / failed / left.
 
 One crawl per search per 10 minutes (the endpoint is public). Scoring needs
 `ANTHROPIC_API_KEY`; without it listings are added unscored. Sites that
@@ -168,6 +171,8 @@ Criteria, features and the contact template are editable in the UI
 
 ## Working on a live deployment
 
+`node scripts/remote.mjs set <id> status=… [notes=…]` triages one listing
+through the open `PATCH /api/listings/:id`.
 `node scripts/remote.mjs pull snap.json` saves the live snapshot (public);
 edit it, then `node scripts/remote.mjs push snap.json` upserts it through
 `/api/admin/import?keepTriage=1`, so status, notes and features set in the
