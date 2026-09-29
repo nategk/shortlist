@@ -50,6 +50,7 @@ select.search-picker { font: 800 clamp(24px, 4.5vw, 40px)/1.05 var(--font); lett
 
 .tabs { display: flex; flex-wrap: wrap; gap: 8px; }
 .tab { font: 600 13px var(--font); padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+.tab-sep { width: 1px; align-self: stretch; margin: 4px 4px; background: var(--line); }
 .tab .n { font-family: var(--mono); font-weight: 400; color: var(--muted); }
 .tab[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .tab[aria-pressed="true"] .n { color: var(--bg); opacity: .7; }

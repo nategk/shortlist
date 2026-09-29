@@ -2,7 +2,7 @@
 // store, render, and route UI events to store writes.
 import { ADAPTERS, loadConnection, saveConnection, createAdapter, connectionKey } from "./adapters/index.js";
 import { Store } from "./store.js";
-import { groupOf, fit, parseFeatures, featuresText } from "./model.js";
+import { fit, parseFeatures, featuresText } from "./model.js";
 import * as ui from "./ui.js";
 
 const $ = s => document.querySelector(s);
@@ -14,7 +14,7 @@ const pref = {
 let conn = null;
 let adapter = null;
 let store = null;
-let view = { searchId: pref.get("search", ""), tab: pref.get("tab", "review") };
+let view = { searchId: pref.get("search", ""), tab: pref.get("tab", "all") };
 let warmedKey = "";
 
 async function boot() {
@@ -75,7 +75,7 @@ function render() {
   const tab = view.tab;
   $("#tabs").innerHTML = ui.tabs(search, listings, tab);
   const shown = listings
-    .filter(l => tab === "all" || groupOf(search, l.status) === tab)
+    .filter(l => ui.inTab(search, l, tab))
     .map(l => [l, fit(search, l).total ?? -1])
     .sort((a, b) => b[1] - a[1])
     .map(([l]) => l);
