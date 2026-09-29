@@ -42,7 +42,7 @@ cached on the device and stored permanently in Vercel Blob.
 Open `https://YOUR-APP.vercel.app` on any device. The pill in the header
 shows which database is live.
 
-To edit the live data from a terminal: `SHORTLIST_URL=… node scripts/remote.mjs pull snap.json`,
+To edit the live data from a terminal: `SHORTLIST_URL=… node scripts/remote.mjs set <id> status=…` for one listing, or `pull snap.json`,
 edit, then `ADMIN_TOKEN=… node scripts/remote.mjs push snap.json` (keeps triage).
 
 **Access model:** the site and triage (status, notes, feature chips) are open to anyone
