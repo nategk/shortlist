@@ -86,7 +86,7 @@ function render() {
       : `<div class="empty">${store.hasData ? "Nothing in this tab." : status.error ? "Couldn't load: " + ui.esc(status.error) : "Loading listings…"}</div>`;
   });
 
-  // Criteria + sources live in the sheet, opened from the database group.
+  // Criteria, contact template and sources live in the sheet, opened from the database group.
   if (search) {
     fillDoc("#criteria", search.criteria);
     fillDoc("#contact", search.contactTemplate);
@@ -96,6 +96,7 @@ function render() {
   const srcs = state.sources.filter(s => !search || !s.searchIds.length || s.searchIds.includes(search.id));
   $("#sources").innerHTML = ui.sources(srcs);
   $("#open-criteria").hidden = !search;
+  $("#open-contact").hidden = !search;
   $("#open-sources").hidden = !srcs.length;
   if (!search && $("#sheet").open) $("#sheet").close();
 
@@ -217,11 +218,10 @@ $("#run-crawl").addEventListener("click", async () => {
   }
 });
 
-// ---- criteria / sources sheet ----
+// ---- criteria / contact / sources sheet ----
 function openSheet(which) {
   for (const b of document.querySelectorAll(".sheet-tab")) b.setAttribute("aria-pressed", String(b.dataset.sheet === which));
-  $("#sheet-criteria").hidden = which !== "criteria";
-  $("#sheet-sources").hidden = which !== "sources";
+  for (const name of ["criteria", "contact", "sources"]) $("#sheet-" + name).hidden = which !== name;
   if (!$("#sheet").open) $("#sheet").showModal();
 }
 // Tap outside the sheet to close it.

@@ -20,6 +20,7 @@
         <i class="dot" id="source-dot"></i><span id="source-name">Loading…</span><span class="kind" id="source-kind"></span>
       </button>
       <button class="db-btn" type="button" id="open-criteria" data-sheet="criteria" hidden>Criteria</button>
+      <button class="db-btn" type="button" id="open-contact" data-sheet="contact" hidden>Contact</button>
       <button class="db-btn" type="button" id="open-sources" data-sheet="sources" hidden>Sources</button>
     </div>
   </div>
@@ -41,6 +42,7 @@
     <h2 class="visually-hidden" id="sheet-title">Search setup</h2>
     <nav class="tabs" aria-label="Search setup">
       <button class="sheet-tab" type="button" data-sheet="criteria" aria-pressed="true">Criteria</button>
+      <button class="sheet-tab" type="button" data-sheet="contact" aria-pressed="false">Contact</button>
       <button class="sheet-tab" type="button" data-sheet="sources" aria-pressed="false">Sources</button>
     </nav>
     <form method="dialog"><button class="btn icon" value="close" aria-label="Close">✕</button></form>
@@ -54,12 +56,13 @@
     <p class="hint">One per line: <code>Label | points</code>. Cards show the ones a listing has, and their points are added to its fit score. Crawls check new listings for them; tap a chip on a card to correct it.</p>
     <textarea id="features" class="doc short" spellcheck="true" aria-label="Features that matter" placeholder="Gym | +3"></textarea>
     <div class="actions"><button class="btn primary" type="button" id="save-features" disabled>Save features</button><span class="hint" id="features-hint"></span></div>
+  </section>
 
-    <details class="more"><summary>Contact template</summary>
-      <textarea id="contact" class="doc" spellcheck="true" aria-label="Contact template"></textarea>
-      <div class="actions"><button class="btn primary" type="button" id="save-contact" disabled>Save template</button>
-        <button class="btn" type="button" id="copy-contact">Copy</button><span class="hint" id="contact-hint"></span></div>
-    </details>
+  <section class="sheet-body" id="sheet-contact" hidden>
+    <p class="hint">Your first message to a seller or agent. Fill in the brackets, then Copy.</p>
+    <textarea id="contact" class="doc" spellcheck="true" aria-label="Contact template"></textarea>
+    <div class="actions"><button class="btn primary" type="button" id="save-contact" disabled>Save template</button>
+      <button class="btn" type="button" id="copy-contact">Copy</button><span class="hint" id="contact-hint"></span></div>
   </section>
 
   <section class="sheet-body" id="sheet-sources" hidden>
