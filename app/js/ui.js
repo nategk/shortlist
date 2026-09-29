@@ -48,6 +48,38 @@ function metricValue(listing, m) {
   return String(v);
 }
 
+// Street address for the map link: fields.Address, else the start of a title
+// like "267 W 70th St #6E — …" or "VIA 57 West (625 W 57th) — …".
+function address(l) {
+  const f = l.fields || {};
+  if (f.Address) return String(f.Address);
+  const head = String(l.title || "").split(" — ")[0];
+  const paren = (head.match(/\(([^)]*\d[^)]*)\)/) || [])[1];
+  const a = (paren || head.replace(/\(.*?\)/g, "")).replace(/#\S+/g, "").trim();
+  return /^\d+\s+\S/.test(a) ? a : "";
+}
+
+function mapsUrl(l, addr) {
+  const f = l.fields || {};
+  // No address: the saved pin, else the cross streets from the location note.
+  const near = String(l.location || "").split(" · ").pop().replace(/\(.*?\)|~/g, "").trim();
+  const q = addr ? addr + ", New York, NY" : f.lat != null && f.lon != null ? `${f.lat},${f.lon}` : near + ", New York, NY";
+  return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q);
+}
+
+// Building name (linked to its site when known) and address (linked to
+// Google Maps), then the location note.
+function place(l) {
+  const f = l.fields || {}, addr = address(l);
+  if (!addr && !l.location && !f.Building) return "";
+  const site = /^https?:\/\//.test(f["Building site"] || "") ? f["Building site"] : "";
+  const building = f.Building
+    ? (site ? `<a class="bldg" href="${esc(site)}" target="_blank" rel="noopener">${esc(f.Building)} ↗</a>` : `<span class="bldg">${esc(f.Building)}</span>`)
+    : "";
+  const map = `<a class="map" href="${esc(mapsUrl(l, addr))}" target="_blank" rel="noopener" title="Open in Google Maps">${esc(addr || l.location)}</a>`;
+  return `<p class="loc">${building}${building ? " · " : ""}${map}${addr && l.location ? `<span class="where">${esc(l.location)}</span>` : ""}</p>`;
+}
+
 export function card(search, l, pendingIds) {
   const statuses = statusesFor(search);
   const group = groupOf(search, l.status);
@@ -84,7 +116,7 @@ export function card(search, l, pendingIds) {
   <div class="body">
     ${l.price !== null && l.price !== undefined ? `<div class="price">${money(l.price)}</div>` : ""}
     <h3 class="title">${esc(l.title)}</h3>
-    ${l.location ? `<p class="loc">${esc(l.location)}</p>` : ""}
+    ${place(l)}
     ${metrics ? `<div class="metrics">${metrics}</div>` : ""}
     ${features ? `<div class="chips" aria-label="Features that matter">${features}</div>` : ""}
     ${l.summary ? `<p class="summary">${esc(l.summary)}</p>` : ""}
