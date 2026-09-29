@@ -5,60 +5,69 @@ car. The code is generic. Everything specific to one search (what you want,
 the scoring rubric, the statuses, which numbers matter, the listings and
 their photos) lives in **your database**, not in this repo.
 
-It deploys as one Vercel project:
+There are exactly four places data lives:
+
+| Store | Holds | Role |
+|---|---|---|
+| **Neon Postgres** | searches, listings, sources, sync state | Source of truth. Everything reads and writes here. |
+| **Vercel Blob** | listing photos | Permanent copies (source sites delete photos when a post comes down). Neon stores the Blob URLs. |
+| **Device cache** | IndexedDB snapshot + outbox; service-worker photo cache | Instant, offline-first app on each device. Rebuilt from Neon at any time. |
+| **Airtable** | the same three tables | A synced mirror you can also edit in: any field changed in Airtable flows back to Neon. |
+
+Nothing else holds data: no SQLite, no JSON seeds, no generated galleries.
+`test/fixtures/west-side.json` is a frozen test fixture, never synced.
 
 ```
-browser (any device)                         Vercel
-┌─────────────────────────┐        ┌──────────────────────────────────────────┐
-│ app/  UI + offline store │ ─────► │ api/health     which backend is live     │
-│       + service worker   │  /api  │ api/snapshot   read everything           │
-│  (IndexedDB, photo cache)│ ◄───── │ api/listings/:id  PATCH status / notes   │
-└─────────────────────────┘        │ api/admin/import  (ADMIN_TOKEN) load data│
-                                   │        │ lib/backend.js picks by env      │
-                                   │        ▼                                  │
-                                   │  Postgres (Neon) · Blob (photos)          │
-                                   │  or Airtable · or JSON demo               │
-                                   └──────────────────────────────────────────┘
+browser (any device)                          Vercel                                     Airtable
+┌──────────────────────────┐        ┌─────────────────────────────────────────┐        ┌─────────────┐
+│ app/  UI + offline store  │ ─────► │ api/snapshot        read everything      │        │ Searches    │
+│       + service worker    │  /api  │ api/listings/:id    PATCH triage  ─┐     │ ─push─►│ Sources     │
+│ (IndexedDB, photo cache)  │ ◄───── │ api/searches/:id    PATCH criteria ┤     │        │ Listings    │
+└──────────────────────────┘        │ api/crawl           new listings ──┤     │        └──────┬──────┘
+                                    │ api/admin/import    (ADMIN_TOKEN) ─┘     │               │ webhook ping
+                                    │        │ every write → lib/sync.js ──────┼───────────────┤
+                                    │        ▼                                 │               ▼
+                                    │  Neon Postgres · Blob (photos)           │ ◄──── api/airtable/webhook
+                                    │  api/sync (daily cron: refresh webhook,  │        (signed; reads changes
+                                    │            full two-way reconcile)       │         since its cursor)
+                                    └─────────────────────────────────────────┘
 ```
 
-Secrets (database URL, Blob token, admin token, Airtable token) live only
-in Vercel environment variables. The browser only knows `/api`.
+Secrets (database URL, Blob token, admin token, Airtable token, cron
+secret) live only in Vercel environment variables. The browser only knows
+`/api`.
 
 Inside the browser app:
 
 ```
 ┌──────────────────────────── app/ (static, no build step) ────────────────────────────┐
-│                                                                                       │
 │  ui.js / main.js      renders cards, tabs, sources; routes clicks to store writes     │
-│        │ reads                                  │ writes (status, notes)              │
+│        │ reads                                  │ writes (status, notes, features)    │
 │        ▼                                        ▼                                     │
 │  store.js   IndexedDB cache ◄── pull ──┐   outbox queue ── flush when online ──┐      │
 │             (renders instantly,        │   (edits apply locally at once,        │      │
 │              works offline)            │    retried with backoff)               │      │
 │                                        │                                        ▼      │
-│  adapters/  api.js (default) · airtable.js · json.js ── same 3-method contract ─────   │
-│                                                                                       │
+│  adapters/api.js      this deployment's /api                                          │
 │  sw.js      service worker: app shell + every photo cached by a stable id             │
 └───────────────────────────────────────────────────────────────────────────────────────┘
-                                         │
-                                         ▼
-                 Your database: Searches · Listings · Sources (+ photos)
 ```
 
 ## Pieces
 
 | Path | Role |
 |---|---|
-| `app/js/model.js` | The data model every layer shares, plus parsers for the text-based search config (statuses, card metrics, links). |
-| `app/js/adapters/` | One module per database type. Translates that database to and from the model. |
-| `app/js/store.js` | Offline-first store: IndexedDB snapshot, outbox of pending edits, background pull/flush. One database per connection, so switching sources never mixes data. |
+| `app/js/model.js` | The data model every layer shares, plus parsers/serializers for the text-based search config (statuses, card metrics, features, links). |
+| `app/js/adapters/api.js` | Talks to this deployment's `/api`. |
+| `app/js/store.js` | Offline-first store: IndexedDB snapshot, outbox of pending edits, background pull/flush. |
 | `app/js/ui.js`, `main.js` | Rendering and event wiring. Never talks to a database directly. |
-| `app/sw.js` | Service worker. App shell is stale-while-revalidate; photos are fetched through `./photo/<id>?src=…` and cached under the stable id, so they survive expiring signed URLs and work offline. After each sync the app asks it to download every photo. |
-| `app/demo/*.json` | A snapshot in the model's own shape: the demo backend, and the default seed for `/api/admin/import`. |
+| `app/sw.js` | Service worker. App shell is stale-while-revalidate; photos are fetched through `./photo/<id>?src=…` and cached under the stable id. After each sync the app asks it to download every photo. |
 | `api/` | Vercel functions (Web `Request`/`Response` handlers per HTTP method). |
-| `lib/backend.js` | Chooses the server backend from env vars; `lib/postgres.js` maps the model to tables (schema in `lib/db.js`, created on first use); `lib/photos.js` copies photos into Blob on import. |
-| `scripts/dev.mjs`, `test/` | Local stand-in for Vercel, and API tests against a real Postgres. |
-| `*.py`, `searches/`, `templates/` | The older Python engine (scraping notes, SQLite, static galleries). Still works; the app doesn't depend on it. |
+| `lib/postgres.js`, `lib/db.js` | The model ↔ Neon tables (schema in `db.js`, created/upgraded on first use). |
+| `lib/photos.js` | Copies photos into Blob. |
+| `lib/sync.js`, `lib/airtable.js` | Neon ↔ Airtable sync, and the Airtable REST client. |
+| `lib/crawl.js`, `lib/crawlers/`, `lib/score.js` | Crawling and Claude scoring. |
+| `scripts/dev.mjs`, `scripts/remote.mjs`, `test/` | Local stand-in for Vercel; terminal access to a live deployment; tests against a local Postgres and an in-memory Airtable. |
 
 ## Data model
 
@@ -90,45 +99,84 @@ The search decides how its listings look:
   `score` (the criteria's rubric) plus the lit features' points. Crawls ask
   Claude which features a new listing has.
 
-## Adapter contract
+## Airtable sync
 
-```js
-export const FIELDS_FOR_SETTINGS = [{ key, label, placeholder, secret?, required? }];
-export function create(config) {
-  return {
-    kind: "mydb",
-    describe(),            // -> { kind, name, detail, writable, url } shown in the header pill
-    async pull(),          // -> { searches, listings, sources } in the model shape
-    async pushListing(id, patch),   // patch: { status?, notes? }; throw to retry later
-  };
-}
-```
+`lib/sync.js` keeps an Airtable base in step with Neon, both ways.
 
-Register it in `app/js/adapters/index.js`. The store handles caching,
-offline, retries and ordering; an adapter only maps shapes and makes calls.
+**Pairing.** Every Neon row stores its Airtable record id (`airtable_id`);
+every Airtable record carries the Neon id in its **Live ID** field. Either
+one pairs a record, so a base can be linked to an existing Neon database.
 
-## Airtable schema (first adapter)
+**Merge, per field.** Each Neon row also stores `sync_base`: the value of
+every synced Airtable field the last time both sides agreed. On each sync,
+for every field:
 
-Three tables. Names are the defaults in `adapters/airtable.js`; override
-them there.
+| Neon vs base | Airtable vs base | Result |
+|---|---|---|
+| changed | same | Neon → Airtable |
+| same | changed | Airtable → Neon |
+| changed | changed | the newer record wins (Airtable **Last modified** vs Neon `updated_at`) |
+| never synced | | Neon wins, unless Neon has no value (then Airtable fills it in) |
 
-- **Searches**: Name, Looking for, Budget, Area, Timing, State (Active /
-  Paused / Done), Criteria, Contact template, Statuses (`Label: group` per
-  line), Card metrics (`field | label | unit | good | ok` per line).
-- **Listings**: Listing (title), Search (link), Status (single select whose
-  choices match the search's Statuses), Price, Fit score, Notes, URL,
-  Location, Description, Summary, Source, Photos (attachments), plus any
-  search-specific fields the Card metrics name.
-- **Sources**: Name, Search (link), Access (Automated / Partial / Manual
-  only / Untested), Search links (`Label | url` per line), Method, Last
-  checked, Notes.
+Values are compared in one normalized form per Airtable field type
+(selects match choices case-insensitively, text ignores trailing
+whitespace, numbers are numbers), so formatting never reads as an edit, and
+our own writes echoing back through the webhook are no-ops.
 
-Auth: a personal access token entered in the app's Data source dialog. It
-stays in that browser's storage and is only sent to `api.airtable.com`.
-Scope it to `data.records:read` + `data.records:write` on one base. Never
-commit it.
+**Records.** A record added in Airtable becomes a Neon row (id
+`at-<record id>`, or its Live ID if it has one; listings need a Search link
+unless there's only one search) and gets its Live ID stamped. A record
+deleted in Airtable is deleted in Neon, except searches (that would cascade
+to their listings; it's reported instead). A full sync that finds more than
+30% of linked records missing deletes nothing and reports it: that's a
+wrong base or a bad read, not an edit.
 
-## Sync behaviour
+**Photos.** Neon keeps Blob URLs; Airtable gets them as attachments whose
+filename is the photo id. Photos attached in Airtable are copied into Blob
+(`at-<attachment id>`) and written back under that name.
+
+**Field mapping.** Tables and fields are named in `MAP` in `lib/sync.js`:
+
+- **Searches**: Name, Looking for, Budget, Area, Timing, State, Criteria,
+  Contact template, Statuses (`Label: group` per line), Card metrics
+  (`field | label | unit | good | ok` per line), Features (`Label | +3` per
+  line), Live ID, Last modified.
+- **Sources**: Name, Search (link), Access, Search links (`Label | url` per
+  line), Method, Last checked, Notes, Crawler, Last run and Last result
+  (Neon → Airtable only), Live ID, Last modified.
+- **Listings**: Listing (title), Search (link), Price, Fit score, Status,
+  Notes, URL, Location, Description, Summary, Source, Features, Photos,
+  Live ID, Last modified, and **every other editable column** as a
+  search-specific field (`listing.fields[column]`: Neighborhood, Greenway
+  (mi), Move-in…). Add a column in Airtable and it syncs; card metrics can
+  name it.
+
+Missing fields are skipped and listed in the sync status. Computed columns
+(formulas, rollups, Last modified) are never written.
+
+**When it runs.**
+1. After every Neon write (triage, criteria edits, crawls, imports), for
+   just those rows. The write returns after the push; if Airtable is down
+   the ids stay queued for the next run.
+2. On every change in Airtable: Airtable pings `POST /api/airtable/webhook`
+   (signed with the webhook's MAC secret, kept in Neon), and the sync reads
+   the changed record ids since its saved cursor and reconciles them.
+3. Daily cron `GET /api/sync` (`vercel.json`): refreshes the webhook (Airtable
+   expires API webhooks after 7 days), re-enables its notifications if
+   Airtable paused them after failed deliveries, recreates it if it's
+   gone, then runs a full reconcile. A missed ping is caught here. Run it by
+   hand with `curl -X POST -H "Authorization: Bearer $ADMIN_TOKEN" …/api/sync`.
+
+One sync runs at a time (a lease row in `sync_state`). `GET /api/health`
+shows the last sync, last error and webhook expiry.
+
+**Setup (env vars):** `AIRTABLE_TOKEN` (a personal access token with
+`data.records:read`, `data.records:write`, `schema.bases:read` and
+`webhook:manage`, limited to the base), `AIRTABLE_BASE_ID`, `CRON_SECRET`
+(16+ chars; Vercel sends it with cron calls) and `SHORTLIST_URL` (the
+public URL Airtable should call; defaults to the production domain).
+
+## Device sync
 
 1. Open: render straight from IndexedDB (instant, offline-safe).
 2. Pull in the background when the page opens, returns to the foreground
@@ -138,10 +186,6 @@ commit it.
    queue flushes after a short pause, one upload per listing with the
    latest values, retrying with backoff on failure. Cards with unsent edits
    show "not synced".
-4. Read-only sources (JSON) keep edits on the device.
-
-Conflicts are last-writer-wins per field, which is fine for one person
-triaging on a couple of devices.
 
 ## Crawling
 
@@ -180,6 +224,15 @@ app survive. Needs `SHORTLIST_URL` and, for push, `ADMIN_TOKEN`.
 
 ## Adding a new search
 
-Add a row to Searches (statuses, metrics, criteria), add its Sources, and
-link new Listings to it. No code changes. The header's search picker
+Add a row to Searches in Airtable (statuses, metrics, criteria), add its
+Sources, and link Listings to it; the sync brings them into Neon. Or POST a
+snapshot to `/api/admin/import`. No code changes. The header's search picker
 appears once there's more than one.
+
+## Tests
+
+`TEST_DATABASE_URL=postgres://…@localhost/… npm test`. Tests drop and
+recreate tables, so they only run against `TEST_DATABASE_URL` (localhost
+unless `ALLOW_REMOTE_TEST_DB=1`), and `test/env.mjs` strips every production
+credential (`DATABASE_URL`, Blob, Airtable, Anthropic) from the environment
+first. Airtable is an in-memory fake (`test/fake-airtable.mjs`).

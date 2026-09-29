@@ -1,21 +1,3 @@
-# Local per-project directories are NOT part of the published app.
-# Each is a private local workspace that uses the generic engine at the repo
-# root; its real data (criteria, database, personal templates, generated
-# gallery) lives only here and is never published.
-/bikes/
-/apartment/
-/car/
-
-# serve.py's per-project edit secret - never publish
-.edit_token
-
-# Python
-__pycache__/
-*.pyc
-
-# build_site.py output
-/_site/
-
 node_modules/
 .env*
 .vercel/

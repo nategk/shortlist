@@ -2,6 +2,7 @@
 // a crawler, score new listings with Claude, record per-source status.
 // Public like triage; limited to one run per search per 10 minutes.
 import { crawlSearch } from "../lib/crawl.js";
+import { pushAfterWrite } from "../lib/sync.js";
 import { databaseUrl } from "../lib/db.js";
 import { json, fail } from "../lib/http.js";
 
@@ -11,7 +12,9 @@ export async function POST(request) {
     let body = {};
     try { body = await request.json(); } catch (e) {}
     if (!body.searchId || typeof body.searchId !== "string") return json({ error: "Send { searchId }." }, 400);
-    return json({ ok: true, ...(await crawlSearch(body.searchId)) });
+    const { changed, ...out } = await crawlSearch(body.searchId);
+    const airtable = await pushAfterWrite(changed);
+    return json({ ok: true, ...out, airtable });
   } catch (e) {
     return fail(e);
   }

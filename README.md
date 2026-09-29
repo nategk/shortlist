@@ -30,9 +30,9 @@ cached on the device and stored permanently in Vercel Blob.
    ```sh
    curl -X POST -H "Authorization: Bearer $ADMIN_TOKEN" https://YOUR-APP.vercel.app/api/admin/import
    ```
-   With no body this loads the bundled demo search (and copies its photos
-   into Blob). POST a snapshot JSON body (`{searches, listings, sources}`) to
-   load your own.
+   POST a snapshot JSON body (`{searches, listings, sources}`, the shape
+   `/api/snapshot` returns); photos are copied into Blob. Or connect
+   Airtable (below) and let the first sync bring your base in.
 
 6. **Optional, for crawl scoring**: add `ANTHROPIC_API_KEY` (a key from
    console.anthropic.com) so new listings found by **Run crawl** get scored
@@ -53,116 +53,36 @@ and admin credentials exist only as Vercel environment variables.
 
 ```sh
 npm install
-npm run dev                                   # demo data, read-only
-DATABASE_URL=postgres://user:pass@localhost/shortlist npm run dev   # real Postgres
-npm test                                      # API tests (need DATABASE_URL)
+DATABASE_URL=postgres://user:pass@localhost/shortlist npm run dev   # local Postgres
+TEST_DATABASE_URL=postgres://user:pass@localhost/shortlist_test npm test
 ```
 
-### Other databases
+Tests drop tables, so they only use `TEST_DATABASE_URL` (localhost) and
+ignore the deployment's credentials.
 
-The server picks its backend from env vars: Postgres when `DATABASE_URL`
-is set, or Airtable with `AIRTABLE_TOKEN` + `AIRTABLE_BASE_ID`
-(`SHORTLIST_BACKEND` forces one). The browser can also connect to Airtable
-directly, or to a JSON snapshot, from the data-source dialog.
+### Airtable (optional, two-way)
 
-See [ARCHITECTURE.md](ARCHITECTURE.md) for the layers, the data model, the
-Airtable schema and how to add an adapter for another database.
+Keep an Airtable base in step with the app: every change in the app shows
+up in Airtable within seconds, and any field you edit in Airtable (or a row
+you add or delete there) flows back. Setup:
 
-## Python engine (older, still works)
+1. Create a personal access token at
+   [airtable.com/create/tokens](https://airtable.com/create/tokens) with
+   scopes `data.records:read`, `data.records:write`, `schema.bases:read`,
+   `webhook:manage`, limited to your base.
+2. In Vercel, add `AIRTABLE_TOKEN`, `AIRTABLE_BASE_ID` (`app…`) and
+   `CRON_SECRET` (any 16+ character string), then redeploy.
+3. Run the first sync (it also registers the Airtable webhook):
+   ```sh
+   curl -X POST -H "Authorization: Bearer $ADMIN_TOKEN" https://YOUR-APP.vercel.app/api/sync
+   ```
+   After that a daily cron keeps the webhook alive and reconciles
+   everything as a safety net.
 
-- `add_listing.py` — CLI to add one candidate, score it, and regenerate the
-  gallery.
-- `generate_gallery.py` — builds `gallery.html`, a sortable visual board of
-  every candidate by fit score and status.
-- `serve.py` — small local server so the gallery's web UI can save edits
-  (status changes, notes, project settings, criteria/offer text) back to
-  the database.
-- `init_db.py` / `schema.sql` — creates `listings.db` (SQLite): a
-  `listings` table (the candidates), a `sources_status` table (which
-  listing sites are scrapable vs. bot-walled), and a singleton `project`
-  row holding everything about *this* search — what you're looking for,
-  budget, search area, optional ship-to address, fulfillment, and the
-  scoring rubric / outreach message text (edited live from the gallery's
-  Project Settings / Scoring Criteria / Contact-Offer Template panels).
-- `photo_cache.py` — downloads a listing's photo locally so the gallery
-  doesn't depend on the source site's (often expiring) image URL.
-- `project_dir.py` — resolves which project folder the scripts read and
-  write. Defaults to the scripts' own folder; set `SHORTLIST_PROJECT` to
-  point them at a project elsewhere (e.g. one under `searches/`).
+The base needs Searches, Sources and Listings tables with the fields listed
+in [ARCHITECTURE.md](ARCHITECTURE.md#airtable-sync) (a **Live ID** text
+field and a **Last modified** field on each). Any extra column on Listings
+syncs as a search-specific field.
 
-Everything for one project lives in that one `listings.db` file — no
-separate criteria/config files to keep in sync.
-
-Candidates move through a status pipeline (`new` → `flagged` → `contacted`
-→ ... → `purchased`, or archived as `no_go` / `rejected` / `sold_elsewhere`
-/ `scam_suspected`), sorted by fit score.
-
-## Starting a project
-
-A "project" is just a folder with its own `listings.db`, running its own
-copy of the scripts above. Nothing here tracks or cares what you're
-shopping for — that all lives in your project's `config/` and database,
-not the app.
-
-Two folders, two audiences:
-- **`templates/`** (this repo, public) — generic, empty-of-content starting
-  points. What you copy *from*.
-- **`config/`** (your project folder, private, git-ignored) — your filled-in
-  personal instructions: sizing, preferred make/model/color, budget, the
-  actual scoring rubric. What the app reads.
-
-1. Make a folder (e.g. `~/car-search/`) and copy in the app scripts above —
-   or, to keep the project next to the code, make `searches/<name>/` in this
-   repo and `export SHORTLIST_PROJECT=searches/<name>` before running the
-   scripts from the repo root.
-2. Run `python3 init_db.py --object "..." --budget "..." --search-area "..."`
-   (all optional/fillable-later — see `python3 init_db.py --help`). A
-   `config/sources_status.csv` is seeded into the sources table too.
-3. Make a `config/` folder in your project. Copy `templates/criteria.md` and
-   `templates/offer_template.md` into it and fill in the brackets —
-   `init_db.py` reads `config/criteria.md` / `config/offer_template.md`
-   automatically and seeds them into the database (after that, edit them
-   live from the gallery's Scoring Criteria / Contact-Offer Template
-   panels instead). Copy `templates/reference_spec.md` and
-   `templates/target_list.md` into `config/` too — those stay as permanent
-   working notes, never loaded into the db.
-4. Start adding candidates with `add_listing.py`.
-
-**Never commit a project's `config/` or `listings.db` to a public repo** —
-budget, contact info, and physical/personal measurements live in them.
-
-## templates/
-
-Generic starting points — no object-specific content, since criteria are
-inherently personal (your budget, your fit, your location). Copy these into
-your project's `config/` folder and fill in the brackets:
-
-- `criteria.md`, `reference_spec.md`, `target_list.md`, `offer_template.md`
-
-`templates/examples/` is different: source-scraping research isn't
-personal, just factual (which sites are bot-walled, which have clean
-structured data), so real worked examples are published as-is:
-
-- `sources_status_bikes.csv`, `sources_status_apartments.csv`
-
-## Public site (GitHub Pages)
-
-`build_site.py` copies `app/` to the site root and renders a read-only
-legacy gallery for every `searches/<name>/` under `/galleries/`.
-`.github/workflows/pages.yml` runs it on every push to `main`.
-
-## searches/
-
-Projects kept alongside the code, run via `SHORTLIST_PROJECT`:
-
-- `searches/nyc-rental/` — 1BR rental, Oct 1 2026 move-in, Lincoln Square /
-  UWS / Chelsea near the Hudson River Greenway. Committed deliberately —
-  criteria, listings db and gallery are public.
-
-## Local, unpublished projects on this machine
-
-`bikes/`, `apartment/`, and `car/` exist locally in this same parent
-directory but are git-ignored — they're real, personal, in-progress
-searches (some predating this repo, still on their own slightly-diverged
-copies of the engine, including apartment's older CSV-based version), not
-part of the published app.
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the layers, the data model and
+how the sync merges edits.

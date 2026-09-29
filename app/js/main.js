@@ -226,9 +226,7 @@ function fillFields(kind) {
   $("#set-fields").innerHTML = fields.map(f => `<label>${ui.esc(f.label)}
     <input id="set-${f.key}" name="${f.key}" ${f.secret ? 'type="password" autocomplete="off"' : ""} placeholder="${ui.esc(f.placeholder || "")}" value="${ui.esc(kind === conn.adapter ? conn[f.key] || "" : "")}" ${f.required ? "required" : ""}></label>`).join("");
   $("#set-hint").textContent = {
-    api: "Uses the database this site is deployed with. Its credentials stay on the server; nothing to enter here.",
-    airtable: "Your token stays on this device (browser storage) and is only sent to api.airtable.com. Create it at airtable.com/create/tokens with data.records:read and data.records:write, limited to this base.",
-    json: "Loads a snapshot file in the app's own format. Edits stay on this device.",
+    api: "Uses the database this site is deployed with (mirrored to Airtable on the server). Its credentials stay on the server; nothing to enter here.",
   }[kind] || "";
 }
 $("#set-adapter").addEventListener("change", e => fillFields(e.target.value));

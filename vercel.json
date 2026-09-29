@@ -4,25 +4,23 @@
   "buildCommand": "echo 'static app, no build step'",
   "outputDirectory": "app",
   "functions": {
-    "api/health.js": {
-      "includeFiles": "app/demo/**"
-    },
-    "api/snapshot.js": {
-      "includeFiles": "app/demo/**"
-    },
-    "api/listings/[id].js": {
-      "includeFiles": "app/demo/**"
-    },
     "api/admin/import.js": {
-      "maxDuration": 300,
-      "includeFiles": "app/demo/**"
-    },
-    "api/searches/[id].js": {
-      "includeFiles": "app/demo/**"
+      "maxDuration": 300
     },
     "api/crawl.js": {
-      "maxDuration": 300,
-      "includeFiles": "app/demo/**"
+      "maxDuration": 300
+    },
+    "api/sync.js": {
+      "maxDuration": 300
+    },
+    "api/airtable/webhook.js": {
+      "maxDuration": 120
+    },
+    "api/listings/[id].js": {
+      "maxDuration": 60
+    },
+    "api/searches/[id].js": {
+      "maxDuration": 60
     }
   },
   "headers": [
@@ -43,6 +41,12 @@
           "value": "no-store"
         }
       ]
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/sync",
+      "schedule": "17 9 * * *"
     }
   ]
 }

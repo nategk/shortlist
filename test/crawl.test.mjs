@@ -1,19 +1,17 @@
 // Search edits + a full crawl against a real Postgres, with the listing sites
 // mocked (global fetch) and no ANTHROPIC_API_KEY (unscored path).
-//   DATABASE_URL=postgres://shortlist:dev@localhost/shortlist_test npm test
+//   TEST_DATABASE_URL=postgres://shortlist:dev@localhost/shortlist_test npm test
+import { skip, fixture } from "./env.mjs";
 import { test, before } from "node:test";
 import assert from "node:assert/strict";
 
-const skip = !process.env.DATABASE_URL && "DATABASE_URL not set";
-delete process.env.ANTHROPIC_API_KEY;
-process.env.ADMIN_TOKEN = process.env.ADMIN_TOKEN || "test-admin-token-123456";
 const req = (path, init = {}) => new Request("http://localhost" + path, init);
 let api, db, realFetch;
 
 before(async () => {
   if (skip) return;
   ({ db } = await import("../lib/db.js"));
-  await db().query("drop table if exists listings, sources, searches cascade");
+  await db().query("drop table if exists listings, sources, searches, sync_state cascade");
   api = {
     importer: await import("../api/admin/import.js"),
     snapshot: await import("../api/snapshot.js"),
@@ -21,7 +19,7 @@ before(async () => {
     listing: await import("../api/listings/[id].js"),
     crawl: await import("../api/crawl.js"),
   };
-  await api.importer.POST(req("/api/admin/import?photos=0", { method: "POST", headers: { authorization: "Bearer " + process.env.ADMIN_TOKEN } }));
+  await api.importer.POST(req("/api/admin/import?photos=0", { method: "POST", headers: { authorization: "Bearer " + process.env.ADMIN_TOKEN }, body: await fixture() }));
   // Only Craigslist crawls in this test.
   await db().query("update sources set crawler = '' where crawler <> 'craigslist'");
   realFetch = globalThis.fetch;

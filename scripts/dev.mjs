@@ -3,7 +3,7 @@
 // handlers exported per HTTP method). No Vercel account needed.
 //
 //   DATABASE_URL=postgres://user:pass@localhost/shortlist npm run dev
-//   (no DATABASE_URL -> read-only demo backend)
+//   Needs DATABASE_URL (a local Postgres is fine; the schema is created on first use).
 import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
@@ -51,4 +51,4 @@ createServer(async (req, res) => {
     console.error(e);
     res.writeHead(500).end("Server error");
   }
-}).listen(PORT, () => console.log(`Shortlist dev server on http://localhost:${PORT} (${process.env.DATABASE_URL ? "postgres" : "demo backend"})`));
+}).listen(PORT, () => console.log(`Shortlist dev server on http://localhost:${PORT} (${process.env.DATABASE_URL ? "postgres" : "no DATABASE_URL: the API will error"})`));
