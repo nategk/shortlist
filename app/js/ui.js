@@ -19,14 +19,24 @@ export function photoSrc(p) {
 export function statusesFor(search) { return (search && search.statuses && search.statuses.length) ? search.statuses : DEFAULT_STATUSES; }
 export function firstInGroup(search, group) { const s = statusesFor(search).find(x => x.group === group); return s ? s.label : null; }
 
+// "All" leaves out archived listings; they only show under their own tab,
+// set apart at the end.
+export function inTab(search, l, tab) {
+  const group = groupOf(search, l.status);
+  return tab === "all" ? group !== "archived" : group === tab;
+}
+
 export function tabs(search, listings, current) {
-  const counts = { all: listings.length };
+  const counts = { all: 0 };
   for (const g of GROUPS) counts[g.key] = 0;
   for (const l of listings) counts[groupOf(search, l.status)]++;
-  const items = [...GROUPS.filter(g => counts[g.key] > 0 || g.key === "review" || g.key === "shortlist"), { key: "all", label: "All" }];
-  return items.map(g =>
-    `<button class="tab" type="button" data-tab="${g.key}" aria-pressed="${g.key === current}">${esc(g.label)}<span class="n">${counts[g.key]}</span></button>`
-  ).join("");
+  counts.all = listings.length - counts.archived;
+  const button = g =>
+    `<button class="tab" type="button" data-tab="${g.key}" aria-pressed="${g.key === current}">${esc(g.label)}<span class="n">${counts[g.key]}</span></button>`;
+  const open = [{ key: "all", label: "All" }, ...GROUPS.filter(g => g.key !== "archived" && (counts[g.key] > 0 || g.key === "review" || g.key === "shortlist"))];
+  const archived = GROUPS.find(g => g.key === "archived");
+  return open.map(button).join("")
+    + (counts.archived > 0 || current === "archived" ? `<span class="tab-sep" aria-hidden="true"></span>${button(archived)}` : "");
 }
 
 function metricValue(listing, m) {
