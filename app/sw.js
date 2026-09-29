@@ -4,15 +4,15 @@
 //   up new versions in the background.
 // - Photos: the page requests ./photo/<stable id>?src=<remote url>. The first
 //   fetch stores the image under its stable id, so photo hosts that rotate
-//   signed URLs (Airtable) still hit the cache later.
+//   signed URLs still hit the cache later.
 // - The page can post {type: "warm-photos", photos: [{id, url}]} to download
 //   every photo in the background.
-const SHELL = "shortlist-shell-v5";
+const SHELL = "shortlist-shell-v6";
 const PHOTOS = "shortlist-photos-v1";
 const SHELL_FILES = [
   "./", "index.html", "styles.css", "manifest.webmanifest",
   "js/main.js", "js/ui.js", "js/store.js", "js/model.js",
-  "js/adapters/index.js", "js/adapters/api.js", "js/adapters/airtable.js", "js/adapters/json.js",
+  "js/adapters/index.js", "js/adapters/api.js",
 ];
 
 self.addEventListener("install", e => {

@@ -1,12 +1,9 @@
 // Integration test: the real /api handlers against a real Postgres.
-//   DATABASE_URL=postgres://shortlist:dev@localhost/shortlist_test ADMIN_TOKEN=... npm test
-// Skips when DATABASE_URL isn't set.
+//   TEST_DATABASE_URL=postgres://shortlist:dev@localhost/shortlist_test npm test
+// Skips when TEST_DATABASE_URL isn't set.
+import { skip, ADMIN, fixture } from "./env.mjs";
 import { test, before } from "node:test";
 import assert from "node:assert/strict";
-
-const ADMIN = process.env.ADMIN_TOKEN || "test-admin-token-123456";
-process.env.ADMIN_TOKEN = ADMIN;
-const skip = !process.env.DATABASE_URL && "DATABASE_URL not set";
 
 const req = (path, init = {}) => new Request("http://localhost" + path, init);
 let api;
@@ -14,7 +11,7 @@ let api;
 before(async () => {
   if (skip) return;
   const { db } = await import("../lib/db.js");
-  await db().query("drop table if exists listings, sources, searches cascade");
+  await db().query("drop table if exists listings, sources, searches, sync_state cascade");
   api = {
     health: await import("../api/health.js"),
     snapshot: await import("../api/snapshot.js"),
@@ -30,13 +27,15 @@ test("import requires the admin token", { skip }, async () => {
   assert.equal(wrong.status, 401);
 });
 
-test("seed import creates the schema and loads the demo search", { skip }, async () => {
-  const r = await api.importer.POST(req("/api/admin/import?photos=0", { method: "POST", headers: { authorization: "Bearer " + ADMIN } }));
+test("import needs a snapshot body, creates the schema and loads it", { skip }, async () => {
+  const auth = { authorization: "Bearer " + ADMIN };
+  assert.equal((await api.importer.POST(req("/api/admin/import?photos=0", { method: "POST", headers: auth }))).status, 400);
+  const r = await api.importer.POST(req("/api/admin/import?photos=0", { method: "POST", headers: auth, body: await fixture() }));
   const body = await r.json();
   assert.equal(r.status, 200, JSON.stringify(body));
-  const { demoSnapshot } = await import("../lib/backend.js");
-  const demo = await demoSnapshot();
+  const demo = JSON.parse(await fixture());
   assert.deepEqual(body.imported, { searches: demo.searches.length, listings: demo.listings.length, sources: demo.sources.length });
+  assert.equal(body.airtable.ok, false, "no Airtable configured in tests");
 });
 
 test("health reports postgres without leaking the connection string", { skip }, async () => {
@@ -78,7 +77,7 @@ test("PATCH rejects junk and unknown ids", { skip }, async () => {
 });
 
 test("re-import with keepTriage preserves edits", { skip }, async () => {
-  await api.importer.POST(req("/api/admin/import?photos=0&keepTriage=1", { method: "POST", headers: { authorization: "Bearer " + ADMIN } }));
+  await api.importer.POST(req("/api/admin/import?photos=0&keepTriage=1", { method: "POST", headers: { authorization: "Bearer " + ADMIN }, body: await fixture() }));
   const snap = await (await api.snapshot.GET(req("/api/snapshot"))).json();
   assert.equal(snap.listings.find(x => x.id === "listing-5").status, "Contacted");
 });

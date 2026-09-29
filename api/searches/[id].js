@@ -1,7 +1,8 @@
 // PATCH /api/searches/:id  { criteria?, contactTemplate?, lookingFor?, budget?, area?, timing?,
 //                            features?: [{label, points}] }
 // Edits a search's text fields from the UI. Open like triage.
-import { backend } from "../../lib/backend.js";
+import * as postgres from "../../lib/postgres.js";
+import { pushAfterWrite } from "../../lib/sync.js";
 import { json, fail } from "../../lib/http.js";
 
 const FIELDS = ["criteria", "contactTemplate", "lookingFor", "budget", "area", "timing"];
@@ -20,10 +21,10 @@ export async function PATCH(request) {
         .map(f => ({ label: f.label.trim().slice(0, 60), points: Math.max(-50, Math.min(50, Number(f.points) || 0)) }));
     }
     if (!Object.keys(patch).length) return json({ error: "Nothing to update." }, 400);
-    const b = backend();
-    if (!b.updateSearch) return json({ error: "This backend can't edit searches." }, 405);
-    const found = await b.updateSearch(id, patch);
-    return found ? json({ ok: true, id }) : json({ error: "No search with id " + id }, 404);
+    const found = await postgres.updateSearch(id, patch);
+    if (!found) return json({ error: "No search with id " + id }, 404);
+    await pushAfterWrite({ searches: [id] });
+    return json({ ok: true, id });
   } catch (e) {
     return fail(e);
   }

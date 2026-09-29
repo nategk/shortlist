@@ -1,2 +1,0 @@
-source,automatable,last_attempt,last_success,status,method,notes,search_url
-example_marketplace,untested,,,untested,,"Replace with real sources you actually try. See bikes/ or apartment/ (local, gitignored) for worked examples of the working/blocked/partial patterns and how bot-walls get documented here so repeat searches don't re-discover the same dead ends.",

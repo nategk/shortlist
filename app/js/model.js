@@ -109,3 +109,9 @@ export function fit(search, listing) {
   const base = listing.score ?? null;
   return { base, boost, matched, total: base === null ? null : base + boost };
 }
+
+// Inverses of the parsers above (text form used in Airtable).
+export const statusesText = statuses => (statuses || []).map(s => `${s.label}: ${s.group}`).join("\n");
+export const metricsText = metrics => (metrics || []).map(m =>
+  [m.field, m.label, m.unit, m.good, m.ok].map(v => (v === null || v === undefined ? "" : String(v))).join(" | ").replace(/( \| )+$/, "")).join("\n");
+export const linksText = links => (links || []).map(l => `${l.label} | ${l.url}`).join("\n");
