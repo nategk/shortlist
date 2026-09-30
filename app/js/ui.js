@@ -15,9 +15,31 @@ export const ICON = {
   open: svg('<path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>'),
   user: svg('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'),
   close: svg('<path d="M18 6 6 18M6 6l12 12"/>'),
+  train: svg('<rect width="16" height="16" x="4" y="3" rx="2"/><path d="M4 11h16M12 3v8M8 19l-2 3M18 22l-2-3M8 15h.01M16 15h.01"/>'),
   prev: svg('<path d="m15 18-6-6 6-6"/>'),
   next: svg('<path d="m9 18 6-6-6-6"/>'),
 };
+// Nearest subway lines: fields.Subways is "1 0.15 · 2 0.15 · B 0.46" (line,
+// miles to its nearest entrance), up to 5. Lines at the same distance share
+// one group, like a station sign: ①②③ 0.15 · Ⓑ Ⓒ 0.46. Distances take the
+// colors of the search's subway metric thresholds.
+const LINE_COLOR = { 1: "#EE352E", 2: "#EE352E", 3: "#EE352E", 4: "#00933C", 5: "#00933C", 6: "#00933C", 7: "#B933AD",
+  A: "#0039A6", C: "#0039A6", E: "#0039A6", B: "#FF6319", D: "#FF6319", F: "#FF6319", M: "#FF6319", G: "#6CBE45",
+  J: "#996633", Z: "#996633", L: "#A7A9AC", N: "#FCCC0A", Q: "#FCCC0A", R: "#FCCC0A", W: "#FCCC0A", S: "#808183" };
+function subways(search, l) {
+  const entries = String((l.fields || {}).Subways || "").split("·").map(x => x.trim().split(/\s+/)).filter(x => x.length === 2 && !isNaN(Number(x[1])));
+  if (!entries.length) return "";
+  const metric = (search && search.metrics || []).find(m => /subway/i.test(m.field));
+  const groups = [];
+  for (const [line, mi] of entries.slice(0, 5)) {
+    const last = groups[groups.length - 1];
+    if (last && last.mi === mi) last.lines.push(line); else groups.push({ mi, lines: [line] });
+  }
+  const html = groups.map(g => `<span class="subway">${g.lines.map(x =>
+    `<i class="bullet${LINE_COLOR[x] === "#FCCC0A" ? " dark" : ""}" style="background:${LINE_COLOR[x] || "#808183"}">${esc(x)}</i>`).join("")}<span class="v ${metric ? rateMetric(metric, Number(g.mi)) : ""}">${esc(g.mi)}</span></span>`).join("");
+  return row("subways", ICON.train, html, "Nearest subway lines, miles to the closest entrance: " + entries.map(([a, b]) => a + " " + b).join(", "));
+}
+
 // One metadata row: icon, then a single line of content (ellipsis).
 const row = (cls, icon, html, title = "") => `<div class="row ${cls}"${title ? ` title="${esc(title)}"` : ""}>${icon}<span class="t">${html}</span></div>`;
 
@@ -149,7 +171,9 @@ export function card(search, l, pendingIds, expanded = new Set()) {
   const group = groupOf(search, l.status);
   const photos = l.photos || [];
   // Distances on one line; a unit they all share is said once, at the end.
-  const shown = (search && search.metrics || []).map(m => ({ m, v: metricValue(l, m) })).filter(x => x.v);
+  const hasSubways = !!String((l.fields || {}).Subways || "").trim();
+  const shown = (search && search.metrics || []).filter(m => !(hasSubways && /subway/i.test(m.field)))
+    .map(m => ({ m, v: metricValue(l, m) })).filter(x => x.v);
   const oneUnit = shown.length > 1 && shown.every(x => x.m.unit && x.m.unit === shown[0].m.unit) ? shown[0].m.unit : "";
   const metrics = shown.map(({ m, v }, i) => {
     const unit = oneUnit ? "" : m.unit;
@@ -187,6 +211,7 @@ export function card(search, l, pendingIds, expanded = new Set()) {
       ${place(l, name.street)}
       ${lease(l)}
       ${metrics ? row("metrics", ICON.route, metrics, oneUnit ? "Distances in " + ({ mi: "miles", km: "kilometers" }[oneUnit] || oneUnit) : "") : ""}
+      ${subways(search, l)}
       ${features ? `<div class="row amenities">${ICON.amenity}<span class="t chips" aria-label="Features that matter">${features}</span></div>` : ""}
     </div>
     <div class="text${open ? " open" : ""}"${long ? ` data-expand role="button" tabindex="0" aria-expanded="${open}" title="${open ? "Tap to collapse" : "Tap to read the full listing"}"` : ""}>
