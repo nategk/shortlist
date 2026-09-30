@@ -85,9 +85,8 @@ Source   id, searchIds[], name, access, links: [{label, url}], method, lastCheck
 
 The search decides how its listings look:
 - **Statuses**: the tabs (To review / Shortlist / In progress / Done / Passed)
-  come from each status's group, and the card's Shortlist / Pass buttons set
-  the first status in that group. An apartment hunt can say "Lease signed";
-  a bike search can say "Bought".
+  come from each status's group; each card's status menu lists them all.
+  An apartment hunt can say "Lease signed"; a bike search can say "Bought".
 - **Card metrics**: any listing field can become a metric tile. Numbers get
   green / amber / red from the search's own thresholds (lower is better when
   `good < ok`). The West Side hunt shows Greenway and Subway distance; a bike

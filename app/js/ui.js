@@ -17,7 +17,6 @@ export function photoSrc(p) {
 }
 
 export function statusesFor(search) { return (search && search.statuses && search.statuses.length) ? search.statuses : DEFAULT_STATUSES; }
-export function firstInGroup(search, group) { const s = statusesFor(search).find(x => x.group === group); return s ? s.label : null; }
 
 // "All" leaves out archived listings; they only show under their own tab,
 // set apart at the end.
@@ -111,9 +110,6 @@ function contact(l) {
 export function card(search, l, pendingIds, expanded = new Set()) {
   const statuses = statusesFor(search);
   const group = groupOf(search, l.status);
-  const shortlist = firstInGroup(search, "shortlist");
-  const review = firstInGroup(search, "review");
-  const pass = firstInGroup(search, "archived");
   const photos = l.photos || [];
   const metrics = (search && search.metrics || []).map(m => {
     const v = metricValue(l, m);
@@ -131,14 +127,11 @@ export function card(search, l, pendingIds, expanded = new Set()) {
   const scoreTitle = f.boost ? `${f.base} on the criteria ${f.boost > 0 ? "+" : "−"} ${Math.abs(f.boost)} for ${f.matched.map(x => x.label).join(", ")}` : "Fit score on the criteria";
   const opts = statuses.map(s => `<option${s.label === l.status ? " selected" : ""}>${esc(s.label)}</option>`).join("")
     + (l.status && !statuses.some(s => s.label === l.status) ? `<option selected>${esc(l.status)}</option>` : "");
-  const quick = group === "shortlist"
-    ? (review ? `<button class="btn" type="button" data-set="${esc(review)}">Unshortlist</button>` : "")
-    : (shortlist ? `<button class="btn primary" type="button" data-set="${esc(shortlist)}">Shortlist</button>` : "");
   const open = expanded.has(l.id);
   const long = (l.summary || "").length > 150 || !!l.description;
   const price = l.price !== null && l.price !== undefined ? `<span class="price">${money(l.price)}</span>` : "";
   return `<article class="card${group === "archived" ? " archived" : ""}" data-id="${esc(l.id)}">
-  <div class="photo${photos.length ? "" : " nophoto"}">
+  <div class="photo${photos.length ? "" : " nophoto"}"${photos.length > 1 ? ' data-pos="start"' : ""}>
     ${photos.length
       ? `<div class="slides">${photos.map((p, i) => `<a href="${esc(l.url)}" target="_blank" rel="noopener" aria-label="Open listing"><img src="${esc(photoSrc(p))}" data-fallback="${esc(p.url)}" alt=""${i ? ' loading="lazy"' : ""}></a>`).join("")}</div>`
       : `<a class="nophoto-label" href="${esc(l.url)}" target="_blank" rel="noopener">No photos saved · open listing ↗</a>`}
@@ -146,6 +139,7 @@ export function card(search, l, pendingIds, expanded = new Set()) {
     ${l.status ? `<span class="pill g-${group}">${esc(l.status)}</span>` : ""}
     ${pendingIds.has(l.id) ? `<span class="pending" title="Saved on this device, waiting to upload">● not synced</span>` : ""}
     ${price}
+    ${photos.length > 1 ? `<button class="nav prev" type="button" data-slide="-1" aria-label="Previous photo">‹</button><button class="nav next" type="button" data-slide="1" aria-label="Next photo">›</button>` : ""}
     ${photos.length > 1 ? `<span class="count" aria-label="${photos.length} photos, swipe for more">1 / ${photos.length} ⇆</span>` : ""}
   </div>
   <div class="body">
@@ -162,8 +156,6 @@ export function card(search, l, pendingIds, expanded = new Set()) {
     </div>
     <div class="foot">
       <div class="actions">
-        ${quick}
-        ${pass && group !== "archived" ? `<button class="btn pass" type="button" data-set="${esc(pass)}">Pass</button>` : ""}
         <select id="st-${esc(l.id)}" data-status aria-label="Status">${opts}</select>
       </div>
       <textarea id="nt-${esc(l.id)}" data-notes rows="2" aria-label="Your notes" placeholder="Your notes: called broker, viewing Tue 6pm…">${esc(l.notes)}</textarea>
