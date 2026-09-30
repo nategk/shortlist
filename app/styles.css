@@ -158,7 +158,7 @@ select.search-picker { height: auto; padding: 0; box-shadow: none; background: t
    and actions/notes/link stay pinned to the bottom. */
 .card { --card-h: min(640px, calc(100svh - 24px)); height: var(--card-h); background: var(--background-100); box-shadow: var(--shadow-medium); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
 .card.archived { opacity: .6; }
-.photo { position: relative; flex: none; height: 200px; background: var(--gray-100); }
+.photo { position: relative; flex: none; height: 160px; background: var(--gray-100); }
 .photo.nophoto { height: 84px; }
 .slides { display: flex; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
 .slides::-webkit-scrollbar { display: none; }
@@ -175,13 +175,13 @@ select.search-picker { height: auto; padding: 0; box-shadow: none; background: t
 .count { position: absolute; right: 12px; bottom: 14px; z-index: 1; font: 400 12px/16px var(--mono); color: #ffffff; pointer-events: none; }
 .body { padding: 12px 16px 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; min-height: 0; min-width: 0; }
 .title { font: 600 16px/24px var(--font); letter-spacing: -.32px; margin: 0; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; flex: none; }
-.loc { font: 400 14px/20px var(--font); color: var(--gray-900); margin: 0; flex: none; min-width: 0; }
-.loc > a, .loc > .bldg { white-space: nowrap; }
+.loc, .lease { font: 400 14px/20px var(--font); color: var(--gray-900); margin: 0; flex: none; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.loc .hood { color: var(--gray-1000); }
+.lease b { color: var(--gray-1000); font-weight: 500; }
 .loc a { color: var(--gray-1000); text-decoration: underline; text-decoration-color: var(--gray-alpha-500); text-underline-offset: 3px; }
 .loc a:hover { text-decoration-color: currentColor; }
 .loc .bldg { font-weight: 500; color: var(--gray-1000); }
-.loc .where, .contact { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.loc .where { margin-top: 2px; }
+.contact { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .contact { font: 400 14px/20px var(--font); color: var(--gray-900); flex: none; }
 .contact b { color: var(--gray-1000); font-weight: 500; }
 .contact a { color: var(--blue-900); font-weight: 500; text-decoration: none; }

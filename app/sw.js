@@ -7,7 +7,7 @@
 //   signed URLs still hit the cache later.
 // - The page can post {type: "warm-photos", photos: [{id, url}]} to download
 //   every photo in the background.
-const SHELL = "shortlist-shell-v11";
+const SHELL = "shortlist-shell-v12";
 const PHOTOS = "shortlist-photos-v1";
 const SHELL_FILES = [
   "./", "index.html", "styles.css", "manifest.webmanifest",
