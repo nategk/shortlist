@@ -27,9 +27,7 @@
   </div>
 
   <header class="search">
-    <div class="eyebrow" id="eyebrow"></div>
     <h1 id="title-wrap"></h1>
-    <p class="brief" id="brief"></p>
     <div class="sync-line" id="sync" role="status"></div>
   </header>
 
@@ -51,12 +49,9 @@
 
   <section class="sheet-body" id="sheet-criteria">
     <textarea id="criteria" class="doc" spellcheck="true" aria-label="Criteria"></textarea>
+    <label class="sub" for="features">Bonus features <span class="hint">one per line, <code>Label | points</code>; added to the fit score and shown as chips on cards</span></label>
+    <textarea id="features" class="doc short" spellcheck="true" placeholder="Gym | +3"></textarea>
     <div class="actions"><button class="btn primary" type="button" id="save-criteria" disabled>Save criteria</button><span class="hint" id="criteria-hint"></span></div>
-
-    <h3>Features that matter</h3>
-    <p class="hint">One per line: <code>Label | points</code>. Cards show the ones a listing has, and their points are added to its fit score. Crawls check new listings for them; tap a chip on a card to correct it.</p>
-    <textarea id="features" class="doc short" spellcheck="true" aria-label="Features that matter" placeholder="Gym | +3"></textarea>
-    <div class="actions"><button class="btn primary" type="button" id="save-features" disabled>Save features</button><span class="hint" id="features-hint"></span></div>
   </section>
 
   <section class="sheet-body" id="sheet-contact" hidden>

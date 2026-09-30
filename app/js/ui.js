@@ -58,6 +58,22 @@ function address(l) {
   return /^\d+\s+\S/.test(a) ? a : "";
 }
 
+// A title that opens with the address ("267 W 70th St #6E — jumbo corner
+// 1BR") shows just its description; the address, unit included, moves to
+// the location line so it isn't said twice.
+function split(l) {
+  const title = String(l.title || "");
+  const i = title.indexOf(" — ");
+  if (i < 0) return { title, street: "" };
+  const head = title.slice(0, i), rest = title.slice(i + 3).trim();
+  const addr = address(l);
+  // Only when the head is the address (maybe with a unit and a building
+  // name in parentheses), not a description that happens to have a dash.
+  if (!addr || !rest || !/^\d+\s|\(\s*\d+\s/.test(head)) return { title, street: "" };
+  const unit = (head.match(/#\S+/) || [""])[0];
+  return { title: rest.charAt(0).toUpperCase() + rest.slice(1), street: unit ? addr + " " + unit : addr };
+}
+
 function mapsUrl(l, addr) {
   const f = l.fields || {};
   // No address: the saved pin, else the cross streets from the location note.
@@ -69,11 +85,11 @@ function mapsUrl(l, addr) {
 // One line: neighborhood · building (linked to its site when known) ·
 // address (linked to Google Maps). Without an address, the location note's
 // cross streets stand in for it.
-function place(l) {
+function place(l, streetWithUnit) {
   const f = l.fields || {}, addr = address(l);
   const [first, ...rest] = String(l.location || "").split(" · ");
   const hood = f.Neighborhood || (rest.length ? first : "");
-  const street = addr || (rest.length ? rest.join(" · ") : first);
+  const street = streetWithUnit || addr || (rest.length ? rest.join(" · ") : first);
   if (!hood && !street && !f.Building) return "";
   const site = /^https?:\/\//.test(f["Building site"] || "") ? f["Building site"] : "";
   const parts = [];
@@ -111,17 +127,19 @@ export function card(search, l, pendingIds, expanded = new Set()) {
   const statuses = statusesFor(search);
   const group = groupOf(search, l.status);
   const photos = l.photos || [];
-  const metrics = (search && search.metrics || []).map(m => {
-    const v = metricValue(l, m);
-    if (!v) return "";
-    const cls = rateMetric(m, v);
-    return `<div class="metric"><span class="k">${esc(m.label)}</span><span class="v ${cls}">${esc(v)}${m.unit ? " " + esc(m.unit) : ""}</span></div>`;
+  // Distances on one line; a unit they all share is said once, at the end.
+  const shown = (search && search.metrics || []).map(m => ({ m, v: metricValue(l, m) })).filter(x => x.v);
+  const oneUnit = shown.length > 1 && shown.every(x => x.m.unit && x.m.unit === shown[0].m.unit) ? shown[0].m.unit : "";
+  const metrics = shown.map(({ m, v }, i) => {
+    const unit = oneUnit ? (i === shown.length - 1 ? oneUnit : "") : m.unit;
+    return `<span class="metric"><span class="k">${esc(m.label)}</span> <span class="v ${rateMetric(m, v)}">${esc(v)}${unit ? `<span class="u"> ${esc(unit)}</span>` : ""}</span></span>`;
   }).join("");
   // Features that matter: the ones this listing has are lit and add points;
   // tap a chip to mark it present or not (e.g. after a viewing).
   const f = fit(search, l);
   const has = new Set(f.matched.map(x => x.label));
-  const features = (search && search.features || []).map(x =>
+  const ordered = (search && search.features || []).slice().sort((a, b) => has.has(b.label) - has.has(a.label));
+  const features = ordered.map(x =>
     `<button class="chip${has.has(x.label) ? " on" : ""}" type="button" data-feature="${esc(x.label)}" aria-pressed="${has.has(x.label)}" title="${has.has(x.label) ? "Has it" : "Not known to have it"}: tap to toggle">${has.has(x.label) ? "✓ " : ""}${esc(x.label)}${has.has(x.label) && x.points ? ` <span class="pts">${x.points > 0 ? "+" : ""}${esc(x.points)}</span>` : ""}</button>`
   ).join("");
   const scoreTitle = f.boost ? `${f.base} on the criteria ${f.boost > 0 ? "+" : "−"} ${Math.abs(f.boost)} for ${f.matched.map(x => x.label).join(", ")}` : "Fit score on the criteria";
@@ -130,38 +148,40 @@ export function card(search, l, pendingIds, expanded = new Set()) {
   const open = expanded.has(l.id);
   const long = (l.summary || "").length > 150 || !!l.description;
   const price = l.price !== null && l.price !== undefined ? `<span class="price">${money(l.price)}</span>` : "";
+  const name = split(l);
   return `<article class="card${group === "archived" ? " archived" : ""}" data-id="${esc(l.id)}">
   <div class="photo${photos.length ? "" : " nophoto"}"${photos.length > 1 ? ' data-pos="start"' : ""}>
     ${photos.length
       ? `<div class="slides">${photos.map((p, i) => `<a href="${esc(l.url)}" target="_blank" rel="noopener" aria-label="Open listing"><img src="${esc(photoSrc(p))}" data-fallback="${esc(p.url)}" alt=""${i ? ' loading="lazy"' : ""}></a>`).join("")}</div>`
       : `<a class="nophoto-label" href="${esc(l.url)}" target="_blank" rel="noopener">No photos saved · open listing ↗</a>`}
     ${f.total !== null ? `<span class="score" title="${esc(scoreTitle)}">${esc(f.total)} fit${f.boost ? ` <span class="boost">${f.boost > 0 ? "+" : "−"}${esc(Math.abs(f.boost))}</span>` : ""}</span>` : ""}
-    ${l.status ? `<span class="pill g-${group}">${esc(l.status)}</span>` : ""}
+    <label class="status g-${group}" title="Status"><select id="st-${esc(l.id)}" data-status aria-label="Status">${opts}</select></label>
     ${pendingIds.has(l.id) ? `<span class="pending" title="Saved on this device, waiting to upload">● not synced</span>` : ""}
     ${price}
     ${photos.length > 1 ? `<button class="nav prev" type="button" data-slide="-1" aria-label="Previous photo">‹</button><button class="nav next" type="button" data-slide="1" aria-label="Next photo">›</button>` : ""}
     ${photos.length > 1 ? `<span class="count" aria-label="${photos.length} photos, swipe for more">1 / ${photos.length} ⇆</span>` : ""}
   </div>
   <div class="body">
-    <h3 class="title" title="${esc(l.title)}">${esc(l.title)}</h3>
-    ${place(l)}
-    ${lease(l)}
-    ${metrics ? `<div class="metrics">${metrics}</div>` : ""}
-    ${features ? `<div class="chips" aria-label="Features that matter">${features}</div>` : ""}
+    <div class="head">
+      <h3 class="title" title="${esc(l.title)}">${esc(name.title)}</h3>
+      ${place(l, name.street)}
+      ${lease(l)}
+    </div>
+    ${metrics || features ? `<div class="fit">
+      ${metrics ? `<div class="metrics scroller">${metrics}</div>` : ""}
+      ${features ? `<div class="chips scroller" aria-label="Features that matter">${features}</div>` : ""}
+    </div>` : ""}
     <div class="text${open ? " open" : ""}">
       ${l.summary ? `<p class="summary">${esc(l.summary)}</p>` : ""}
       ${open && l.description ? `<p class="desc">${esc(l.description)}</p>` : ""}
       ${long ? `<button class="more-btn" type="button" data-expand aria-expanded="${open}">${open ? "Less ▴" : l.description ? "More + full listing ▾" : "More ▾"}</button>` : ""}
     </div>
     <div class="foot">
-      <div class="actions">
-        <select id="st-${esc(l.id)}" data-status aria-label="Status">${opts}</select>
-      </div>
       <div class="reach">
         ${contact(l)}
         <textarea id="nt-${esc(l.id)}" data-notes rows="3" aria-label="Your notes" placeholder="Your notes: called broker, viewing Tue 6pm…">${esc(l.notes)}</textarea>
       </div>
-      ${l.url ? `<a class="link" href="${esc(l.url)}" target="_blank" rel="noopener" title="${esc(l.url)}">Open listing${l.source ? " on " + esc(l.source) : ""} ↗ <span class="url">${esc(l.url.replace(/^https?:\/\/(www\.)?/, ""))}</span></a>` : ""}
+      ${l.url ? `<a class="link" href="${esc(l.url)}" target="_blank" rel="noopener" title="${esc(l.url)}">Open${l.source ? " on " + esc(l.source) : " listing"} ↗</a>` : ""}
     </div>
   </div>
 </article>`;
