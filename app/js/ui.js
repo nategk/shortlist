@@ -67,22 +67,33 @@ function mapsUrl(l, addr) {
   return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q);
 }
 
-// Building name (linked to its site when known) and address (linked to
-// Google Maps), then the location note.
+// One line: neighborhood · building (linked to its site when known) ·
+// address (linked to Google Maps). Without an address, the location note's
+// cross streets stand in for it.
 function place(l) {
   const f = l.fields || {}, addr = address(l);
-  if (!addr && !l.location && !f.Building) return "";
+  const [first, ...rest] = String(l.location || "").split(" · ");
+  const hood = f.Neighborhood || (rest.length ? first : "");
+  const street = addr || (rest.length ? rest.join(" · ") : first);
+  if (!hood && !street && !f.Building) return "";
   const site = /^https?:\/\//.test(f["Building site"] || "") ? f["Building site"] : "";
-  const building = f.Building
-    ? (site ? `<a class="bldg" href="${esc(site)}" target="_blank" rel="noopener">${esc(f.Building)} ↗</a>` : `<span class="bldg">${esc(f.Building)}</span>`)
-    : "";
-  const map = `<a class="map" href="${esc(mapsUrl(l, addr))}" target="_blank" rel="noopener" title="Open in Google Maps">${esc(addr || l.location)}</a>`;
-  return `<p class="loc">${building}${building ? " · " : ""}${map}${addr && l.location ? `<span class="where">${esc(l.location)}</span>` : ""}</p>`;
+  const parts = [];
+  if (hood) parts.push(`<span class="hood">${esc(hood)}</span>`);
+  if (f.Building) parts.push(site ? `<a class="bldg" href="${esc(site)}" target="_blank" rel="noopener">${esc(f.Building)} ↗</a>` : `<span class="bldg">${esc(f.Building)}</span>`);
+  if (street) parts.push(`<a class="map" href="${esc(mapsUrl(l, addr))}" target="_blank" rel="noopener" title="Open in Google Maps">${esc(street)}</a>`);
+  return `<p class="loc" title="${esc([hood, f.Building, street].filter(Boolean).join(" · "))}">${parts.join(" · ")}</p>`;
 }
 
-// Cards are one fixed height (about an iPhone screen): long text is clamped,
-// rows that can grow scroll sideways, and "More" opens the summary and the
-// full description inside the card. expanded: ids whose text is open.
+// Lease terms on one line: move-in first, then fields.Lease (term, type,
+// renewal, furnished).
+function lease(l) {
+  const f = l.fields || {};
+  const move = String(f["Move-in"] || "").trim(), terms = String(f.Lease || "").trim();
+  if (!move && !terms) return "";
+  const text = [move && `Move-in <b>${esc(move)}</b>`, terms && esc(terms)].filter(Boolean).join(" · ");
+  return `<p class="lease" title="${esc([move && "Move-in " + move, terms].filter(Boolean).join(" · "))}">${text}</p>`;
+}
+
 // Who to reach: fields.Contact (a name) and fields["Contact info"] (phones,
 // emails or links separated by "·", "," or ";"), each tappable.
 function contact(l) {
@@ -140,6 +151,7 @@ export function card(search, l, pendingIds, expanded = new Set()) {
   <div class="body">
     <h3 class="title" title="${esc(l.title)}">${esc(l.title)}</h3>
     ${place(l)}
+    ${lease(l)}
     ${contact(l)}
     ${metrics ? `<div class="metrics">${metrics}</div>` : ""}
     ${features ? `<div class="chips" aria-label="Features that matter">${features}</div>` : ""}
