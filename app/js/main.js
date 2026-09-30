@@ -49,16 +49,12 @@ function render() {
 
   // Search header
   if (search) {
-    $("#eyebrow").textContent = [search.timing, search.budget].filter(Boolean).join(" · ");
     $("#title-wrap").innerHTML = state.searches.length > 1
       ? `<select class="search-picker" id="search-picker" aria-label="Search">${state.searches.map(s => `<option value="${ui.esc(s.id)}"${s.id === search.id ? " selected" : ""}>${ui.esc(s.name)}</option>`).join("")}</select>`
       : ui.esc(search.name);
-    $("#brief").textContent = [search.lookingFor, search.area].filter(Boolean).join(" · ");
     document.title = search.name + " · Shortlist";
   } else {
-    $("#eyebrow").textContent = "";
     $("#title-wrap").textContent = store.hasData ? "Listings" : status.syncing ? "Loading…" : "No searches yet";
-    $("#brief").textContent = "";
   }
 
   // Sync line
@@ -139,8 +135,17 @@ function fitSummaries() {
     summary.style.webkitLineClamp = lines;
     summary.style.lineClamp = lines;
   }
+  for (const el of document.querySelectorAll(".card .scroller")) fades(el);
+}
+
+// Edge fades on sideways-scrolling rows: shown only where there's more.
+function fades(el) {
+  el.classList.toggle("fade-l", el.scrollLeft > 1);
+  el.classList.toggle("fade-r", el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
 }
 addEventListener("resize", () => { if (store) fitSummaries(); });
+// Line heights settle once the web font loads; measure again then.
+if (document.fonts) document.fonts.ready.then(() => { if (store) fitSummaries(); });
 
 function warmPhotos(listings) {
   const sw = navigator.serviceWorker && navigator.serviceWorker.controller;
@@ -187,6 +192,7 @@ document.addEventListener("click", e => {
 // Photo carousel position: "3 / 12".
 document.addEventListener("scroll", e => {
   const el = e.target;
+  if (el.classList && el.classList.contains("scroller")) { fades(el); return; }
   if (!el.classList || !el.classList.contains("slides")) return;
   const i = Math.round(el.scrollLeft / el.clientWidth), n = el.children.length;
   const count = el.parentElement.querySelector(".count");
@@ -215,19 +221,21 @@ $("#copy-contact").addEventListener("click", async () => {
   catch (e) { $("#contact").select(); }
 });
 
-// Criteria / contact template: edit, then Save (saved on this device at once,
-// uploaded in the background like triage).
-for (const [sel, btn, hint, field, label, parse] of [["#criteria", "#save-criteria", "#criteria-hint", "criteria", "Criteria"],
-                                              ["#contact", "#save-contact", "#contact-hint", "contactTemplate", "Template"],
-                                              ["#features", "#save-features", "#features-hint", "features", "Features", parseFeatures]]) {
-  $(sel).addEventListener("input", () => { $(sel).dataset.dirty = "1"; $(btn).disabled = false; $(hint).textContent = "Unsaved changes"; });
+// Criteria (with its bonus features) and the contact template: edit, then
+// Save (saved on this device at once, uploaded in the background like triage).
+for (const [sels, btn, hint, label, patchOf] of [
+  [["#criteria", "#features"], "#save-criteria", "#criteria-hint", "Criteria", () => ({ criteria: $("#criteria").value, features: parseFeatures($("#features").value) })],
+  [["#contact"], "#save-contact", "#contact-hint", "Template", () => ({ contactTemplate: $("#contact").value })],
+]) {
+  for (const sel of sels) $(sel).addEventListener("input", () => { $(sel).dataset.dirty = "1"; $(btn).disabled = false; $(hint).textContent = "Unsaved changes"; });
   $(btn).addEventListener("click", async () => {
     const search = currentSearch(store.state);
     if (!search) return;
-    const value = parse ? parse($(sel).value) : $(sel).value;
-    await store.update(search.id, { [field]: value }, "search");
-    if (parse) $(sel).value = featuresText(value);
-    $(sel).dataset.dirty = ""; $(btn).disabled = true;
+    const patch = patchOf();
+    await store.update(search.id, patch, "search");
+    if (patch.features) $("#features").value = featuresText(patch.features);
+    for (const sel of sels) $(sel).dataset.dirty = "";
+    $(btn).disabled = true;
     $(hint).textContent = label + " saved" + (navigator.onLine ? "" : " on this device; uploads when you're back online");
   });
 }
