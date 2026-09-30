@@ -162,8 +162,6 @@ document.addEventListener("click", e => {
     render();
     return;
   }
-  const set = e.target.closest("button[data-set]");
-  if (set) { store.update(set.closest(".card").dataset.id, { status: set.dataset.set }); return; }
   if (e.target.closest("#source-pill")) { openSettings(); return; }
   const sheetBtn = e.target.closest("[data-sheet]");
   if (sheetBtn) { openSheet(sheetBtn.dataset.sheet); return; }

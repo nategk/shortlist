@@ -15,7 +15,7 @@
 //          listing that has it shows it on its card and gets the points
 //          added to its fit score.
 
-// Status groups drive the tabs and the quick actions on each card.
+// Status groups drive the tabs.
 export const GROUPS = [
   { key: "review", label: "To review" },
   { key: "shortlist", label: "Shortlist" },
