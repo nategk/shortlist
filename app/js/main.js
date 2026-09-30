@@ -16,6 +16,7 @@ let adapter = null;
 let store = null;
 let view = { searchId: pref.get("search", ""), tab: pref.get("tab", "all") };
 let warmedKey = "";
+const expanded = new Set();   // cards whose summary/description is open
 
 async function boot() {
   if (!conn) { conn = await loadConnection(); adapter = createAdapter(conn); }
@@ -82,7 +83,7 @@ function render() {
   const pendingIds = new Set(state.outbox.map(o => o.id));
   preserveDraft(() => {
     $("#grid").innerHTML = shown.length
-      ? shown.map(l => ui.card(search, l, pendingIds)).join("")
+      ? shown.map(l => ui.card(search, l, pendingIds, expanded)).join("")
       : `<div class="empty">${store.hasData ? "Nothing in this tab." : status.error ? "Couldn't load: " + ui.esc(status.error) : "Loading listings…"}</div>`;
   });
 
@@ -147,12 +148,26 @@ document.addEventListener("click", e => {
     store.update(id, { features: now });
     return;
   }
+  const more = e.target.closest("button[data-expand]");
+  if (more) {
+    const id = more.closest(".card").dataset.id;
+    if (expanded.has(id)) expanded.delete(id); else expanded.add(id);
+    render();
+    return;
+  }
   const set = e.target.closest("button[data-set]");
   if (set) { store.update(set.closest(".card").dataset.id, { status: set.dataset.set }); return; }
   if (e.target.closest("#source-pill")) { openSettings(); return; }
   const sheetBtn = e.target.closest("[data-sheet]");
   if (sheetBtn) { openSheet(sheetBtn.dataset.sheet); return; }
 });
+// Photo carousel position: "3 / 12".
+document.addEventListener("scroll", e => {
+  const el = e.target;
+  if (!el.classList || !el.classList.contains("slides")) return;
+  const count = el.parentElement.querySelector(".count");
+  if (count) count.textContent = `${Math.round(el.scrollLeft / el.clientWidth) + 1} / ${el.children.length} ⇆`;
+}, true);
 document.addEventListener("change", e => {
   if (e.target.matches("select[data-status]")) store.update(e.target.closest(".card").dataset.id, { status: e.target.value });
   if (e.target.id === "search-picker") { view.searchId = e.target.value; pref.set("search", view.searchId); render(); }
