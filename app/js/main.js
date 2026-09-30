@@ -121,28 +121,19 @@ function preserveDraft(fn) {
 
 // Ask the service worker to download every photo for offline use (once per
 // set of photos).
-// Clamp each closed summary to the whole lines that fit above its More
-// button, so the button is never cut off, whatever else the card shows.
+// Clamp each closed summary to the whole lines that fit in the space left,
+// ending in an ellipsis; tapping it opens the rest.
 function fitSummaries() {
   for (const text of document.querySelectorAll(".card .text:not(.open)")) {
     const summary = text.querySelector(".summary");
     if (!summary) continue;
-    const more = text.querySelector(".more-btn");
-    const gap = parseFloat(getComputedStyle(text).rowGap) || 0;
     const line = parseFloat(getComputedStyle(summary).lineHeight) || 20;
-    const room = text.clientHeight - (more ? more.offsetHeight + gap : 0);
-    const lines = String(Math.max(1, Math.min(4, Math.floor(room / line))));
+    const lines = String(Math.max(1, Math.min(8, Math.floor(text.clientHeight / line))));
     summary.style.webkitLineClamp = lines;
     summary.style.lineClamp = lines;
   }
-  for (const el of document.querySelectorAll(".card .scroller")) fades(el);
 }
 
-// Edge fades on sideways-scrolling rows: shown only where there's more.
-function fades(el) {
-  el.classList.toggle("fade-l", el.scrollLeft > 1);
-  el.classList.toggle("fade-r", el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
-}
 addEventListener("resize", () => { if (store) fitSummaries(); });
 // Line heights settle once the web font loads; measure again then.
 if (document.fonts) document.fonts.ready.then(() => { if (store) fitSummaries(); });
@@ -178,8 +169,8 @@ document.addEventListener("click", e => {
     slides.scrollBy({ left: Number(step.dataset.slide) * slides.clientWidth, behavior: "smooth" });
     return;
   }
-  const more = e.target.closest("button[data-expand]");
-  if (more) {
+  const more = e.target.closest("[data-expand]");
+  if (more && !e.target.closest("a")) {
     const id = more.closest(".card").dataset.id;
     if (expanded.has(id)) expanded.delete(id); else expanded.add(id);
     render();
@@ -192,7 +183,6 @@ document.addEventListener("click", e => {
 // Photo carousel position: "3 / 12".
 document.addEventListener("scroll", e => {
   const el = e.target;
-  if (el.classList && el.classList.contains("scroller")) { fades(el); return; }
   if (!el.classList || !el.classList.contains("slides")) return;
   const i = Math.round(el.scrollLeft / el.clientWidth), n = el.children.length;
   const count = el.parentElement.querySelector(".count");
@@ -200,6 +190,10 @@ document.addEventListener("scroll", e => {
   // Hides the prev/next arrow at either end.
   el.parentElement.dataset.pos = i <= 0 ? "start" : i >= n - 1 ? "end" : "mid";
 }, true);
+// Keyboard: Enter / Space on the summary opens or closes it.
+document.addEventListener("keydown", e => {
+  if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches("[data-expand]")) { e.preventDefault(); e.target.click(); }
+});
 document.addEventListener("change", e => {
   if (e.target.matches("select[data-status]")) store.update(e.target.closest(".card").dataset.id, { status: e.target.value });
   if (e.target.id === "search-picker") { view.searchId = e.target.value; pref.set("search", view.searchId); render(); }

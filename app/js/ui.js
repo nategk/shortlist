@@ -5,6 +5,20 @@ import { GROUPS, DEFAULT_STATUSES, groupOf, rateMetric, fit } from "./model.js";
 
 export const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
+// 16px line icons (Lucide shapes), drawn in currentColor.
+const svg = d => `<svg class="ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+export const ICON = {
+  pin: svg('<path d="M20 10c0 4.99-5.54 10.19-7.4 11.8a1 1 0 0 1-1.2 0C9.54 20.19 4 14.99 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>'),
+  lease: svg('<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>'),
+  route: svg('<circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/>'),
+  amenity: svg('<path d="M9.94 15.5A2 2 0 0 0 8.5 14.06l-6.14-1.58a.5.5 0 0 1 0-.96L8.5 9.94A2 2 0 0 0 9.94 8.5l1.58-6.14a.5.5 0 0 1 .96 0l1.58 6.14a2 2 0 0 0 1.44 1.44l6.14 1.58a.5.5 0 0 1 0 .96l-6.14 1.58a2 2 0 0 0-1.44 1.44l-1.58 6.14a.5.5 0 0 1-.96 0z"/>'),
+  open: svg('<path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>'),
+  prev: svg('<path d="m15 18-6-6 6-6"/>'),
+  next: svg('<path d="m9 18 6-6-6-6"/>'),
+};
+// One metadata row: icon, then a single line of content (ellipsis).
+const row = (cls, icon, html, title = "") => `<div class="row ${cls}"${title ? ` title="${esc(title)}"` : ""}>${icon}<span class="t">${html}</span></div>`;
+
 const money = n => (typeof n === "number" ? "$" + n.toLocaleString("en-US") : "");
 
 // Photos go through the service worker (./photo/<id>) once it controls the
@@ -96,17 +110,22 @@ function place(l, streetWithUnit) {
   if (hood) parts.push(`<span class="hood">${esc(hood)}</span>`);
   if (f.Building) parts.push(site ? `<a class="bldg" href="${esc(site)}" target="_blank" rel="noopener">${esc(f.Building)} ↗</a>` : `<span class="bldg">${esc(f.Building)}</span>`);
   if (street) parts.push(`<a class="map" href="${esc(mapsUrl(l, addr))}" target="_blank" rel="noopener" title="Open in Google Maps">${esc(street)}</a>`);
-  return `<p class="loc" title="${esc([hood, f.Building, street].filter(Boolean).join(" · "))}">${parts.join(" · ")}</p>`;
+  return row("loc", ICON.pin, parts.join(" · "), [hood, f.Building, street].filter(Boolean).join(" · "));
 }
 
-// Lease terms on one line: move-in first, then fields.Lease (term, type,
-// renewal, furnished).
+// Lease on one line: "Move in Oct 1 to Apr 30, 2027 · 7 months", from
+// fields Move-in, Move-out and Term (months). fields.Lease (type, renewal,
+// furnished) is in the tooltip.
 function lease(l) {
   const f = l.fields || {};
-  const move = String(f["Move-in"] || "").trim(), terms = String(f.Lease || "").trim();
-  if (!move && !terms) return "";
-  const text = [move && `Move-in <b>${esc(move)}</b>`, terms && esc(terms)].filter(Boolean).join(" · ");
-  return `<p class="lease" title="${esc([move && "Move-in " + move, terms].filter(Boolean).join(" · "))}">${text}</p>`;
+  const move = String(f["Move-in"] || "").trim(), out = String(f["Move-out"] || "").trim();
+  const months = Number(f["Term (months)"]) || 0, terms = String(f.Lease || "").trim();
+  if (!move && !out && !months) return "";
+  const text = [
+    [move && `Move in <b>${esc(move)}</b>`, out && `${move ? "to" : "Until"} <b>${esc(out)}</b>`].filter(Boolean).join(" "),
+    months && `${months} month${months === 1 ? "" : "s"}`,
+  ].filter(Boolean).join(" · ");
+  return row("lease", ICON.lease, text, [move && "Move in " + move, out && "to " + out, months && months + " months", terms].filter(Boolean).join(" · "));
 }
 
 // Who to reach: fields.Contact (a name) and fields["Contact info"] (phones,
@@ -131,22 +150,21 @@ export function card(search, l, pendingIds, expanded = new Set()) {
   const shown = (search && search.metrics || []).map(m => ({ m, v: metricValue(l, m) })).filter(x => x.v);
   const oneUnit = shown.length > 1 && shown.every(x => x.m.unit && x.m.unit === shown[0].m.unit) ? shown[0].m.unit : "";
   const metrics = shown.map(({ m, v }, i) => {
-    const unit = oneUnit ? (i === shown.length - 1 ? oneUnit : "") : m.unit;
+    const unit = oneUnit ? "" : m.unit;
     return `<span class="metric"><span class="k">${esc(m.label)}</span> <span class="v ${rateMetric(m, v)}">${esc(v)}${unit ? `<span class="u"> ${esc(unit)}</span>` : ""}</span></span>`;
   }).join("");
   // Features that matter: the ones this listing has are lit and add points;
   // tap a chip to mark it present or not (e.g. after a viewing).
   const f = fit(search, l);
   const has = new Set(f.matched.map(x => x.label));
-  const ordered = (search && search.features || []).slice().sort((a, b) => has.has(b.label) - has.has(a.label));
-  const features = ordered.map(x =>
-    `<button class="chip${has.has(x.label) ? " on" : ""}" type="button" data-feature="${esc(x.label)}" aria-pressed="${has.has(x.label)}" title="${has.has(x.label) ? "Has it" : "Not known to have it"}: tap to toggle">${has.has(x.label) ? "✓ " : ""}${esc(x.label)}${has.has(x.label) && x.points ? ` <span class="pts">${x.points > 0 ? "+" : ""}${esc(x.points)}</span>` : ""}</button>`
+  const features = (search && search.features || []).map(x =>
+    `<button class="chip${has.has(x.label) ? " on" : ""}" type="button" data-feature="${esc(x.label)}" aria-pressed="${has.has(x.label)}" title="${has.has(x.label) ? "Has it" : "Not known to have it"}${x.points ? ` (${x.points > 0 ? "+" : ""}${x.points} fit)` : ""}: tap to toggle">${esc(x.label)}</button>`
   ).join("");
   const scoreTitle = f.boost ? `${f.base} on the criteria ${f.boost > 0 ? "+" : "−"} ${Math.abs(f.boost)} for ${f.matched.map(x => x.label).join(", ")}` : "Fit score on the criteria";
   const opts = statuses.map(s => `<option${s.label === l.status ? " selected" : ""}>${esc(s.label)}</option>`).join("")
     + (l.status && !statuses.some(s => s.label === l.status) ? `<option selected>${esc(l.status)}</option>` : "");
   const open = expanded.has(l.id);
-  const long = (l.summary || "").length > 150 || !!l.description;
+  const long = (l.summary || "").length > 120 || !!l.description;
   const price = l.price !== null && l.price !== undefined ? `<span class="price">${money(l.price)}</span>` : "";
   const name = split(l);
   return `<article class="card${group === "archived" ? " archived" : ""}" data-id="${esc(l.id)}">
@@ -158,30 +176,26 @@ export function card(search, l, pendingIds, expanded = new Set()) {
     <label class="status g-${group}" title="Status"><select id="st-${esc(l.id)}" data-status aria-label="Status">${opts}</select></label>
     ${pendingIds.has(l.id) ? `<span class="pending" title="Saved on this device, waiting to upload">● not synced</span>` : ""}
     ${price}
-    ${photos.length > 1 ? `<button class="nav prev" type="button" data-slide="-1" aria-label="Previous photo">‹</button><button class="nav next" type="button" data-slide="1" aria-label="Next photo">›</button>` : ""}
+    ${photos.length > 1 ? `<button class="nav prev" type="button" data-slide="-1" aria-label="Previous photo">${ICON.prev}</button><button class="nav next" type="button" data-slide="1" aria-label="Next photo">${ICON.next}</button>` : ""}
     ${photos.length > 1 ? `<span class="count" aria-label="${photos.length} photos, swipe for more">1 / ${photos.length} ⇆</span>` : ""}
   </div>
   <div class="body">
-    <div class="head">
-      <h3 class="title" title="${esc(l.title)}">${esc(name.title)}</h3>
+    <h3 class="title" title="${esc(l.title)}">${l.url ? `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(name.title)}<span class="open" aria-label="Open listing${l.source ? " on " + esc(l.source) : ""}">${ICON.open}</span></a>` : esc(name.title)}</h3>
+    <div class="meta">
       ${place(l, name.street)}
       ${lease(l)}
+      ${metrics ? row("metrics", ICON.route, metrics, oneUnit ? "Distances in " + ({ mi: "miles", km: "kilometers" }[oneUnit] || oneUnit) : "") : ""}
+      ${features ? `<div class="row amenities">${ICON.amenity}<span class="t chips" aria-label="Features that matter">${features}</span></div>` : ""}
     </div>
-    ${metrics || features ? `<div class="fit">
-      ${metrics ? `<div class="metrics scroller">${metrics}</div>` : ""}
-      ${features ? `<div class="chips scroller" aria-label="Features that matter">${features}</div>` : ""}
-    </div>` : ""}
-    <div class="text${open ? " open" : ""}">
+    <div class="text${open ? " open" : ""}"${long ? ` data-expand role="button" tabindex="0" aria-expanded="${open}" title="${open ? "Tap to collapse" : "Tap to read the full listing"}"` : ""}>
       ${l.summary ? `<p class="summary">${esc(l.summary)}</p>` : ""}
       ${open && l.description ? `<p class="desc">${esc(l.description)}</p>` : ""}
-      ${long ? `<button class="more-btn" type="button" data-expand aria-expanded="${open}">${open ? "Less ▴" : l.description ? "More + full listing ▾" : "More ▾"}</button>` : ""}
     </div>
     <div class="foot">
       <div class="reach">
         ${contact(l)}
         <textarea id="nt-${esc(l.id)}" data-notes rows="3" aria-label="Your notes" placeholder="Your notes: called broker, viewing Tue 6pm…">${esc(l.notes)}</textarea>
       </div>
-      ${l.url ? `<a class="link" href="${esc(l.url)}" target="_blank" rel="noopener" title="${esc(l.url)}">Open${l.source ? " on " + esc(l.source) : " listing"} ↗</a>` : ""}
     </div>
   </div>
 </article>`;
