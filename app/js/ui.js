@@ -146,7 +146,6 @@ export function card(search, l, pendingIds, expanded = new Set()) {
     <h3 class="title" title="${esc(l.title)}">${esc(l.title)}</h3>
     ${place(l)}
     ${lease(l)}
-    ${contact(l)}
     ${metrics ? `<div class="metrics">${metrics}</div>` : ""}
     ${features ? `<div class="chips" aria-label="Features that matter">${features}</div>` : ""}
     <div class="text${open ? " open" : ""}">
@@ -158,7 +157,10 @@ export function card(search, l, pendingIds, expanded = new Set()) {
       <div class="actions">
         <select id="st-${esc(l.id)}" data-status aria-label="Status">${opts}</select>
       </div>
-      <textarea id="nt-${esc(l.id)}" data-notes rows="2" aria-label="Your notes" placeholder="Your notes: called broker, viewing Tue 6pm…">${esc(l.notes)}</textarea>
+      <div class="reach">
+        ${contact(l)}
+        <textarea id="nt-${esc(l.id)}" data-notes rows="3" aria-label="Your notes" placeholder="Your notes: called broker, viewing Tue 6pm…">${esc(l.notes)}</textarea>
+      </div>
       ${l.url ? `<a class="link" href="${esc(l.url)}" target="_blank" rel="noopener" title="${esc(l.url)}">Open listing${l.source ? " on " + esc(l.source) : ""} ↗ <span class="url">${esc(l.url.replace(/^https?:\/\/(www\.)?/, ""))}</span></a>` : ""}
     </div>
   </div>

@@ -213,8 +213,12 @@ select.search-picker { height: auto; padding: 0; box-shadow: none; background: t
 .desc { font: 400 13px/18px var(--font); margin: 0; white-space: pre-wrap; color: var(--gray-900); border-top: 1px solid var(--gray-alpha-400); padding-top: 8px; }
 .more-btn { font: 500 14px/20px var(--font); padding: 0; border: 0; background: none; color: var(--blue-900); cursor: pointer; flex: none; }
 .foot { flex: none; display: grid; gap: 8px; }
-.foot textarea { min-height: 0; height: 44px; resize: none; }
-.foot textarea:focus { height: 88px; }
+/* Contact + notes: one unit at the bottom of the card */
+.reach { display: grid; border-radius: 6px; box-shadow: var(--shadow-border); background: var(--background-100); overflow: hidden; }
+.reach .contact { padding: 6px 12px; border-bottom: 1px solid var(--gray-alpha-400); }
+.reach textarea, .reach textarea:hover, .reach textarea:focus { min-height: 0; height: 64px; resize: none; border: 0; border-radius: 0; box-shadow: none; }
+.reach textarea:focus { height: 120px; }
+.reach:focus-within { box-shadow: var(--focus-border); }
 details.more { font: 400 14px/20px var(--font); color: var(--gray-900); }
 details.more summary { cursor: pointer; color: var(--gray-1000); font-weight: 500; }
 details.more p { margin: 8px 0 0; white-space: pre-wrap; color: var(--gray-1000); }
