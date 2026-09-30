@@ -162,6 +162,8 @@ document.addEventListener("click", e => {
     store.update(id, { features: now });
     return;
   }
+  const photo = e.target.closest("button[data-photo]");
+  if (photo) { openLightbox(photo.closest(".card"), Number(photo.dataset.photo)); return; }
   // Carousel arrows: step one photo; swiping still works.
   const step = e.target.closest("button[data-slide]");
   if (step) {
@@ -190,6 +192,38 @@ document.addEventListener("scroll", e => {
   // Hides the prev/next arrow at either end.
   el.parentElement.dataset.pos = i <= 0 ? "start" : i >= n - 1 ? "end" : "mid";
 }, true);
+// ---- lightbox: full-screen photo carousel, opened by tapping a photo ----
+$("#lb-close").innerHTML = ui.ICON.close;
+$(".lb-prev").innerHTML = ui.ICON.prev;
+$(".lb-next").innerHTML = ui.ICON.next;
+function openLightbox(card, index) {
+  const imgs = [...card.querySelectorAll(".slides img")];
+  $("#lb-slides").innerHTML = imgs.map(img =>
+    `<div class="lb-slide"><img src="${ui.esc(img.currentSrc || img.src)}" data-fallback="${ui.esc(img.dataset.fallback || "")}" alt=""></div>`).join("");
+  $("#lightbox").showModal();
+  const el = $("#lb-slides");
+  el.scrollTo({ left: index * el.clientWidth, behavior: "instant" });
+  lightboxPos();
+}
+function lightboxPos() {
+  const el = $("#lb-slides"), n = el.children.length;
+  const i = Math.round(el.scrollLeft / (el.clientWidth || 1));
+  $("#lb-count").textContent = n > 1 ? `${i + 1} / ${n}` : "";
+  $("#lightbox").dataset.pos = n < 2 ? "only" : i <= 0 ? "start" : i >= n - 1 ? "end" : "mid";
+}
+const lbStep = d => { const el = $("#lb-slides"); el.scrollBy({ left: d * el.clientWidth, behavior: "smooth" }); };
+$("#lb-slides").addEventListener("scroll", lightboxPos);
+$("#lb-close").addEventListener("click", () => $("#lightbox").close());
+for (const b of document.querySelectorAll("[data-lb]")) b.addEventListener("click", () => lbStep(Number(b.dataset.lb)));
+$("#lightbox").addEventListener("keydown", e => {
+  if (e.key === "ArrowRight") { e.preventDefault(); lbStep(1); }
+  if (e.key === "ArrowLeft") { e.preventDefault(); lbStep(-1); }
+});
+// Tapping the dark area around a photo closes it.
+$("#lightbox").addEventListener("click", e => { if (e.target.classList.contains("lb-slide")) $("#lightbox").close(); });
+$("#lightbox").addEventListener("close", () => { $("#lb-slides").innerHTML = ""; });
+addEventListener("resize", () => { if ($("#lightbox").open) lightboxPos(); });
+
 // Keyboard: Enter / Space on the summary opens or closes it.
 document.addEventListener("keydown", e => {
   if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches("[data-expand]")) { e.preventDefault(); e.target.click(); }
