@@ -80,13 +80,30 @@ function place(l) {
   return `<p class="loc">${building}${building ? " · " : ""}${map}${addr && l.location ? `<span class="where">${esc(l.location)}</span>` : ""}</p>`;
 }
 
-export function card(search, l, pendingIds) {
+// Cards are one fixed height (about an iPhone screen): long text is clamped,
+// rows that can grow scroll sideways, and "More" opens the summary and the
+// full description inside the card. expanded: ids whose text is open.
+// Who to reach: fields.Contact (a name) and fields["Contact info"] (phones,
+// emails or links separated by "·", "," or ";"), each tappable.
+function contact(l) {
+  const f = l.fields || {};
+  const name = String(f.Contact || "").trim(), info = String(f["Contact info"] || "").trim();
+  if (!name && !info) return "";
+  const parts = info.split(/\s*[·,;]\s*/).filter(Boolean).map(x =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(x) ? `<a href="mailto:${esc(x)}">${esc(x)}</a>`
+      : /^\+?[\d\s().-]{7,}$/.test(x) ? `<a href="tel:${esc(x.replace(/[^\d+]/g, ""))}">${esc(x)}</a>`
+      : /^https?:\/\//.test(x) ? `<a href="${esc(x)}" target="_blank" rel="noopener">${esc(x.replace(/^https?:\/\/(www\.)?/, "").slice(0, 40))} ↗</a>`
+      : esc(x));
+  return `<span class="contact" title="${esc([name, info].filter(Boolean).join(" · "))}">${name ? `<b>${esc(name)}</b>` : ""}${name && parts.length ? " · " : ""}${parts.join(" · ")}</span>`;
+}
+
+export function card(search, l, pendingIds, expanded = new Set()) {
   const statuses = statusesFor(search);
   const group = groupOf(search, l.status);
   const shortlist = firstInGroup(search, "shortlist");
   const review = firstInGroup(search, "review");
   const pass = firstInGroup(search, "archived");
-  const [cover, ...rest] = l.photos || [];
+  const photos = l.photos || [];
   const metrics = (search && search.metrics || []).map(m => {
     const v = metricValue(l, m);
     if (!v) return "";
@@ -106,30 +123,40 @@ export function card(search, l, pendingIds) {
   const quick = group === "shortlist"
     ? (review ? `<button class="btn" type="button" data-set="${esc(review)}">Unshortlist</button>` : "")
     : (shortlist ? `<button class="btn primary" type="button" data-set="${esc(shortlist)}">Shortlist</button>` : "");
+  const open = expanded.has(l.id);
+  const long = (l.summary || "").length > 150 || !!l.description;
+  const price = l.price !== null && l.price !== undefined ? `<span class="price">${money(l.price)}</span>` : "";
   return `<article class="card${group === "archived" ? " archived" : ""}" data-id="${esc(l.id)}">
-  <a class="photo${cover ? "" : " nophoto"}" href="${esc(l.url)}" target="_blank" rel="noopener" aria-label="Open listing">
-    ${cover ? `<img src="${esc(photoSrc(cover))}" data-fallback="${esc(cover.url)}" alt="">` : `<span class="nophoto-label">No photos saved · open listing ↗</span>`}
+  <div class="photo${photos.length ? "" : " nophoto"}">
+    ${photos.length
+      ? `<div class="slides">${photos.map((p, i) => `<a href="${esc(l.url)}" target="_blank" rel="noopener" aria-label="Open listing"><img src="${esc(photoSrc(p))}" data-fallback="${esc(p.url)}" alt=""${i ? ' loading="lazy"' : ""}></a>`).join("")}</div>`
+      : `<a class="nophoto-label" href="${esc(l.url)}" target="_blank" rel="noopener">No photos saved · open listing ↗</a>`}
     ${f.total !== null ? `<span class="score" title="${esc(scoreTitle)}">${esc(f.total)} fit${f.boost ? ` <span class="boost">${f.boost > 0 ? "+" : "−"}${esc(Math.abs(f.boost))}</span>` : ""}</span>` : ""}
     ${l.status ? `<span class="pill g-${group}">${esc(l.status)}</span>` : ""}
     ${pendingIds.has(l.id) ? `<span class="pending" title="Saved on this device, waiting to upload">● not synced</span>` : ""}
-  </a>
+    ${price}
+    ${photos.length > 1 ? `<span class="count" aria-label="${photos.length} photos, swipe for more">1 / ${photos.length} ⇆</span>` : ""}
+  </div>
   <div class="body">
-    ${l.price !== null && l.price !== undefined ? `<div class="price">${money(l.price)}</div>` : ""}
-    <h3 class="title">${esc(l.title)}</h3>
+    <h3 class="title" title="${esc(l.title)}">${esc(l.title)}</h3>
     ${place(l)}
+    ${contact(l)}
     ${metrics ? `<div class="metrics">${metrics}</div>` : ""}
     ${features ? `<div class="chips" aria-label="Features that matter">${features}</div>` : ""}
-    ${l.summary ? `<p class="summary">${esc(l.summary)}</p>` : ""}
-    ${rest.length ? `<div class="strip">${rest.map(p => `<img src="${esc(photoSrc(p))}" data-fallback="${esc(p.url)}" alt="" loading="lazy">`).join("")}</div>` : ""}
-    ${l.description ? `<details class="more"><summary>Full listing description</summary><p>${esc(l.description)}</p></details>` : ""}
-    <div class="actions">
-      ${quick}
-      ${pass && group !== "archived" ? `<button class="btn pass" type="button" data-set="${esc(pass)}">Pass</button>` : ""}
-      <select id="st-${esc(l.id)}" data-status aria-label="Status">${opts}</select>
+    <div class="text${open ? " open" : ""}">
+      ${l.summary ? `<p class="summary">${esc(l.summary)}</p>` : ""}
+      ${open && l.description ? `<p class="desc">${esc(l.description)}</p>` : ""}
+      ${long ? `<button class="more-btn" type="button" data-expand aria-expanded="${open}">${open ? "Less ▴" : l.description ? "More + full listing ▾" : "More ▾"}</button>` : ""}
     </div>
-    <label class="label" for="nt-${esc(l.id)}">Your notes</label>
-    <textarea id="nt-${esc(l.id)}" data-notes placeholder="Called broker, viewing Tue 6pm…">${esc(l.notes)}</textarea>
-    ${l.url ? `<a class="link" href="${esc(l.url)}" target="_blank" rel="noopener">Open listing${l.source ? " on " + esc(l.source) : ""} ↗</a><span class="url">${esc(l.url)}</span>` : ""}
+    <div class="foot">
+      <div class="actions">
+        ${quick}
+        ${pass && group !== "archived" ? `<button class="btn pass" type="button" data-set="${esc(pass)}">Pass</button>` : ""}
+        <select id="st-${esc(l.id)}" data-status aria-label="Status">${opts}</select>
+      </div>
+      <textarea id="nt-${esc(l.id)}" data-notes rows="2" aria-label="Your notes" placeholder="Your notes: called broker, viewing Tue 6pm…">${esc(l.notes)}</textarea>
+      ${l.url ? `<a class="link" href="${esc(l.url)}" target="_blank" rel="noopener" title="${esc(l.url)}">Open listing${l.source ? " on " + esc(l.source) : ""} ↗ <span class="url">${esc(l.url.replace(/^https?:\/\/(www\.)?/, ""))}</span></a>` : ""}
+    </div>
   </div>
 </article>`;
 }
