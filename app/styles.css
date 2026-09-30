@@ -155,7 +155,7 @@ select.search-picker { height: auto; padding: 0; box-shadow: none; background: t
    clusters: identity (title, place, lease), fit (distances, features),
    assessment (summary), yours (contact + notes, link). Long text clamps,
    rows scroll sideways with edge fades, the text block scrolls when opened. */
-.card { --body-h: 392px; background: var(--background-100); box-shadow: var(--shadow-medium); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+.card { --body-h: 432px; background: var(--background-100); box-shadow: var(--shadow-medium); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
 .card.archived { opacity: .6; }
 .photo { position: relative; flex: none; aspect-ratio: 4 / 3; background: var(--gray-100); }
 .photo.nophoto { aspect-ratio: auto; height: 84px; }
@@ -226,10 +226,12 @@ select.search-picker { height: auto; padding: 0; box-shadow: none; background: t
 /* Contact + notes: one unit */
 .reach { display: grid; border-radius: 6px; box-shadow: var(--shadow-border); background: var(--background-100); overflow: hidden; }
 .reach .contact { padding: 6px 12px; border-bottom: 1px solid var(--gray-alpha-400); }
-.reach textarea, .reach textarea:hover, .reach textarea:focus { min-height: 0; height: 64px; resize: none; border: 0; border-radius: 0; box-shadow: none; }
-.reach textarea:focus { height: 120px; }
+.reach textarea, .reach textarea:hover, .reach textarea:focus { min-height: 0; height: 84px; resize: none; border: 0; border-radius: 0; box-shadow: none; }
+.reach textarea:focus { height: 140px; }
 .reach:focus-within { box-shadow: var(--focus-border); }
-.contact { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font: 400 14px/20px var(--font); color: var(--gray-900); }
+.contact { display: flex; gap: 8px; align-items: flex-start; min-width: 0; font: 400 14px/20px var(--font); color: var(--gray-900); }
+.contact .ico { flex: none; margin-top: 2px; color: var(--gray-700); }
+.contact .t { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .contact b { color: var(--gray-1000); font-weight: 500; }
 .contact a { color: var(--blue-900); font-weight: 500; text-decoration: none; }
 details.more { font: 400 14px/20px var(--font); color: var(--gray-900); }

@@ -13,6 +13,7 @@ export const ICON = {
   route: svg('<circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/>'),
   amenity: svg('<path d="M9.94 15.5A2 2 0 0 0 8.5 14.06l-6.14-1.58a.5.5 0 0 1 0-.96L8.5 9.94A2 2 0 0 0 9.94 8.5l1.58-6.14a.5.5 0 0 1 .96 0l1.58 6.14a2 2 0 0 0 1.44 1.44l6.14 1.58a.5.5 0 0 1 0 .96l-6.14 1.58a2 2 0 0 0-1.44 1.44l-1.58 6.14a.5.5 0 0 1-.96 0z"/>'),
   open: svg('<path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>'),
+  user: svg('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'),
   prev: svg('<path d="m15 18-6-6 6-6"/>'),
   next: svg('<path d="m9 18 6-6-6-6"/>'),
 };
@@ -108,7 +109,7 @@ function place(l, streetWithUnit) {
   const site = /^https?:\/\//.test(f["Building site"] || "") ? f["Building site"] : "";
   const parts = [];
   if (hood) parts.push(`<span class="hood">${esc(hood)}</span>`);
-  if (f.Building) parts.push(site ? `<a class="bldg" href="${esc(site)}" target="_blank" rel="noopener">${esc(f.Building)} ↗</a>` : `<span class="bldg">${esc(f.Building)}</span>`);
+  if (f.Building) parts.push(site ? `<a class="bldg" href="${esc(site)}" target="_blank" rel="noopener">${esc(f.Building)}</a>` : `<span class="bldg">${esc(f.Building)}</span>`);
   if (street) parts.push(`<a class="map" href="${esc(mapsUrl(l, addr))}" target="_blank" rel="noopener" title="Open in Google Maps">${esc(street)}</a>`);
   return row("loc", ICON.pin, parts.join(" · "), [hood, f.Building, street].filter(Boolean).join(" · "));
 }
@@ -122,7 +123,7 @@ function lease(l) {
   const months = Number(f["Term (months)"]) || 0, terms = String(f.Lease || "").trim();
   if (!move && !out && !months) return "";
   const text = [
-    [move && `Move in <b>${esc(move)}</b>`, out && `${move ? "to" : "Until"} <b>${esc(out)}</b>`].filter(Boolean).join(" "),
+    [move && `<b>${esc(move)}</b>`, out && `${move ? "to" : "Until"} <b>${esc(out)}</b>`].filter(Boolean).join(" "),
     months && `${months} month${months === 1 ? "" : "s"}`,
   ].filter(Boolean).join(" · ");
   return row("lease", ICON.lease, text, [move && "Move in " + move, out && "to " + out, months && months + " months", terms].filter(Boolean).join(" · "));
@@ -139,7 +140,7 @@ function contact(l) {
       : /^\+?[\d\s().-]{7,}$/.test(x) ? `<a href="tel:${esc(x.replace(/[^\d+]/g, ""))}">${esc(x)}</a>`
       : /^https?:\/\//.test(x) ? `<a href="${esc(x)}" target="_blank" rel="noopener">${esc(x.replace(/^https?:\/\/(www\.)?/, "").slice(0, 40))} ↗</a>`
       : esc(x));
-  return `<span class="contact" title="${esc([name, info].filter(Boolean).join(" · "))}">${name ? `<b>${esc(name)}</b>` : ""}${name && parts.length ? " · " : ""}${parts.join(" · ")}</span>`;
+  return `<div class="contact" title="${esc([name, info].filter(Boolean).join(" · "))}">${ICON.user}<span class="t">${name ? `<b>${esc(name)}</b>` : ""}${name && parts.length ? " · " : ""}${parts.join(" · ")}</span></div>`;
 }
 
 export function card(search, l, pendingIds, expanded = new Set()) {
