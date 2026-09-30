@@ -86,6 +86,7 @@ function render() {
       ? shown.map(l => ui.card(search, l, pendingIds, expanded)).join("")
       : `<div class="empty">${store.hasData ? "Nothing in this tab." : status.error ? "Couldn't load: " + ui.esc(status.error) : "Loading listings…"}</div>`;
   });
+  fitSummaries();
 
   // Criteria, contact template and sources live in the sheet, opened from the database group.
   if (search) {
@@ -124,6 +125,23 @@ function preserveDraft(fn) {
 
 // Ask the service worker to download every photo for offline use (once per
 // set of photos).
+// Clamp each closed summary to the whole lines that fit above its More
+// button, so the button is never cut off, whatever else the card shows.
+function fitSummaries() {
+  for (const text of document.querySelectorAll(".card .text:not(.open)")) {
+    const summary = text.querySelector(".summary");
+    if (!summary) continue;
+    const more = text.querySelector(".more-btn");
+    const gap = parseFloat(getComputedStyle(text).rowGap) || 0;
+    const line = parseFloat(getComputedStyle(summary).lineHeight) || 20;
+    const room = text.clientHeight - (more ? more.offsetHeight + gap : 0);
+    const lines = String(Math.max(1, Math.min(4, Math.floor(room / line))));
+    summary.style.webkitLineClamp = lines;
+    summary.style.lineClamp = lines;
+  }
+}
+addEventListener("resize", () => { if (store) fitSummaries(); });
+
 function warmPhotos(listings) {
   const sw = navigator.serviceWorker && navigator.serviceWorker.controller;
   if (!sw) return;
