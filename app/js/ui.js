@@ -36,7 +36,7 @@ function subways(search, l) {
     if (last && last.mi === mi) last.lines.push(line); else groups.push({ mi, lines: [line] });
   }
   const html = groups.map(g => `<span class="subway">${g.lines.map(x =>
-    `<i class="bullet${LINE_COLOR[x] === "#FCCC0A" ? " dark" : ""}" style="background:${LINE_COLOR[x] || "#808183"}">${esc(x)}</i>`).join("")}<span class="v ${metric ? rateMetric(metric, Number(g.mi)) : ""}">${esc(g.mi)}</span></span>`).join("");
+    `<i class="bullet${LINE_COLOR[x] === "#FCCC0A" ? " dark" : ""}" style="background:${LINE_COLOR[x] || "#808183"}">${esc(x)}</i>`).join("")}<span class="v ${metric ? rateMetric(metric, Number(g.mi)) : ""}">${esc(g.mi)}<span class="u">mi</span></span></span>`).join("");
   return row("subways", ICON.train, html, "Nearest subway lines, miles to the closest entrance: " + entries.map(([a, b]) => a + " " + b).join(", "));
 }
 
@@ -176,8 +176,7 @@ export function card(search, l, pendingIds, expanded = new Set()) {
     .map(m => ({ m, v: metricValue(l, m) })).filter(x => x.v);
   const oneUnit = shown.length > 1 && shown.every(x => x.m.unit && x.m.unit === shown[0].m.unit) ? shown[0].m.unit : "";
   const metrics = shown.map(({ m, v }, i) => {
-    const unit = oneUnit ? "" : m.unit;
-    return `<span class="metric"><span class="k">${esc(m.label)}</span> <span class="v ${rateMetric(m, v)}">${esc(v)}${unit ? `<span class="u"> ${esc(unit)}</span>` : ""}</span></span>`;
+    return `<span class="metric"><span class="k">${esc(m.label)}</span> <span class="v ${rateMetric(m, v)}">${esc(v)}${m.unit ? `<span class="u">${esc(m.unit)}</span>` : ""}</span></span>`;
   }).join("");
   // Features that matter: the ones this listing has are lit and add points;
   // tap a chip to mark it present or not (e.g. after a viewing).
