@@ -282,8 +282,24 @@ function confirmInline() {
 }
 
 if ("serviceWorker" in navigator) {
+  // The shell is served stale-while-revalidate, so a deploy shows up only
+  // after a reload. When a new worker takes over a page an older one was
+  // controlling, reload once — but not mid-typing; wait until the field
+  // loses focus or the tab is hidden.
+  const hadController = !!navigator.serviceWorker.controller;
+  let reloading = false;
+  const typing = () => { const el = document.activeElement; return !!el && /^(TEXTAREA|INPUT|SELECT)$/.test(el.tagName); };
+  const reloadWhenIdle = () => {
+    if (reloading) return;
+    if (!typing()) { reloading = true; location.reload(); return; }
+    document.addEventListener("focusout", () => setTimeout(reloadWhenIdle, 0), { once: true });
+    document.addEventListener("visibilitychange", reloadWhenIdle, { once: true });
+  };
   navigator.serviceWorker.register("sw.js").catch(() => {});
-  navigator.serviceWorker.addEventListener("controllerchange", () => { warmedKey = ""; if (store) render(); });
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    warmedKey = ""; if (store) render();
+    if (hadController) reloadWhenIdle();
+  });
 }
 
 boot();
