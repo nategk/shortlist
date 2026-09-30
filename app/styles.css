@@ -205,6 +205,13 @@ select.search-picker { height: auto; padding: 0; box-shadow: none; background: t
 .metric .v { font-weight: 500; font-variant-numeric: tabular-nums; color: var(--gray-1000); }
 .metric .u { font-weight: 400; color: var(--gray-900); }
 .metric .v.ok { color: var(--green-900); } .metric .v.warn { color: var(--amber-900); } .metric .v.bad { color: var(--red-900); }
+/* Subway lines: MTA-colored bullets grouped by distance */
+.subway { display: inline-flex; align-items: center; gap: 2px; }
+.subway + .subway { margin-left: 10px; }
+.subway .v { margin-left: 4px; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--gray-1000); }
+.subway .v.ok { color: var(--green-900); } .subway .v.warn { color: var(--amber-900); } .subway .v.bad { color: var(--red-900); }
+.bullet { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 9999px; font: 700 11px/1 var(--font); font-style: normal; color: #fff; }
+.bullet.dark { color: #000; }
 /* Amenities: compact pills that wrap (two lines at most), in the search's
    order; filled when the listing has it. Tap to toggle. */
 .amenities .t.chips { white-space: normal; display: flex; flex-wrap: wrap; gap: 4px; max-height: 44px; overflow: hidden; }
