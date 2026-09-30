@@ -138,7 +138,7 @@ export function card(search, l, pendingIds, expanded = new Set()) {
   const long = (l.summary || "").length > 150 || !!l.description;
   const price = l.price !== null && l.price !== undefined ? `<span class="price">${money(l.price)}</span>` : "";
   return `<article class="card${group === "archived" ? " archived" : ""}" data-id="${esc(l.id)}">
-  <div class="photo${photos.length ? "" : " nophoto"}">
+  <div class="photo${photos.length ? "" : " nophoto"}"${photos.length > 1 ? ' data-pos="start"' : ""}>
     ${photos.length
       ? `<div class="slides">${photos.map((p, i) => `<a href="${esc(l.url)}" target="_blank" rel="noopener" aria-label="Open listing"><img src="${esc(photoSrc(p))}" data-fallback="${esc(p.url)}" alt=""${i ? ' loading="lazy"' : ""}></a>`).join("")}</div>`
       : `<a class="nophoto-label" href="${esc(l.url)}" target="_blank" rel="noopener">No photos saved · open listing ↗</a>`}
@@ -146,6 +146,7 @@ export function card(search, l, pendingIds, expanded = new Set()) {
     ${l.status ? `<span class="pill g-${group}">${esc(l.status)}</span>` : ""}
     ${pendingIds.has(l.id) ? `<span class="pending" title="Saved on this device, waiting to upload">● not synced</span>` : ""}
     ${price}
+    ${photos.length > 1 ? `<button class="nav prev" type="button" data-slide="-1" aria-label="Previous photo">‹</button><button class="nav next" type="button" data-slide="1" aria-label="Next photo">›</button>` : ""}
     ${photos.length > 1 ? `<span class="count" aria-label="${photos.length} photos, swipe for more">1 / ${photos.length} ⇆</span>` : ""}
   </div>
   <div class="body">

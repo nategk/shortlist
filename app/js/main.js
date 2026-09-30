@@ -148,6 +148,13 @@ document.addEventListener("click", e => {
     store.update(id, { features: now });
     return;
   }
+  // Carousel arrows: step one photo; swiping still works.
+  const step = e.target.closest("button[data-slide]");
+  if (step) {
+    const slides = step.parentElement.querySelector(".slides");
+    slides.scrollBy({ left: Number(step.dataset.slide) * slides.clientWidth, behavior: "smooth" });
+    return;
+  }
   const more = e.target.closest("button[data-expand]");
   if (more) {
     const id = more.closest(".card").dataset.id;
@@ -165,8 +172,11 @@ document.addEventListener("click", e => {
 document.addEventListener("scroll", e => {
   const el = e.target;
   if (!el.classList || !el.classList.contains("slides")) return;
+  const i = Math.round(el.scrollLeft / el.clientWidth), n = el.children.length;
   const count = el.parentElement.querySelector(".count");
-  if (count) count.textContent = `${Math.round(el.scrollLeft / el.clientWidth) + 1} / ${el.children.length} ⇆`;
+  if (count) count.textContent = `${i + 1} / ${n} ⇆`;
+  // Hides the prev/next arrow at either end.
+  el.parentElement.dataset.pos = i <= 0 ? "start" : i >= n - 1 ? "end" : "mid";
 }, true);
 document.addEventListener("change", e => {
   if (e.target.matches("select[data-status]")) store.update(e.target.closest(".card").dataset.id, { status: e.target.value });
