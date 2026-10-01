@@ -1,7 +1,7 @@
 // Rendering. Pure functions of (state, view) -> HTML strings, plus the few
 // helpers the event handlers in main.js need. Nothing here talks to a
 // database; writes go through the store.
-import { GROUPS, DEFAULT_STATUSES, groupOf, rateMetric, fit } from "./model.js";
+import { GROUPS, DEFAULT_STATUSES, groupOf, rateMetric, fit, rankable } from "./model.js";
 
 export const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
@@ -166,7 +166,18 @@ function contact(l) {
   return `<div class="contact" title="${esc([name, info].filter(Boolean).join(" · "))}">${ICON.user}<span class="t">${name ? `<b>${esc(name)}</b>` : ""}${name && parts.length ? " · " : ""}${parts.join(" · ")}</span></div>`;
 }
 
-export function card(search, l, pendingIds, expanded = new Set()) {
+// Your rank: a tiny "#" menu beside the fit score on shortlisted / in-progress
+// cards. rankCount: how many listings in the search are ranked.
+function rankMenu(l, group, rankCount) {
+  if (!rankable(group)) return "";
+  const ranked = l.rank != null;
+  const n = ranked ? rankCount : rankCount + 1;
+  const opts = (ranked ? `<option value="">Unrank</option>` : `<option value="" selected>#</option>`)
+    + Array.from({ length: n }, (_, i) => `<option value="${i + 1}"${l.rank === i + 1 ? " selected" : ""}>#${i + 1}</option>`).join("");
+  return `<label class="rank${ranked ? " on" : ""}" title="${ranked ? "Your rank: change or unrank" : "Rank it"}"><select data-rank aria-label="Your rank">${opts}</select></label>`;
+}
+
+export function card(search, l, pendingIds, expanded = new Set(), rankCount = 0) {
   const statuses = statusesFor(search);
   const group = groupOf(search, l.status);
   const photos = l.photos || [];
@@ -197,7 +208,10 @@ export function card(search, l, pendingIds, expanded = new Set()) {
     ${photos.length
       ? `<div class="slides">${photos.map((p, i) => `<button class="slide" type="button" data-photo="${i}" aria-label="View photo ${i + 1} of ${photos.length} full screen"><img src="${esc(photoSrc(p))}" data-fallback="${esc(p.url)}" alt=""${i ? ' loading="lazy"' : ""}></button>`).join("")}</div>`
       : `<span class="nophoto-label">No photos saved</span>`}
-    ${f.total !== null ? `<span class="score" title="${esc(scoreTitle)}">${esc(f.total)} fit${f.boost ? ` <span class="boost">${f.boost > 0 ? "+" : "−"}${esc(Math.abs(f.boost))}</span>` : ""}</span>` : ""}
+    <div class="tl">
+      ${f.total !== null ? `<span class="score" title="${esc(scoreTitle)}">${esc(f.total)} fit</span>` : ""}
+      ${rankMenu(l, group, rankCount)}
+    </div>
     <label class="status g-${group}" title="Status"><select id="st-${esc(l.id)}" data-status aria-label="Status">${opts}</select></label>
     ${pendingIds.has(l.id) ? `<span class="pending" title="Saved on this device, waiting to upload">● not synced</span>` : ""}
     ${price}

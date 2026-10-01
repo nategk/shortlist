@@ -115,3 +115,19 @@ export const statusesText = statuses => (statuses || []).map(s => `${s.label}: $
 export const metricsText = metrics => (metrics || []).map(m =>
   [m.field, m.label, m.unit, m.good, m.ok].map(v => (v === null || v === undefined ? "" : String(v))).join(" | ").replace(/( \| )+$/, "")).join("\n");
 export const linksText = links => (links || []).map(l => `${l.label} | ${l.url}`).join("\n");
+
+// Your ranking (#1, #2…) applies to listings in the shortlist and in-progress
+// groups; everything else is unranked.
+export const rankable = group => group === "shortlist" || group === "active";
+
+// Move listing `id` to `rank` (1-based; null = unrank) among `ranked`, the
+// search's currently ranked listings. Everyone else shifts to keep 1..n
+// with no gaps or ties. Returns [{id, rank}] for each listing that changed.
+export function rerank(ranked, id, rank) {
+  const order = ranked.filter(l => l.id !== id && l.rank != null).sort((a, b) => a.rank - b.rank).map(l => l.id);
+  if (rank != null) order.splice(Math.max(0, Math.min(order.length, rank - 1)), 0, id);
+  const before = new Map(ranked.map(l => [l.id, l.rank ?? null]));
+  const after = new Map(order.map((x, i) => [x, i + 1]));
+  if (rank == null) after.set(id, null);
+  return [...after].filter(([x, r]) => (before.get(x) ?? null) !== r).map(([x, r]) => ({ id: x, rank: r }));
+}

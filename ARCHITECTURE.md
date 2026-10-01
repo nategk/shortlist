@@ -79,7 +79,7 @@ Search   id, name, lookingFor, budget, area, timing, state,
          features: [{label, points}]
 Listing  id, searchIds[], title, price, score, status, notes, url, location,
          description, summary, source, photos: [{id, url}], fields: {raw…},
-         features: [label]
+         features: [label], rank: 1..n | null   (your order; see below)
 Source   id, searchIds[], name, access, links: [{label, url}], method, lastChecked, notes
 ```
 
@@ -87,6 +87,10 @@ The search decides how its listings look:
 - **Statuses**: the tabs (To review / Shortlist / In progress / Done / Passed)
   come from each status's group; each card's status menu lists them all.
   An apartment hunt can say "Lease signed"; a bike search can say "Bought".
+- **Your rank**: shortlisted and in-progress listings can be ranked #1, #2…
+  from a small menu beside the fit score. Setting one shifts the others so
+  ranks stay 1..n (the app writes each changed rank); unranking, or moving
+  a listing out of those groups, closes the gap. Ranked listings sort first.
 - **Card metrics**: any listing field can become a metric tile. Numbers get
   green / amber / red from the search's own thresholds (lower is better when
   `good < ok`). The West Side hunt shows Greenway and Subway distance; a bike
@@ -145,7 +149,7 @@ filename is the photo id. Photos attached in Airtable are copied into Blob
   (Neon → Airtable only), Live ID, Last modified.
 - **Listings**: Listing (title), Search (link), Price, Fit score, Status,
   Notes, URL, Location, Description, Summary, Source, Features, Photos,
-  Live ID, Last modified, and **every other editable column** as a
+  Rank, Live ID, Last modified, and **every other editable column** as a
   search-specific field (`listing.fields[column]`: Neighborhood, Greenway
   (mi), Move-in…). Add a column in Airtable and it syncs; card metrics can
   name it.

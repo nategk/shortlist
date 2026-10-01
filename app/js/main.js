@@ -2,7 +2,7 @@
 // store, render, and route UI events to store writes.
 import { ADAPTERS, loadConnection, saveConnection, createAdapter, connectionKey } from "./adapters/index.js";
 import { Store } from "./store.js";
-import { fit, parseFeatures, featuresText } from "./model.js";
+import { fit, parseFeatures, featuresText, groupOf, rankable, rerank } from "./model.js";
 import * as ui from "./ui.js";
 
 const $ = s => document.querySelector(s);
@@ -29,6 +29,21 @@ async function boot() {
 function currentSearch(state) {
   const active = state.searches.filter(s => s.state !== "Done");
   return state.searches.find(s => s.id === view.searchId) || active[0] || state.searches[0] || null;
+}
+
+// Ranked listings in a search (shortlist / in progress, with a rank).
+function rankedIn(search, listings) {
+  return listings.filter(l => l.rank != null && rankable(groupOf(search, l.status)));
+}
+
+// Set one listing's rank; the others shift so ranks stay 1..n.
+function setRank(id, rank) {
+  const search = currentSearch(store.state);
+  const ranked = rankedIn(search, listingsFor(store.state, search));
+  const self = store.state.listings.find(l => l.id === id);
+  // Include the listing itself with its real current rank, even when it's no
+  // longer rankable (e.g. just passed), so clearing it is written too.
+  for (const p of rerank(self && !ranked.includes(self) ? [...ranked, self] : ranked, id, rank)) store.update(p.id, { rank: p.rank });
 }
 
 function listingsFor(state, search) {
@@ -71,15 +86,17 @@ function render() {
   // Tabs + cards
   const tab = view.tab;
   $("#tabs").innerHTML = ui.tabs(search, listings, tab);
+  // Your ranked listings first (#1, #2…), then the rest by fit.
   const shown = listings
     .filter(l => ui.inTab(search, l, tab))
-    .map(l => [l, fit(search, l).total ?? -1])
-    .sort((a, b) => b[1] - a[1])
+    .map(l => [l, fit(search, l).total ?? -1, l.rank ?? Infinity])
+    .sort((a, b) => a[2] - b[2] || b[1] - a[1])
     .map(([l]) => l);
+  const rankCount = rankedIn(search, listings).length;
   const pendingIds = new Set(state.outbox.map(o => o.id));
   preserveDraft(() => {
     $("#grid").innerHTML = shown.length
-      ? shown.map(l => ui.card(search, l, pendingIds, expanded)).join("")
+      ? shown.map(l => ui.card(search, l, pendingIds, expanded, rankCount)).join("")
       : `<div class="empty">${store.hasData ? "Nothing in this tab." : status.error ? "Couldn't load: " + ui.esc(status.error) : "Loading listings…"}</div>`;
   });
   fitSummaries();
@@ -229,7 +246,14 @@ document.addEventListener("keydown", e => {
   if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches("[data-expand]")) { e.preventDefault(); e.target.click(); }
 });
 document.addEventListener("change", e => {
-  if (e.target.matches("select[data-status]")) store.update(e.target.closest(".card").dataset.id, { status: e.target.value });
+  if (e.target.matches("select[data-status]")) {
+    const id = e.target.closest(".card").dataset.id, status = e.target.value;
+    store.update(id, { status });
+    // Leaving the shortlist / in progress drops its rank; the rest close up.
+    const search = currentSearch(store.state), l = store.state.listings.find(x => x.id === id);
+    if (l && l.rank != null && !rankable(groupOf(search, status))) setRank(id, null);
+  }
+  if (e.target.matches("select[data-rank]")) setRank(e.target.closest(".card").dataset.id, e.target.value ? Number(e.target.value) : null);
   if (e.target.id === "search-picker") { view.searchId = e.target.value; pref.set("search", view.searchId); render(); }
 });
 const noteTimers = {};
