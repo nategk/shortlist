@@ -79,7 +79,8 @@ Search   id, name, lookingFor, budget, area, timing, state,
          features: [{label, points}]
 Listing  id, searchIds[], title, price, score, status, notes, url, location,
          description, summary, source, photos: [{id, url}], fields: {raw…},
-         features: [label], rank: 1..n | null   (your order; see below)
+         features: [label], rank: 1..n | null   (your order; see below),
+         thread: [{id, at, text}]               (application notes; see below)
 Source   id, searchIds[], name, access, links: [{label, url}], method, lastChecked, notes
 ```
 
@@ -91,6 +92,13 @@ The search decides how its listings look:
   from a small menu beside the fit score. Setting one shifts the others so
   ranks stay 1..n (the app writes each changed rank); unranking, or moving
   a listing out of those groups, closes the gap. Ranked listings sort first.
+- **Application notes**: each card has an Application row that opens a
+  chat-style thread: dated updates (pasted emails, application links, what's
+  due, what you're waiting on), oldest first. Updates are added and deleted
+  by id (`threadAdd` / `threadRemove` on `PATCH /api/listings/:id`), so two
+  devices posting at once both land. `remote.mjs post <id> <text>` adds one
+  from a terminal. Airtable gets a read-only text copy (**Application
+  notes**, newest first).
 - **Card metrics**: any listing field can become a metric tile. Numbers get
   green / amber / red from the search's own thresholds (lower is better when
   `good < ok`). The West Side hunt shows Greenway and Subway distance; a bike
@@ -149,7 +157,7 @@ filename is the photo id. Photos attached in Airtable are copied into Blob
   (Neon → Airtable only), Live ID, Last modified.
 - **Listings**: Listing (title), Search (link), Price, Fit score, Status,
   Notes, URL, Location, Description, Summary, Source, Features, Photos,
-  Rank, Live ID, Last modified, and **every other editable column** as a
+  Rank, Application notes (Neon → Airtable only), Live ID, Last modified, and **every other editable column** as a
   search-specific field (`listing.fields[column]`: Neighborhood, Greenway
   (mi), Move-in…). Add a column in Airtable and it syncs; card metrics can
   name it.
@@ -219,7 +227,8 @@ Criteria, features and the contact template are editable in the UI
 ## Working on a live deployment
 
 `node scripts/remote.mjs set <id> status=… [notes=…]` triages one listing
-through the open `PATCH /api/listings/:id`.
+through the open `PATCH /api/listings/:id`; `post <id> <text | @file>` adds
+an application note to its thread.
 `node scripts/remote.mjs pull snap.json` saves the live snapshot (public);
 edit it, then `node scripts/remote.mjs push snap.json` upserts it through
 `/api/admin/import?keepTriage=1`, so status, notes and features set in the
