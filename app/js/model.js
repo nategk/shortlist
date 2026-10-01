@@ -7,7 +7,8 @@
 // Listing  { id, searchIds: [id], title, price, score, status, notes, url,
 //            location, description, summary, source,
 //            photos: [{id, url}], fields: {raw field name: value},
-//            features: [label] }  (which of the search's features it has)
+//            features: [label],  (which of the search's features it has)
+//            rank, thread: [{id, at, text}] }  (application notes, below)
 // Source   { id, searchIds: [id], name, access, links: [{label, url}],
 //            method, lastChecked, notes }
 // Metric   { field, label, unit, good, ok }  (good/ok null for text fields)
@@ -131,3 +132,45 @@ export function rerank(ranked, id, rank) {
   if (rank == null) after.set(id, null);
   return [...after].filter(([x, r]) => (before.get(x) ?? null) !== r).map(([x, r]) => ({ id: x, rank: r }));
 }
+
+// Application notes: a dated thread per listing ({id, at, text}, oldest
+// first) for context and status on an application. Edits travel as
+// {threadAdd: [entry], threadRemove: [id]} so two devices posting at once
+// never overwrite each other's entries.
+export const THREAD_MAX = 200, THREAD_TEXT_MAX = 20000;
+
+export function applyThread(thread, add = [], remove = []) {
+  const gone = new Set(remove);
+  const byId = new Map((thread || []).filter(e => !gone.has(e.id)).map(e => [e.id, e]));
+  for (const e of add) if (e && e.id && !gone.has(e.id)) byId.set(e.id, e);
+  return [...byId.values()].sort((a, b) => String(a.at).localeCompare(String(b.at))).slice(-THREAD_MAX);
+}
+
+// Combine two queued patches for one row: thread ops accumulate, every other
+// field is latest-wins.
+export function mergePatch(a, b) {
+  const out = { ...a, ...b };
+  for (const k of ["threadAdd", "threadRemove"]) if (a[k] || b[k]) out[k] = [...(a[k] || []), ...(b[k] || [])];
+  return out;
+}
+
+// Apply a patch to a listing row (locally, or over a fresh pull).
+export function patchRow(row, patch) {
+  const { threadAdd, threadRemove, ...rest } = patch;
+  const out = { ...row, ...rest };
+  if (threadAdd || threadRemove) out.thread = applyThread(row.thread, threadAdd, threadRemove);
+  return out;
+}
+
+// One entry from what the API accepts, or null.
+export function cleanEntry(e) {
+  if (!e || typeof e.id !== "string" || typeof e.text !== "string" || !e.text.trim()) return null;
+  const at = new Date(e.at);
+  if (isNaN(at)) return null;
+  return { id: e.id.slice(0, 64), at: at.toISOString(), text: e.text.trim().slice(0, THREAD_TEXT_MAX) };
+}
+
+// The thread as plain text, newest first (the Airtable mirror).
+export const threadText = thread => (thread || []).slice().reverse().map(e =>
+  new Date(e.at).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit", timeZone: "America/New_York" })
+  + "\n" + e.text).join("\n\n———\n\n");

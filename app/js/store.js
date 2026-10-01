@@ -4,6 +4,7 @@
 //   push  - edits land locally at once and go into an outbox that flushes
 //           (coalesced per listing) whenever we're online
 // Each connection gets its own database, so switching sources never mixes data.
+import { mergePatch, patchRow } from "./model.js";
 
 const DB_VERSION = 1;
 const STALE_MS = 60 * 1000;
@@ -86,8 +87,8 @@ export class Store {
   // Overlay edits that haven't uploaded yet so a pull never undoes them.
   withPending(rows, kind = "listing") {
     const pending = new Map();
-    for (const op of this.state.outbox) if ((op.kind || "listing") === kind) pending.set(op.id, { ...(pending.get(op.id) || {}), ...op.patch });
-    return rows.map(r => (pending.has(r.id) ? { ...r, ...pending.get(r.id) } : r));
+    for (const op of this.state.outbox) if ((op.kind || "listing") === kind) pending.set(op.id, mergePatch(pending.get(op.id) || {}, op.patch));
+    return rows.map(r => (pending.has(r.id) ? patchRow(r, pending.get(r.id)) : r));
   }
 
   async pull() {
@@ -115,11 +116,12 @@ export class Store {
     }
   }
 
-  // Instant local write + queued upload. kind: "listing" (status, notes) or
+  // Instant local write + queued upload. kind: "listing" (status, notes,
+  // thread...) or
   // "search" (criteria, contact template...).
   async update(id, patch, kind = "listing") {
     const store = kind === "search" ? "searches" : "listings";
-    this.state[store] = this.state[store].map(r => (r.id === id ? { ...r, ...patch } : r));
+    this.state[store] = this.state[store].map(r => (r.id === id ? patchRow(r, patch) : r));
     const op = { kind, id, patch, at: Date.now() };
     await tx(this.db, [store, "outbox"], "readwrite", t => {
       const row = this.state[store].find(r => r.id === id);
@@ -142,7 +144,7 @@ export class Store {
     this.flushing = true;
     const ops = [...this.state.outbox];
     const byKey = new Map();   // "kind:id" -> merged patch (latest wins)
-    for (const op of ops) { const k = (op.kind || "listing") + ":" + op.id; byKey.set(k, { ...(byKey.get(k) || {}), ...op.patch }); }
+    for (const op of ops) { const k = (op.kind || "listing") + ":" + op.id; byKey.set(k, mergePatch(byKey.get(k) || {}, op.patch)); }
     const done = [];
     let failed = null;
     for (const [key, patch] of byKey) {

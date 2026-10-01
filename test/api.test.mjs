@@ -86,6 +86,24 @@ test("PATCH sets and clears a rank, and rejects bad ones", { skip }, async () =>
   assert.equal((await patch({ rank: "1" })).status, 400);
 });
 
+test("PATCH adds and removes application notes by id, and rejects bad ones", { skip }, async () => {
+  const id = "listing-6";
+  const patch = body => api.listing.PATCH(req("/api/listings/" + id, { method: "PATCH", body: JSON.stringify(body) }));
+  const thread = async () => (await (await api.snapshot.GET(req("/api/snapshot"))).json()).listings.find(x => x.id === id).thread;
+  assert.deepEqual(await thread(), []);
+  assert.equal((await patch({ threadAdd: [{ id: "b", at: "2026-10-01T14:00:00Z", text: "Applied online " }] })).status, 200);
+  assert.equal((await patch({ threadAdd: [{ id: "a", at: "2026-09-30T13:00:00Z", text: "Asked about the garage" }], rank: 3 })).status, 200);
+  let t = await thread();
+  assert.deepEqual(t.map(e => e.id), ["a", "b"], "oldest first; a second post never replaces the first");
+  assert.equal(t[1].text, "Applied online");
+  assert.equal((await patch({ threadRemove: ["a"] })).status, 200);
+  assert.deepEqual((await thread()).map(e => e.id), ["b"]);
+  assert.equal((await patch({ threadAdd: [{ id: "c", at: "nope", text: "x" }] })).status, 400);
+  assert.equal((await patch({ threadAdd: [{ id: "c", at: "2026-10-01", text: "  " }] })).status, 400);
+  assert.equal((await patch({ rank: null })).status, 200);
+  assert.deepEqual((await thread()).map(e => e.id), ["b"], "other edits leave the thread alone");
+});
+
 test("PATCH rejects junk and unknown ids", { skip }, async () => {
   assert.equal((await api.listing.PATCH(req("/api/listings/listing-5", { method: "PATCH", body: "{}" }))).status, 400);
   assert.equal((await api.listing.PATCH(req("/api/listings/listing-5", { method: "PATCH", body: "not json" }))).status, 400);

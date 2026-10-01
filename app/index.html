@@ -85,6 +85,18 @@
   </form>
 </dialog>
 
+<dialog id="thread" class="sheet thread" aria-labelledby="thread-title">
+  <div class="sheet-head">
+    <div class="thread-title"><h2 id="thread-title">Application</h2><span class="hint" id="thread-sub"></span></div>
+    <form method="dialog"><button class="btn icon" value="close" aria-label="Close">✕</button></form>
+  </div>
+  <div class="thread-list" id="thread-list"></div>
+  <form class="composer" id="composer">
+    <textarea id="thread-input" rows="2" aria-label="Add an update" placeholder="Add an update: paste an email, a link, a status…"></textarea>
+    <button class="btn primary" type="submit" id="thread-send" disabled>Post</button>
+  </form>
+</dialog>
+
 <dialog id="lightbox" class="lightbox" aria-label="Photos">
   <div class="lb-slides" id="lb-slides"></div>
   <button class="lb-btn lb-close" type="button" id="lb-close" aria-label="Close photos"></button>

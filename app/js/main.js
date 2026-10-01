@@ -17,6 +17,7 @@ let store = null;
 let view = { searchId: pref.get("search", ""), tab: pref.get("tab", "all") };
 let warmedKey = "";
 const expanded = new Set();   // cards whose summary/description is open
+let threadId = null;          // listing whose application thread is open
 
 async function boot() {
   if (!conn) { conn = await loadConnection(); adapter = createAdapter(conn); }
@@ -116,6 +117,7 @@ function render() {
   if (!search && $("#sheet").open) $("#sheet").close();
 
   warmPhotos(listings);
+  if ($("#thread").open) renderThread();
 }
 
 // Editable text areas: refresh from data unless the user has unsaved edits.
@@ -179,6 +181,8 @@ document.addEventListener("click", e => {
     store.update(id, { features: now });
     return;
   }
+  const th = e.target.closest("button[data-thread]");
+  if (th) { openThread(th.closest(".card").dataset.id); return; }
   const photo = e.target.closest("button[data-photo]");
   if (photo) { openLightbox(photo.closest(".card"), Number(photo.dataset.photo)); return; }
   // Carousel arrows: step one photo; swiping still works.
@@ -318,6 +322,43 @@ $("#run-crawl").addEventListener("click", async () => {
     await store.pull();
   }
 });
+
+// ---- application notes: a chat-style thread per listing ----
+function openThread(id) {
+  threadId = id;
+  renderThread();
+  $("#thread").showModal();
+  const list = $("#thread-list");
+  list.scrollTop = list.scrollHeight;
+  $("#thread-input").focus();
+}
+function renderThread() {
+  const l = store.state.listings.find(x => x.id === threadId);
+  if (!l) { $("#thread").close(); return; }
+  const list = $("#thread-list"), atEnd = list.scrollHeight - list.scrollTop - list.clientHeight < 40;
+  $("#thread-sub").textContent = [l.status, l.title].filter(Boolean).join(" · ");
+  list.innerHTML = ui.thread(l);
+  if (atEnd) list.scrollTop = list.scrollHeight;
+}
+function postUpdate() {
+  const text = $("#thread-input").value.trim();
+  if (!text || !threadId) return;
+  const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  store.update(threadId, { threadAdd: [{ id, at: new Date().toISOString(), text }] });
+  $("#thread-input").value = "";
+  $("#thread-send").disabled = true;
+  requestAnimationFrame(() => { const list = $("#thread-list"); list.scrollTop = list.scrollHeight; });
+}
+$("#composer").addEventListener("submit", e => { e.preventDefault(); postUpdate(); });
+$("#thread-input").addEventListener("input", () => { $("#thread-send").disabled = !$("#thread-input").value.trim(); });
+// Cmd/Ctrl+Enter posts; plain Enter is a new line (updates are often pasted emails).
+$("#thread-input").addEventListener("keydown", e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); postUpdate(); } });
+$("#thread-list").addEventListener("click", e => {
+  const del = e.target.closest("[data-entry-del]");
+  if (del && confirm("Delete this update?")) store.update(threadId, { threadRemove: [del.dataset.entryDel] });
+});
+$("#thread").addEventListener("click", e => { if (e.target === $("#thread")) $("#thread").close(); });
+$("#thread").addEventListener("close", () => { threadId = null; });
 
 // ---- criteria / contact / sources sheet ----
 function openSheet(which) {

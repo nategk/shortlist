@@ -4,6 +4,8 @@
 //                                          (status/notes/features) as it is live
 //   node scripts/remote.mjs set <listingId> status=Contacted [notes=...]
 //                                          triage one listing (open endpoint)
+//   node scripts/remote.mjs post <listingId> <text | @file> [--at ISO]
+//                                          add an application note to its thread
 // Env: SHORTLIST_URL (e.g. https://your-app.vercel.app), ADMIN_TOKEN for push.
 import { readFile, writeFile } from "node:fs/promises";
 
@@ -41,7 +43,19 @@ if (cmd === "pull") {
   });
   console.log(res.status, await res.text());
   if (!res.ok) process.exit(1);
+} else if (cmd === "post" && file && process.argv[4]) {
+  const arg = process.argv[4], i = process.argv.indexOf("--at");
+  const text = arg.startsWith("@") ? await readFile(arg.slice(1), "utf8") : arg;
+  const at = i > 0 ? new Date(process.argv[i + 1]).toISOString() : new Date().toISOString();
+  const entry = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), at, text };
+  const res = await fetch(base + "/api/listings/" + encodeURIComponent(file), {
+    method: "PATCH",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ threadAdd: [entry] }),
+  });
+  console.log(res.status, await res.text());
+  if (!res.ok) process.exit(1);
 } else {
-  console.error("Usage: node scripts/remote.mjs pull [file] | push <file> | set <id> field=value...");
+  console.error("Usage: node scripts/remote.mjs pull [file] | push <file> | set <id> field=value... | post <id> <text|@file> [--at ISO]");
   process.exit(1);
 }

@@ -19,6 +19,8 @@ export const ICON = {
   amenity: svg('<path d="m3 17 2 2 4-4M3 7l2 2 4-4M13 6h8M13 12h8M13 18h8"/>'),
   prev: svg('<path d="m15 18-6-6 6-6"/>'),
   next: svg('<path d="m9 18 6-6-6-6"/>'),
+  thread: svg('<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>'),
+  trash: svg('<path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>'),
 };
 // Nearest subway lines: fields.Subways is "1 0.15 · 2 0.15 · B 0.46" (line,
 // miles to its nearest entrance), up to 5. Lines at the same distance share
@@ -237,9 +239,42 @@ export function card(search, l, pendingIds, expanded = new Set(), rankCount = 0)
         ${contact(l)}
         <textarea id="nt-${esc(l.id)}" data-notes rows="3" aria-label="Your notes" placeholder="Your notes: called broker, viewing Tue 6pm…">${esc(l.notes)}</textarea>
       </div>
+      ${threadButton(l)}
     </div>
   </div>
 </article>`;
+}
+
+// Application notes: a button on the card opens the thread.
+function threadButton(l) {
+  const t = l.thread || [], last = t[t.length - 1];
+  const label = t.length ? `${t.length} update${t.length === 1 ? "" : "s"} · ${shortDate(last.at)}` : "Start a thread";
+  return `<button class="thread-btn${t.length ? " has" : ""}" type="button" data-thread aria-label="Application notes: ${esc(label)}">${ICON.thread}<span class="k">Application</span><span class="t">${t.length ? esc(firstLine(last.text)) : ""}</span><span class="n">${esc(label)}</span></button>`;
+}
+const firstLine = s => String(s || "").split("\n").find(x => x.trim()) || "";
+const shortDate = at => new Date(at).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+
+// The thread itself (inside the dialog): oldest first, grouped by day.
+// Links, emails and phone numbers are tappable.
+export function thread(l) {
+  const t = (l && l.thread) || [];
+  if (!t.length) return `<p class="thread-empty">Paste emails, application links, what's due and what you're waiting on. Everything stays on this listing, in order.</p>`;
+  let day = "";
+  return t.map(e => {
+    const d = new Date(e.at), dayLabel = d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+    const head = dayLabel !== day ? `<div class="thread-day">${esc(dayLabel)}</div>` : "";
+    day = dayLabel;
+    return `${head}<div class="msg" data-entry="${esc(e.id)}"><div class="msg-text">${linkify(e.text)}</div>
+      <div class="msg-meta"><time datetime="${esc(e.at)}">${esc(d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }))}</time>
+      <button class="msg-del" type="button" data-entry-del="${esc(e.id)}" aria-label="Delete this update">${ICON.trash}</button></div></div>`;
+  }).join("");
+}
+
+function linkify(text) {
+  return esc(text).replace(/https?:\/\/[^\s<]+[^\s<.,;:!?)\]'"]|[\w.+-]+@[\w-]+\.[\w.-]*\w|\(?\b\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}\b/g, m =>
+    /^http/.test(m) ? `<a href="${m}" target="_blank" rel="noopener">${m.replace(/^https?:\/\/(www\.)?/, "").slice(0, 48)}${m.length > 56 ? "…" : ""}</a>`
+      : m.includes("@") ? `<a href="mailto:${m}">${m}</a>`
+      : `<a href="tel:${m.replace(/[^\d]/g, "")}">${m}</a>`);
 }
 
 export function sources(list) {
