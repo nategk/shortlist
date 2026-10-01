@@ -205,7 +205,7 @@ document.addEventListener("scroll", e => {
   if (!el.classList || !el.classList.contains("slides")) return;
   const i = Math.round(el.scrollLeft / el.clientWidth), n = el.children.length;
   const count = el.parentElement.querySelector(".count");
-  if (count) count.textContent = `${i + 1} / ${n} ⇆`;
+  if (count) count.textContent = `${i + 1} / ${n}`;
   // Hides the prev/next arrow at either end.
   el.parentElement.dataset.pos = i <= 0 ? "start" : i >= n - 1 ? "end" : "mid";
 }, true);
