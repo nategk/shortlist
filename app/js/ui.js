@@ -1,7 +1,7 @@
 // Rendering. Pure functions of (state, view) -> HTML strings, plus the few
 // helpers the event handlers in main.js need. Nothing here talks to a
 // database; writes go through the store.
-import { GROUPS, DEFAULT_STATUSES, groupOf, rateMetric, fit } from "./model.js";
+import { GROUPS, DEFAULT_STATUSES, groupOf, rateMetric, fit, rankable } from "./model.js";
 
 export const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
@@ -11,11 +11,12 @@ export const ICON = {
   pin: svg('<path d="M20 10c0 4.99-5.54 10.19-7.4 11.8a1 1 0 0 1-1.2 0C9.54 20.19 4 14.99 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>'),
   lease: svg('<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>'),
   route: svg('<circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/>'),
-  amenity: svg('<path d="M9.94 15.5A2 2 0 0 0 8.5 14.06l-6.14-1.58a.5.5 0 0 1 0-.96L8.5 9.94A2 2 0 0 0 9.94 8.5l1.58-6.14a.5.5 0 0 1 .96 0l1.58 6.14a2 2 0 0 0 1.44 1.44l6.14 1.58a.5.5 0 0 1 0 .96l-6.14 1.58a2 2 0 0 0-1.44 1.44l-1.58 6.14a.5.5 0 0 1-.96 0z"/>'),
+  fit: svg('<path d="M9.94 15.5A2 2 0 0 0 8.5 14.06l-6.14-1.58a.5.5 0 0 1 0-.96L8.5 9.94A2 2 0 0 0 9.94 8.5l1.58-6.14a.5.5 0 0 1 .96 0l1.58 6.14a2 2 0 0 0 1.44 1.44l6.14 1.58a.5.5 0 0 1 0 .96l-6.14 1.58a2 2 0 0 0-1.44 1.44l-1.58 6.14a.5.5 0 0 1-.96 0z"/>'),
   open: svg('<path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>'),
   user: svg('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'),
   close: svg('<path d="M18 6 6 18M6 6l12 12"/>'),
   train: svg('<rect width="16" height="16" x="4" y="3" rx="2"/><path d="M4 11h16M12 3v8M8 19l-2 3M18 22l-2-3M8 15h.01M16 15h.01"/>'),
+  amenity: svg('<path d="m3 17 2 2 4-4M3 7l2 2 4-4M13 6h8M13 12h8M13 18h8"/>'),
   prev: svg('<path d="m15 18-6-6 6-6"/>'),
   next: svg('<path d="m9 18 6-6-6-6"/>'),
 };
@@ -166,7 +167,18 @@ function contact(l) {
   return `<div class="contact" title="${esc([name, info].filter(Boolean).join(" · "))}">${ICON.user}<span class="t">${name ? `<b>${esc(name)}</b>` : ""}${name && parts.length ? " · " : ""}${parts.join(" · ")}</span></div>`;
 }
 
-export function card(search, l, pendingIds, expanded = new Set()) {
+// Your rank: a tiny "#" menu beside the fit score on shortlisted / in-progress
+// cards. rankCount: how many listings in the search are ranked.
+function rankMenu(l, group, rankCount) {
+  if (!rankable(group)) return "";
+  const ranked = l.rank != null;
+  const n = ranked ? rankCount : rankCount + 1;
+  const opts = (ranked ? `<option value="">Unrank</option>` : `<option value="" selected>#</option>`)
+    + Array.from({ length: n }, (_, i) => `<option value="${i + 1}"${l.rank === i + 1 ? " selected" : ""}>#${i + 1}</option>`).join("");
+  return `<label class="rank${ranked ? " on" : ""}" title="${ranked ? "Your rank: change or unrank" : "Rank it"}"><select data-rank aria-label="Your rank">${opts}</select></label>`;
+}
+
+export function card(search, l, pendingIds, expanded = new Set(), rankCount = 0) {
   const statuses = statusesFor(search);
   const group = groupOf(search, l.status);
   const photos = l.photos || [];
@@ -182,7 +194,7 @@ export function card(search, l, pendingIds, expanded = new Set()) {
   // tap a chip to mark it present or not (e.g. after a viewing).
   const f = fit(search, l);
   const has = new Set(f.matched.map(x => x.label));
-  const features = (search && search.features || []).map(x =>
+  const features = (search && search.features || []).slice().sort((a, b) => a.label.localeCompare(b.label)).map(x =>
     `<button class="chip${has.has(x.label) ? " on" : ""}" type="button" data-feature="${esc(x.label)}" aria-pressed="${has.has(x.label)}" title="${has.has(x.label) ? "Has it" : "Not known to have it"}${x.points ? ` (${x.points > 0 ? "+" : ""}${x.points} fit)` : ""}: tap to toggle">${esc(x.label)}</button>`
   ).join("");
   const scoreTitle = f.boost ? `${f.base} on the criteria ${f.boost > 0 ? "+" : "−"} ${Math.abs(f.boost)} for ${f.matched.map(x => x.label).join(", ")}` : "Fit score on the criteria";
@@ -197,12 +209,15 @@ export function card(search, l, pendingIds, expanded = new Set()) {
     ${photos.length
       ? `<div class="slides">${photos.map((p, i) => `<button class="slide" type="button" data-photo="${i}" aria-label="View photo ${i + 1} of ${photos.length} full screen"><img src="${esc(photoSrc(p))}" data-fallback="${esc(p.url)}" alt=""${i ? ' loading="lazy"' : ""}></button>`).join("")}</div>`
       : `<span class="nophoto-label">No photos saved</span>`}
-    ${f.total !== null ? `<span class="score" title="${esc(scoreTitle)}">${esc(f.total)} fit${f.boost ? ` <span class="boost">${f.boost > 0 ? "+" : "−"}${esc(Math.abs(f.boost))}</span>` : ""}</span>` : ""}
+    <div class="tl">
+      ${f.total !== null ? `<span class="score" title="${esc(scoreTitle)}">${ICON.fit}${esc(f.total)}<span class="visually-hidden"> fit score</span></span>` : ""}
+      ${rankMenu(l, group, rankCount)}
+    </div>
     <label class="status g-${group}" title="Status"><select id="st-${esc(l.id)}" data-status aria-label="Status">${opts}</select></label>
     ${pendingIds.has(l.id) ? `<span class="pending" title="Saved on this device, waiting to upload">● not synced</span>` : ""}
     ${price}
     ${photos.length > 1 ? `<button class="nav prev" type="button" data-slide="-1" aria-label="Previous photo">${ICON.prev}</button><button class="nav next" type="button" data-slide="1" aria-label="Next photo">${ICON.next}</button>` : ""}
-    ${photos.length > 1 ? `<span class="count" aria-label="${photos.length} photos, swipe for more">1 / ${photos.length} ⇆</span>` : ""}
+    ${photos.length > 1 ? `<span class="count" aria-label="${photos.length} photos, swipe for more">1 / ${photos.length}</span>` : ""}
   </div>
   <div class="body">
     <h3 class="title" title="${esc(l.title)}">${l.url ? `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(name.title)}<span class="open" aria-label="Open listing${l.source ? " on " + esc(l.source) : ""}">${ICON.open}</span></a>` : esc(name.title)}</h3>

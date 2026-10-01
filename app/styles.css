@@ -164,7 +164,13 @@ select.search-picker { height: auto; padding: 0; box-shadow: none; background: t
 .slides .slide { flex: 0 0 100%; height: 100%; scroll-snap-align: start; padding: 0; border: 0; background: none; cursor: zoom-in; }
 .slides img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .nophoto-label { position: absolute; right: 12px; bottom: 16px; font: 400 12px/16px var(--mono); color: var(--gray-900); text-decoration: none; }
-.photo .score { position: absolute; top: 12px; left: 12px; }
+.photo .score .ico { width: 12px; height: 12px; margin-right: -1px; }
+.photo .tl { position: absolute; top: 12px; left: 12px; z-index: 2; display: flex; gap: 6px; align-items: center; }
+/* Your rank: tiny pill menu beside the score; ghost "#" until ranked */
+.rank { display: inline-grid; }
+.rank select { appearance: none; -webkit-appearance: none; height: 24px; width: 36px; padding: 0; border-radius: 9999px; font: 600 12px/24px var(--font); font-variant-numeric: tabular-nums; text-align: center; text-align-last: center; cursor: pointer; background: color-mix(in srgb, var(--background-100) 70%, transparent); color: var(--gray-900); box-shadow: inset 0 0 0 1px var(--gray-alpha-400); }
+.rank.on select { background: var(--blue-700, #0070f3); color: #fff; box-shadow: none; }
+.rank select:focus-visible { box-shadow: var(--focus-border); }
 .photo .pending { position: absolute; top: 44px; right: 12px; }
 /* Status: the pill in the corner is the menu */
 .photo .status { position: absolute; top: 12px; right: 12px; z-index: 2; display: inline-grid; }
@@ -178,7 +184,7 @@ select.search-picker { height: auto; padding: 0; box-shadow: none; background: t
 .photo .price { position: absolute; left: 14px; bottom: 8px; z-index: 1; font: 600 24px/32px var(--font); letter-spacing: -.96px; font-variant-numeric: tabular-nums; color: #ffffff; pointer-events: none; }
 .photo.nophoto .price { color: var(--gray-1000); bottom: 10px; }
 /* Carousel arrows: small targets beside swipe/scroll, hidden at either end */
-.photo .nav { position: absolute; top: 50%; z-index: 2; width: 28px; height: 28px; margin-top: -14px; padding: 0; border: 0; border-radius: 9999px; display: grid; place-items: center; color: var(--gray-1000); background: color-mix(in srgb, var(--background-100) 85%, transparent); box-shadow: var(--shadow-border); cursor: pointer; opacity: .9; transition: opacity .15s; }
+.photo .nav { position: absolute; top: 50%; z-index: 2; width: 28px; height: 28px; margin-top: -14px; padding: 0; border: 0; border-radius: 9999px; display: grid; place-items: center; color: var(--gray-1000); background: color-mix(in srgb, var(--background-100) 85%, transparent); cursor: pointer; opacity: .9; transition: opacity .15s; }
 .photo .nav:hover { opacity: 1; }
 .photo .nav .ico { display: block; }
 .photo .prev { left: 8px; } .photo .next { right: 8px; }

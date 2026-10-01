@@ -70,6 +70,22 @@ test("PATCH writes status and notes, and only those", { skip }, async () => {
   assert.equal(l.price, 4500, "price is not writable");
 });
 
+test("PATCH sets and clears a rank, and rejects bad ones", { skip }, async () => {
+  const id = (await (await api.snapshot.GET(req("/api/snapshot"))).json()).listings[0].id;
+  const patch = body => api.listing.PATCH(req("/api/listings/" + id, { method: "PATCH", body: JSON.stringify(body) }));
+  assert.equal((await patch({ rank: 2 })).status, 200);
+  let l = (await (await api.snapshot.GET(req("/api/snapshot"))).json()).listings.find(x => x.id === id);
+  assert.equal(l.rank, 2);
+  assert.equal((await patch({ notes: "still ranked" })).status, 200);
+  l = (await (await api.snapshot.GET(req("/api/snapshot"))).json()).listings.find(x => x.id === id);
+  assert.equal(l.rank, 2, "other edits leave the rank alone");
+  assert.equal((await patch({ rank: null })).status, 200);
+  l = (await (await api.snapshot.GET(req("/api/snapshot"))).json()).listings.find(x => x.id === id);
+  assert.equal(l.rank, null);
+  assert.equal((await patch({ rank: 0 })).status, 400);
+  assert.equal((await patch({ rank: "1" })).status, 400);
+});
+
 test("PATCH rejects junk and unknown ids", { skip }, async () => {
   assert.equal((await api.listing.PATCH(req("/api/listings/listing-5", { method: "PATCH", body: "{}" }))).status, 400);
   assert.equal((await api.listing.PATCH(req("/api/listings/listing-5", { method: "PATCH", body: "not json" }))).status, 400);
