@@ -3,11 +3,15 @@
 //
 // Search   { id, name, lookingFor, budget, area, timing, state, criteria,
 //            contactTemplate, statuses: [{label, group}], metrics: [Metric],
-//            features: [Feature] }
+//            features: [Feature], home, homeGeo: {lat, lon, label, fidelity},
+//            collection }  searches sharing a collection are one board (a tab
+//            each) and share the home / delivery location
 // Listing  { id, searchIds: [id], title, price, score, status, notes, url,
-//            location, description, summary, source,
-//            photos: [{id, url}], fields: {raw field name: value},
+//            location, description, summary, source, createdAt,
+//            photos: [{id, url, label?}], fields: {raw field name: value},
 //            features: [label] }  (which of the search's features it has)
+//            fields.lat / lon / located: where it is and how precisely
+//            (exact pin, address, cross streets, neighborhood…; lib/geo.js)
 // Source   { id, searchIds: [id], name, access, links: [{label, url}],
 //            method, lastChecked, notes }
 // Metric   { field, label, unit, good, ok }  (good/ok null for text fields)
@@ -130,4 +134,47 @@ export function rerank(ranked, id, rank) {
   const after = new Map(order.map((x, i) => [x, i + 1]));
   if (rank == null) after.set(id, null);
   return [...after].filter(([x, r]) => (before.get(x) ?? null) !== r).map(([x, r]) => ({ id: x, rank: r }));
+}
+
+// ---- distance from home ----
+
+// Straight-line miles between two {lat, lon}.
+export function miles(a, b) {
+  const rad = x => (x * Math.PI) / 180, R = 3958.8;
+  const dLat = rad(b.lat - a.lat), dLon = rad(b.lon - a.lon);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+// How far a listing is from the search's home, and how sure that is:
+// { mi, precise, fidelity } or null when either end isn't located. A pin,
+// address or cross streets is precise; a neighborhood or zip is a rough
+// center, so the card shows "~".
+export function distance(search, listing) {
+  const home = search && search.homeGeo, f = (listing && listing.fields) || {};
+  const lat = Number(f.lat), lon = Number(f.lon);
+  if (!home || !Number.isFinite(lat) || !Number.isFinite(lon) || (!lat && !lon)) return null;
+  const fidelity = f.located || "pin";
+  return { mi: miles(home, { lat, lon }), fidelity, precise: /pin|address|cross streets/.test(fidelity) };
+}
+
+// Google Maps directions from home to the listing (cycling; Maps offers the
+// other modes on the same page).
+export function directionsUrl(search, listing) {
+  const f = (listing && listing.fields) || {};
+  if (!search || !search.home || !Number.isFinite(Number(f.lat))) return "";
+  return "https://www.google.com/maps/dir/?api=1&travelmode=bicycling&origin=" + encodeURIComponent(search.home) + "&destination=" + encodeURIComponent(`${f.lat},${f.lon}`);
+}
+
+// Boards: searches grouped by collection, in their own order. A search with
+// no collection is a board of its own.
+export function boards(searches) {
+  const out = [];
+  for (const s of searches) {
+    const key = s.collection ? "c:" + s.collection : "s:" + s.id;
+    let b = out.find(x => x.key === key);
+    if (!b) out.push(b = { key, name: s.collection || s.name, searches: [] });
+    b.searches.push(s);
+  }
+  return out;
 }

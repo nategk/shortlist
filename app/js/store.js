@@ -161,7 +161,10 @@ export class Store {
       await tx(this.db, ["outbox"], "readwrite", t => { for (const seq of done) t.objectStore("outbox").delete(seq); });
       this.state.outbox = await getAll(this.db, "outbox");
     }
+    // A new home location is found on the server; pull to get it.
+    const relocated = ops.some(o => o.kind === "search" && "home" in (o.patch || {}) && done.includes(o.seq));
     this.flushing = false;
+    if (relocated && !failed) setTimeout(() => this.pull(), 0);
     if (failed) {
       this.status.error = failed.message || String(failed);
       this.scheduleFlush(this.backoff);
