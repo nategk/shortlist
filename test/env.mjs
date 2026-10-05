@@ -12,6 +12,7 @@ if (url && !/@(localhost|127\.0\.0\.1)[:/]/.test(url) && process.env.ALLOW_REMOT
 if (url) process.env.DATABASE_URL = url;
 process.env.ADMIN_TOKEN = "test-admin-token-123456";
 process.env.AIRTABLE_MIN_GAP_MS = "0";
+process.env.GEOCODER = "off";   // no live geocoding in tests (test/geo.test.mjs mocks it)
 export const skip = !url && "TEST_DATABASE_URL not set";
 export const ADMIN = process.env.ADMIN_TOKEN;
 export const fixture = () => import("node:fs/promises").then(fs => fs.readFile(new URL("./fixtures/west-side.json", import.meta.url), "utf8"));

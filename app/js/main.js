@@ -2,7 +2,7 @@
 // store, render, and route UI events to store writes.
 import { ADAPTERS, loadConnection, saveConnection, createAdapter, connectionKey } from "./adapters/index.js";
 import { Store } from "./store.js";
-import { fit, parseFeatures, featuresText, groupOf, rankable, rerank } from "./model.js";
+import { fit, parseFeatures, featuresText, groupOf, rankable, rerank, boards } from "./model.js";
 import * as ui from "./ui.js";
 
 const $ = s => document.querySelector(s);
@@ -62,15 +62,21 @@ function render() {
   $("#source-kind").textContent = d.kind + (d.writable ? "" : " · read-only");
   $("#source-dot").className = "dot " + (status.syncing ? "busy" : status.error ? "bad" : !status.online ? "warn" : status.lastPulled ? "ok" : "");
 
-  // Search header
+  // Header: the board (searches sharing a collection; a picker when there's
+  // more than one board), then a tab per item on it.
+  const all = boards(state.searches);
+  const board = search && all.find(b => b.searches.includes(search));
   if (search) {
-    $("#title-wrap").innerHTML = state.searches.length > 1
-      ? `<select class="search-picker" id="search-picker" aria-label="Search">${state.searches.map(s => `<option value="${ui.esc(s.id)}"${s.id === search.id ? " selected" : ""}>${ui.esc(s.name)}</option>`).join("")}</select>`
-      : ui.esc(search.name);
-    document.title = search.name + " · Shortlist";
+    $("#title-wrap").innerHTML = all.length > 1
+      ? `<select class="search-picker" id="search-picker" aria-label="Board">${all.map(b => `<option value="${ui.esc(b.key)}"${b === board ? " selected" : ""}>${ui.esc(b.name)}</option>`).join("")}</select>`
+      : ui.esc(board.name);
+    document.title = (board.searches.length > 1 ? search.name + " · " + board.name : board.name) + " · " + (document.querySelector(".brand")?.textContent || "Shortlist");
   } else {
     $("#title-wrap").textContent = store.hasData ? "Listings" : status.syncing ? "Loading…" : "No searches yet";
   }
+  const openCount = s => listingsFor(state, s).filter(l => groupOf(s, l.status) !== "archived").length;
+  $("#items").hidden = !(board && board.searches.length > 1);
+  $("#items").innerHTML = board && board.searches.length > 1 ? ui.items(board.searches, search, openCount) : "";
 
   // Sync line
   const pending = state.outbox.length;
@@ -103,6 +109,10 @@ function render() {
 
   // Criteria, contact template and sources live in the sheet, opened from the database group.
   if (search) {
+    fillDoc("#home", search.home);
+    $("#home-hint").textContent = !search.home ? "Set it to see how far each listing is, with directions."
+      : search.homeGeo ? `Found: ${search.homeGeo.label} (${search.homeGeo.fidelity})` : "Locating…";
+    $("#home-shared").hidden = !(board && board.searches.length > 1);
     fillDoc("#criteria", search.criteria);
     fillDoc("#contact", search.contactTemplate);
     fillDoc("#features", featuresText(search.features));
@@ -167,6 +177,13 @@ function warmPhotos(listings) {
 
 // ---- events ----
 document.addEventListener("click", e => {
+  const item = e.target.closest("button[data-search]");
+  if (item) {
+    view.searchId = item.dataset.search; pref.set("search", view.searchId);
+    const b = boards(store.state.searches).find(x => x.searches.some(s => s.id === view.searchId));
+    if (b) pref.set("item:" + b.key, view.searchId);
+    render(); return;
+  }
   const tab = e.target.closest(".tab");
   if (tab) { view.tab = tab.dataset.tab; pref.set("tab", view.tab); render(); return; }
   const chip = e.target.closest("button[data-feature]");
@@ -254,7 +271,12 @@ document.addEventListener("change", e => {
     if (l && l.rank != null && !rankable(groupOf(search, status))) setRank(id, null);
   }
   if (e.target.matches("select[data-rank]")) setRank(e.target.closest(".card").dataset.id, e.target.value ? Number(e.target.value) : null);
-  if (e.target.id === "search-picker") { view.searchId = e.target.value; pref.set("search", view.searchId); render(); }
+  if (e.target.id === "search-picker") {
+    // Back to the item last open on that board, else its first.
+    const b = boards(store.state.searches).find(x => x.key === e.target.value);
+    if (b) view.searchId = pref.get("item:" + b.key, "") && b.searches.some(s => s.id === pref.get("item:" + b.key, "")) ? pref.get("item:" + b.key, "") : b.searches[0].id;
+    pref.set("search", view.searchId); render();
+  }
 });
 const noteTimers = {};
 document.addEventListener("input", e => {
@@ -276,7 +298,7 @@ $("#copy-contact").addEventListener("click", async () => {
 // Criteria (with its bonus features) and the contact template: edit, then
 // Save (saved on this device at once, uploaded in the background like triage).
 for (const [sels, btn, hint, label, patchOf] of [
-  [["#criteria", "#features"], "#save-criteria", "#criteria-hint", "Criteria", () => ({ criteria: $("#criteria").value, features: parseFeatures($("#features").value) })],
+  [["#home", "#criteria", "#features"], "#save-criteria", "#criteria-hint", "Criteria", () => ({ home: $("#home").value.replace(/\s+/g, " ").trim(), criteria: $("#criteria").value, features: parseFeatures($("#features").value) })],
   [["#contact"], "#save-contact", "#contact-hint", "Template", () => ({ contactTemplate: $("#contact").value })],
 ]) {
   for (const sel of sels) $(sel).addEventListener("input", () => { $(sel).dataset.dirty = "1"; $(btn).disabled = false; $(hint).textContent = "Unsaved changes"; });
@@ -284,6 +306,16 @@ for (const [sels, btn, hint, label, patchOf] of [
     const search = currentSearch(store.state);
     if (!search) return;
     const patch = patchOf();
+    // The home location belongs to the whole board: a changed one is set on
+    // every item, and found again on the server.
+    if ("home" in patch) {
+      if (patch.home === (search.home || "")) delete patch.home;
+      else {
+        const b = boards(store.state.searches).find(x => x.searches.includes(search));
+        for (const s of b.searches) if (s.id !== search.id) await store.update(s.id, { home: patch.home, homeGeo: null }, "search");
+        patch.homeGeo = null;
+      }
+    }
     await store.update(search.id, patch, "search");
     if (patch.features) $("#features").value = featuresText(patch.features);
     for (const sel of sels) $(sel).dataset.dirty = "";

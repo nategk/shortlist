@@ -1,7 +1,7 @@
 // Rendering. Pure functions of (state, view) -> HTML strings, plus the few
 // helpers the event handlers in main.js need. Nothing here talks to a
 // database; writes go through the store.
-import { GROUPS, DEFAULT_STATUSES, groupOf, rateMetric, fit, rankable } from "./model.js";
+import { GROUPS, DEFAULT_STATUSES, groupOf, rateMetric, fit, rankable, distance, directionsUrl } from "./model.js";
 
 export const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
@@ -17,6 +17,8 @@ export const ICON = {
   close: svg('<path d="M18 6 6 18M6 6l12 12"/>'),
   train: svg('<rect width="16" height="16" x="4" y="3" rx="2"/><path d="M4 11h16M12 3v8M8 19l-2 3M18 22l-2-3M8 15h.01M16 15h.01"/>'),
   amenity: svg('<path d="m3 17 2 2 4-4M3 7l2 2 4-4M13 6h8M13 12h8M13 18h8"/>'),
+  home: svg('<path d="M3 10.5 12 3l9 7.5M5 9v11h14V9"/>'),
+  link: svg('<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>'),
   prev: svg('<path d="m15 18-6-6 6-6"/>'),
   next: svg('<path d="m9 18 6-6-6-6"/>'),
 };
@@ -75,6 +77,41 @@ export function tabs(search, listings, current) {
   const archived = GROUPS.find(g => g.key === "archived");
   return open.map(button).join("")
     + (counts.archived > 0 || current === "archived" ? `<span class="tab-sep" aria-hidden="true"></span>${button(archived)}` : "");
+}
+
+// Item tabs: one per search on the board (desk chair, bed frame…), each
+// with how many open listings it has. Status tabs sit underneath.
+export function items(searches, current, openCount) {
+  return searches.map(s =>
+    `<button class="item" type="button" data-search="${esc(s.id)}" aria-pressed="${s.id === current.id}">${esc(s.name)}<span class="n">${openCount(s)}</span></button>`).join("");
+}
+
+const isUrl = v => /^https?:\/\/\S+$/.test(String(v || ""));
+
+// Distance from the home / delivery location: "1.8 mi from home · exact
+// pin", or "~2 mi · neighborhood" when the post only names an area.
+function away(search, l) {
+  const d = distance(search, l);
+  if (!d) return "";
+  const n = d.mi < 10 ? d.mi.toFixed(1) : Math.round(d.mi);
+  const text = `<b>${d.precise ? "" : "~"}${n}<span class="u">mi</span></b> from home <span class="fid">· ${esc(d.fidelity)}</span>`;
+  return row("away", ICON.home, text, `Straight line from ${search.home} to the listing (${d.fidelity})`);
+}
+
+// Links that hold for anything: the listing on its site, any metric that's a
+// link (e.g. the maker's product page), directions from home, and when it
+// was found.
+function links(search, l) {
+  const out = [];
+  if (l.url) out.push(`<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.source || "Listing")} ↗</a>`);
+  for (const m of (search && search.metrics) || []) {
+    const v = (l.fields || {})[m.field];
+    if (isUrl(v)) out.push(`<a href="${esc(v)}" target="_blank" rel="noopener">${esc(m.label)} ↗</a>`);
+  }
+  const dir = directionsUrl(search, l);
+  if (dir) out.push(`<a href="${esc(dir)}" target="_blank" rel="noopener" title="Google Maps directions from home">Directions ↗</a>`);
+  if (l.createdAt) out.push(`<span class="age" title="${esc(new Date(l.createdAt).toLocaleString())}">found ${esc(ago(new Date(l.createdAt).getTime()))}</span>`);
+  return out.length ? row("links", ICON.link, out.join(" · ")) : "";
 }
 
 function metricValue(listing, m) {
@@ -185,12 +222,11 @@ export function card(search, l, pendingIds, expanded = new Set(), rankCount = 0)
   // Distances on one line; a unit they all share is said once, at the end.
   const hasSubways = !!String((l.fields || {}).Subways || "").trim();
   const shown = (search && search.metrics || []).filter(m => !(hasSubways && /subway/i.test(m.field)))
-    .map(m => ({ m, v: metricValue(l, m) })).filter(x => x.v);
+    .map(m => ({ m, v: metricValue(l, m) })).filter(x => x.v && !isUrl(x.v));
   const oneUnit = shown.length > 1 && shown.every(x => x.m.unit && x.m.unit === shown[0].m.unit) ? shown[0].m.unit : "";
-  // A metric whose value is a link (e.g. the maker's product page) shows as
-  // its label, linked.
+  // Metrics whose value is a link (e.g. the maker's product page) go in the
+  // links row instead.
   const metrics = shown.map(({ m, v }, i) => {
-    if (/^https?:\/\/\S+$/.test(v)) return `<a class="metric link" href="${esc(v)}" target="_blank" rel="noopener">${esc(m.label)} ↗</a>`;
     return `<span class="metric"><span class="k">${esc(m.label)}</span> <span class="v ${rateMetric(m, v)}">${esc(v)}${m.unit ? `<span class="u">${esc(m.unit)}</span>` : ""}</span></span>`;
   }).join("");
   // Features that matter: the ones this listing has are lit and add points;
@@ -226,10 +262,12 @@ export function card(search, l, pendingIds, expanded = new Set(), rankCount = 0)
     <h3 class="title" title="${esc(l.title)}">${l.url ? `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(name.title)}<span class="open" aria-label="Open listing${l.source ? " on " + esc(l.source) : ""}">${ICON.open}</span></a>` : esc(name.title)}</h3>
     <div class="meta">
       ${place(l, name.street)}
+      ${away(search, l)}
       ${lease(l)}
       ${metrics ? row("metrics", ICON.route, metrics, oneUnit ? "Distances in " + ({ mi: "miles", km: "kilometers" }[oneUnit] || oneUnit) : "") : ""}
       ${subways(search, l)}
       ${features ? `<div class="row amenities">${ICON.amenity}<span class="t chips" aria-label="Features that matter">${features}</span></div>` : ""}
+      ${links(search, l)}
     </div>
     <div class="text${open ? " open" : ""}"${long ? ` data-expand role="button" tabindex="0" aria-expanded="${open}" title="${open ? "Tap to collapse" : "Tap to read the full listing"}"` : ""}>
       ${l.summary ? `<p class="summary">${esc(l.summary)}</p>` : ""}

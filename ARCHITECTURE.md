@@ -75,15 +75,33 @@ Inside the browser app:
 
 ```
 Search   id, name, lookingFor, budget, area, timing, state,
-         criteria, contactTemplate,
+         criteria, contactTemplate, home, homeGeo, collection,
          statuses: [{label, group}]   group ∈ review | shortlist | active | done | archived
          metrics:  [{field, label, unit, good, ok}]
          features: [{label, points}]
 Listing  id, searchIds[], title, price, score, status, notes, url, location,
-         description, summary, source, photos: [{id, url, label?}], fields: {raw…},
+         description, summary, source, createdAt, photos: [{id, url, label?}],
+         fields: {raw…, lat, lon, located},
          features: [label], rank: 1..n | null   (your order; see below)
 Source   id, searchIds[], name, access, links: [{label, url}], method, lastChecked, notes
 ```
+
+**Boards.** Searches that share a `collection` are one board: the header
+names the collection (a picker when there are several boards) and each
+search is a tab across the top (Bed frame · Standing desk · …), with the
+status tabs inside it. A search with no collection is a board of its own,
+as before.
+
+**Home / delivery location.** Each search has a `home` (edited in the
+Criteria sheet; shared by every search on the board). The server geocodes
+it (`homeGeo`) and every listing (`fields.lat/lon/located`), as precisely as
+the post allows: the source's map pin first (Craigslist's accuracy says
+exact or approximate), else the address, cross streets or neighborhood
+Claude read from it. Cards show the straight-line distance ("0.5 mi ·
+exact pin", or "~7.6 mi · neighborhood" when only an area is known) and a
+Google Maps directions link. Geocoding uses Google's API when
+`GOOGLE_MAPS_API_KEY` is set (best for cross streets), else OpenStreetMap's
+Nominatim at one request a second; answers are cached in `geo_cache`.
 
 The search decides how its listings look:
 - **Statuses**: the tabs (To review / Shortlist / In progress / Done / Passed)
@@ -97,8 +115,9 @@ The search decides how its listings look:
   green / amber / red from the search's own thresholds (lower is better when
   `good < ok`). The West Side hunt shows Greenway and Subway distance; a bike
   search might show frame size and weight.
-- **Links**: a card metric whose value is a URL (e.g. a maker's product page)
-  shows as its label, linked. A photo with a `label` (e.g. "Official") is
+- **Links**: every card has a links row: the listing on its site, any
+  metric whose value is a URL (e.g. a maker's product page), directions from
+  home, and when it was found. A photo with a `label` (e.g. "Official") is
   shown whole on white with the label as a tag.
 - **Features that matter**: attributes worth a bonus (the West Side hunt:
   garage, gym, hot tub, sauna, cold plunge, outdoor space; +3 each), edited in the app as
@@ -148,7 +167,7 @@ filename is the photo id. Photos attached in Airtable are copied into Blob
 - **Searches**: Name, Looking for, Budget, Area, Timing, State, Criteria,
   Contact template, Statuses (`Label: group` per line), Card metrics
   (`field | label | unit | good | ok` per line), Features (`Label | +3` per
-  line), Live ID, Last modified.
+  line), Collection, Live ID, Last modified.
 - **Sources**: Name, Search (link), Access, Search links (`Label | url` per
   line), Method, Last checked, Notes, Crawler, Last run and Last result
   (Neon → Airtable only), Live ID, Last modified.
@@ -208,7 +227,8 @@ source with a `crawler` (`lib/crawlers/`: `craigslist` (any category),
 3. Keepers get their full page fetched (`details`, every photo), then one
    Claude call each, with the first 4 photos attached, for fit score, card
    summary, and the search's card-metric values.
-4. The layer's enrichers run (e.g. finding the maker's product page and its
+4. The listing is located (map pin, else geocoded address / cross streets /
+   neighborhood). Then the layer's enrichers run (e.g. finding the maker's product page and its
    official image, added as the last photo).
 5. Photos are copied to Blob; the listing is saved with the search's first
    "review" status.
@@ -219,13 +239,22 @@ source with a `crawler` (`lib/crawlers/`: `craigslist` (any category),
    least recently checked first. A post that's gone moves to the search's
    archived status named like Sold / Gone / Taken; a search without one is
    never re-checked.
-8. Any photo on the search's board not yet in Blob (a failed copy, an import
+8. Listings saved before they could be located (and a home set by import)
+   are geocoded, up to 10 per run.
+9. Any photo on the search's board not yet in Blob (a failed copy, an import
    made without Blob) is copied now; what doesn't fit before the deadline is
    retried next run. The UI reports saved / failed / left.
 
 One crawl per search per 10 minutes (the endpoint is public). Scoring needs
 `ANTHROPIC_API_KEY`; without it listings are added unscored. Sites that
 refuse automated access are recorded as `blocked`, never worked around.
+
+**Re-scoring.** `POST /api/admin/rescore {searchId, all?}` (admin token)
+scores a search's listings again in place, with the same scoring and
+enrichers as a crawl: unscored ones (saved before there was an API key) by
+default, every one with `all` (after a rubric change). Status, notes and
+rank are kept. It works in batches of 12; while the reply says `more`, call
+again with its `after`.
 
 **Daily crawl.** A Vercel cron calls `GET /api/crawl` once a day; it POSTs
 to `/api/crawl` once per active search with a crawler, so each gets its own

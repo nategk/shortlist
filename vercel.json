@@ -24,6 +24,9 @@
     },
     "api/intake.js": {
       "maxDuration": 300
+    },
+    "api/admin/rescore.js": {
+      "maxDuration": 300
     }
   },
   "headers": [

@@ -126,6 +126,15 @@ test("intake: admin only, screens then adds, skips what it has seen", { skip }, 
   assert.deepEqual(body.keep, []);
 });
 
+test("rescore: admin only, needs scoring", { skip }, async () => {
+  const rescore = await import("../api/admin/rescore.js");
+  const post = (headers) => rescore.POST(req("/api/admin/rescore", { method: "POST", headers, body: JSON.stringify({ searchId: "search-desk" }) }));
+  assert.equal((await post({})).status, 401);
+  const r = await post(auth);
+  assert.equal(r.status, 400);
+  assert.match((await r.json()).error, /ANTHROPIC_API_KEY/);
+});
+
 test("daily crawl: cron runs only where DAILY_CRAWL=1; by hand needs the admin token", { skip }, async () => {
   process.env.CRON_SECRET = "cron-secret-1234567890";
   try {

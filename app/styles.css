@@ -215,8 +215,6 @@ select.search-picker { height: auto; padding: 0; box-shadow: none; background: t
 .loc a { color: var(--gray-1000); text-decoration: underline; text-decoration-color: var(--gray-alpha-500); text-underline-offset: 3px; }
 .loc a:hover { text-decoration-color: currentColor; }
 .metric + .metric { margin-left: 8px; }
-.metric.link { font-weight: 500; color: var(--gray-1000); text-decoration: none; white-space: nowrap; }
-.metric.link:hover { text-decoration: underline; }
 .metric .v { font-weight: 500; font-variant-numeric: tabular-nums; color: var(--gray-1000); }
 .metric .u, .subway .u { font-weight: 400; }
 .metric .v.ok { color: var(--green-900); } .metric .v.warn { color: var(--amber-900); } .metric .v.bad { color: var(--red-900); }
@@ -310,3 +308,23 @@ dialog.lightbox::backdrop { background: #000; }
 .sheet-body label.sub { display: grid; gap: 2px; font: 600 14px/20px var(--font); letter-spacing: -.28px; margin: 8px 0 -4px; }
 .sheet-body .hint { margin: 0; }
 .sheet-body textarea.doc { margin-top: 0; }
+
+/* ---- Item tabs: one per thing on the board, above the status tabs ---- */
+.items { display: flex; gap: 20px; overflow-x: auto; scrollbar-width: none; margin-bottom: -8px; border-bottom: 1px solid var(--gray-alpha-400); }
+.items[hidden] { display: none; }
+.items::-webkit-scrollbar { display: none; }
+.item { flex: none; display: inline-flex; align-items: baseline; gap: 6px; padding: 0 0 10px; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; background: none; color: var(--gray-900); font: 500 16px/24px var(--font); letter-spacing: -.32px; white-space: nowrap; cursor: pointer; transition: color .15s, border-color .15s; }
+.item:hover { color: var(--gray-1000); }
+.item[aria-pressed="true"] { color: var(--gray-1000); border-bottom-color: var(--gray-1000); }
+.item .n { font: 400 13px/20px var(--mono); color: var(--gray-900); }
+
+/* Distance from home, and the links row */
+.away .u { font-weight: 400; margin-left: 1px; }
+.away .fid { color: var(--gray-900); }
+.links .t { white-space: normal; }
+.links a { color: var(--gray-1000); text-decoration: none; font-weight: 500; }
+.links a:hover { text-decoration: underline; }
+.links .age { color: var(--gray-900); }
+
+/* Single-line field in the criteria sheet */
+.sheet-body input.line { width: 100%; box-sizing: border-box; margin-top: 8px; }
