@@ -249,6 +249,13 @@ One crawl per search per 10 minutes (the endpoint is public). Scoring needs
 `ANTHROPIC_API_KEY`; without it listings are added unscored. Sites that
 refuse automated access are recorded as `blocked`, never worked around.
 
+**Re-scoring.** `POST /api/admin/rescore {searchId, all?}` (admin token)
+scores a search's listings again in place, with the same scoring and
+enrichers as a crawl: unscored ones (saved before there was an API key) by
+default, every one with `all` (after a rubric change). Status, notes and
+rank are kept. It works in batches of 12; while the reply says `more`, call
+again with its `after`.
+
 **Daily crawl.** A Vercel cron calls `GET /api/crawl` once a day; it POSTs
 to `/api/crawl` once per active search with a crawler, so each gets its own
 time limit. It only runs where `DAILY_CRAWL=1` is set (each crawl costs
