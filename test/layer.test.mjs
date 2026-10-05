@@ -45,7 +45,8 @@ before(async () => {
   };
   const snap = {
     searches: [SEARCH],
-    sources: [{ id: "src-fake", searchIds: ["search-desk"], name: "Fake site", crawler: "fakesite" }],
+    sources: [{ id: "src-fake", searchIds: ["search-desk"], name: "Fake site", crawler: "fakesite" },
+      { id: "desk-fb", searchIds: ["search-desk"], name: "Facebook Marketplace", access: "Manual" }],
     listings: [
       { id: "l-dead", searchIds: ["search-desk"], title: "Old desk", status: "Shortlist", source: "Fake site", url: "https://fake.example/dead" },
       { id: "l-up", searchIds: ["search-desk"], title: "Other desk", status: "New", source: "Fake site", url: "https://fake.example/up" },
@@ -112,7 +113,9 @@ test("intake: admin only, screens then adds, skips what it has seen", { skip }, 
   assert.equal(aeron.price, 450);
   assert.equal(aeron.source, "Facebook Marketplace");
   assert.equal(aeron.photos.length, 2);
+  assert.equal(s.sources.filter(x => x.name === "Facebook Marketplace").length, 1, "intake files under the existing source");
   const src = s.sources.find(x => x.name === "Facebook Marketplace");
+  assert.equal(src.id, "desk-fb");
   assert.match(src.lastResult, /1 sent · 1 added/);
 
   // Sent again: already on the board, and a re-screen doesn't offer it.
