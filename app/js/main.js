@@ -216,7 +216,7 @@ $(".lb-next").innerHTML = ui.ICON.next;
 function openLightbox(card, index) {
   const imgs = [...card.querySelectorAll(".slides img")];
   $("#lb-slides").innerHTML = imgs.map(img =>
-    `<div class="lb-slide"><img src="${ui.esc(img.currentSrc || img.src)}" data-fallback="${ui.esc(img.dataset.fallback || "")}" alt=""></div>`).join("");
+    `<div class="lb-slide"><img src="${ui.esc(img.currentSrc || img.src)}" data-fallback="${ui.esc(img.dataset.fallback || "")}" alt="">${img.closest(".slide")?.dataset.label ? `<span class="plabel">${ui.esc(img.closest(".slide").dataset.label)}</span>` : ""}</div>`).join("");
   $("#lightbox").showModal();
   const el = $("#lb-slides");
   el.scrollTo({ left: index * el.clientWidth, behavior: "instant" });

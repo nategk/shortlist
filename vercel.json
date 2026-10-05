@@ -21,6 +21,9 @@
     },
     "api/searches/[id].js": {
       "maxDuration": 60
+    },
+    "api/intake.js": {
+      "maxDuration": 300
     }
   },
   "headers": [
@@ -47,6 +50,10 @@
     {
       "path": "/api/sync",
       "schedule": "17 9 * * *"
+    },
+    {
+      "path": "/api/crawl",
+      "schedule": "7 11 * * *"
     }
   ]
 }
