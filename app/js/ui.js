@@ -187,7 +187,10 @@ export function card(search, l, pendingIds, expanded = new Set(), rankCount = 0)
   const shown = (search && search.metrics || []).filter(m => !(hasSubways && /subway/i.test(m.field)))
     .map(m => ({ m, v: metricValue(l, m) })).filter(x => x.v);
   const oneUnit = shown.length > 1 && shown.every(x => x.m.unit && x.m.unit === shown[0].m.unit) ? shown[0].m.unit : "";
+  // A metric whose value is a link (e.g. the maker's product page) shows as
+  // its label, linked.
   const metrics = shown.map(({ m, v }, i) => {
+    if (/^https?:\/\/\S+$/.test(v)) return `<a class="metric link" href="${esc(v)}" target="_blank" rel="noopener">${esc(m.label)} ↗</a>`;
     return `<span class="metric"><span class="k">${esc(m.label)}</span> <span class="v ${rateMetric(m, v)}">${esc(v)}${m.unit ? `<span class="u">${esc(m.unit)}</span>` : ""}</span></span>`;
   }).join("");
   // Features that matter: the ones this listing has are lit and add points;
@@ -207,7 +210,7 @@ export function card(search, l, pendingIds, expanded = new Set(), rankCount = 0)
   return `<article class="card${group === "archived" ? " archived" : ""}" data-id="${esc(l.id)}">
   <div class="photo${photos.length ? "" : " nophoto"}"${photos.length > 1 ? ' data-pos="start"' : ""}>
     ${photos.length
-      ? `<div class="slides">${photos.map((p, i) => `<button class="slide" type="button" data-photo="${i}" aria-label="View photo ${i + 1} of ${photos.length} full screen"><img src="${esc(photoSrc(p))}" data-fallback="${esc(p.url)}" alt=""${i ? ' loading="lazy"' : ""}></button>`).join("")}</div>`
+      ? `<div class="slides">${photos.map((p, i) => `<button class="slide${p.label ? " labeled" : ""}" type="button" data-photo="${i}"${p.label ? ` data-label="${esc(p.label)}"` : ""} aria-label="View photo ${i + 1} of ${photos.length} full screen${p.label ? ` (${esc(p.label)})` : ""}"><img src="${esc(photoSrc(p))}" data-fallback="${esc(p.url)}" alt=""${i ? ' loading="lazy"' : ""}>${p.label ? `<span class="plabel">${esc(p.label)}</span>` : ""}</button>`).join("")}</div>`
       : `<span class="nophoto-label">No photos saved</span>`}
     <div class="tl">
       ${f.total !== null ? `<span class="score" title="${esc(scoreTitle)}">${ICON.fit}${esc(f.total)}<span class="visually-hidden"> fit score</span></span>` : ""}

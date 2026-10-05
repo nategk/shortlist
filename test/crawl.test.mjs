@@ -63,7 +63,7 @@ test("crawl adds new listings, skips known ones, records source status", { skip 
           [2, 0, 1, 4850, "1:0~40.7781~-73.9843", "x", [13, "b"], "267 W 70th St #6E — jumbo corner 1BR, prewar elevator bldg", [6, "dupe"]],
         ] } });
     }
-    if (url.includes("/sunny-1br-w82/7000000001.html") || url.includes("/gorgeous-w82/7000000003.html")) {
+    if (url === "https://www.craigslist.org/view/d/sunny-1br-w82/a" || url === "https://www.craigslist.org/view/d/gorgeous-w82/c") {
       return new Response(`<html><section id="postingbody">Big 1BR, elevator, near the 1 train. Sunny, quiet, renovated kitchen and bath, laundry in the building, pets ok.</section>
         <div id="map" data-latitude="40.7870" data-longitude="-73.9790" data-accuracy="10"></div>
         <img src="https://images.craigslist.org/00a0a_abc_600x450.jpg"></html>`, { status: 200 });

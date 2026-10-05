@@ -67,6 +67,8 @@ Inside the browser app:
 | `lib/photos.js` | Copies photos into Blob. |
 | `lib/sync.js`, `lib/airtable.js` | Neon ↔ Airtable sync, and the Airtable REST client. |
 | `lib/crawl.js`, `lib/crawlers/`, `lib/score.js` | Crawling and Claude scoring. |
+| `lib/intake.js` | Listings sent in from a signed-in browser or a phone, through the same screen → score → save pipeline. |
+| `lib/layer.js` | Extension points for a layer (a separate deployment built on this engine): extra crawlers and post-scoring enrichers. |
 | `scripts/dev.mjs`, `scripts/remote.mjs`, `test/` | Local stand-in for Vercel; terminal access to a live deployment; tests against a local Postgres and an in-memory Airtable. |
 
 ## Data model
@@ -78,7 +80,7 @@ Search   id, name, lookingFor, budget, area, timing, state,
          metrics:  [{field, label, unit, good, ok}]
          features: [{label, points}]
 Listing  id, searchIds[], title, price, score, status, notes, url, location,
-         description, summary, source, photos: [{id, url}], fields: {raw…},
+         description, summary, source, photos: [{id, url, label?}], fields: {raw…},
          features: [label], rank: 1..n | null   (your order; see below)
 Source   id, searchIds[], name, access, links: [{label, url}], method, lastChecked, notes
 ```
@@ -95,6 +97,9 @@ The search decides how its listings look:
   green / amber / red from the search's own thresholds (lower is better when
   `good < ok`). The West Side hunt shows Greenway and Subway distance; a bike
   search might show frame size and weight.
+- **Links**: a card metric whose value is a URL (e.g. a maker's product page)
+  shows as its label, linked. A photo with a `label` (e.g. "Official") is
+  shown whole on white with the label as a tag.
 - **Features that matter**: attributes worth a bonus (the West Side hunt:
   garage, gym, hot tub, sauna, cold plunge, outdoor space; +3 each), edited in the app as
   `Label | points` lines. Cards show them as chips, lit when the listing
@@ -193,19 +198,28 @@ public URL Airtable should call; defaults to the production domain).
 ## Crawling
 
 **Run crawl** (Sources panel) calls `POST /api/crawl {searchId}`. For each
-source with a `crawler` (`lib/crawlers/`: `craigslist`, `listingsproject`):
+source with a `crawler` (`lib/crawlers/`: `craigslist` (any category),
+`listingsproject`, plus any a layer registers):
 
 1. `discover(config)` lists current items; anything already seen (per-source
    `seen` ids) or already a listing is dropped.
 2. Claude screens all new candidates in one call against the search's
    criteria (`lib/score.js`), keeping at most 12 per source.
-3. Keepers get their full page fetched (`details`), then one Claude call
-   each for fit score, card summary, and the search's card-metric values.
-4. Photos are copied to Blob; the listing is saved with the search's first
+3. Keepers get their full page fetched (`details`, every photo), then one
+   Claude call each, with the first 4 photos attached, for fit score, card
+   summary, and the search's card-metric values.
+4. The layer's enrichers run (e.g. finding the maker's product page and its
+   official image, added as the last photo).
+5. Photos are copied to Blob; the listing is saved with the search's first
    "review" status.
-5. The source records `last_run_at`, `last_status` (ok / blocked / error) and
+6. The source records `last_run_at`, `last_status` (ok / blocked / error) and
    a one-line result, shown in the UI.
-6. Any photo on the search's board not yet in Blob (a failed copy, an import
+7. **Still listed?** Open listings (to review, shortlisted, in progress) from
+   a source whose crawler has `alive()` are re-checked, up to 40 per run,
+   least recently checked first. A post that's gone moves to the search's
+   archived status named like Sold / Gone / Taken; a search without one is
+   never re-checked.
+8. Any photo on the search's board not yet in Blob (a failed copy, an import
    made without Blob) is copied now; what doesn't fit before the deadline is
    retried next run. The UI reports saved / failed / left.
 
@@ -213,8 +227,41 @@ One crawl per search per 10 minutes (the endpoint is public). Scoring needs
 `ANTHROPIC_API_KEY`; without it listings are added unscored. Sites that
 refuse automated access are recorded as `blocked`, never worked around.
 
+**Daily crawl.** A Vercel cron calls `GET /api/crawl` once a day; it POSTs
+to `/api/crawl` once per active search with a crawler, so each gets its own
+time limit. It only runs where `DAILY_CRAWL=1` is set (each crawl costs
+Claude calls). Run it by hand with `curl -H "Authorization: Bearer
+$ADMIN_TOKEN" …/api/crawl`.
+
+**Intake** (`POST /api/intake`, admin token). For sites that only open in a
+signed-in browser, a browser session (e.g. Claude in Chrome) reads the
+results page and sends `{searchId, source, step: "screen", candidates}`; the
+reply names the few worth opening. It opens those and sends `{…, step:
+"add", items}` with each post's text, price and every photo URL. Items go
+through steps 3–6 above under a source of that name, created on first use.
+Photo URLs from such sites often expire within hours, so they're copied to
+Blob immediately.
+
 Criteria, features and the contact template are editable in the UI
 (`PATCH /api/searches/:id`), queued offline like triage.
+
+## Layers
+
+A layer is a separate deployment (its own repo, Vercel project, database
+and Airtable base) built on this engine for one kind of search, such as a
+furniture hunt. It keeps the engine as a pinned, unedited copy and adds:
+
+- **Crawlers**: `registerCrawler(name, module)` (`lib/layer.js` documents the
+  contract). Sources name them in `crawler`.
+- **Enrichers**: `registerEnricher(name, fn)`, run after scoring for every new
+  listing (crawled or sent in). They can add photos and fields; one that
+  throws is skipped.
+- **Branding**: its own app name, manifest and icon, copied over `app/` at
+  build time.
+
+Its API files are one-line wrappers that register the layer, then
+re-export the engine's handler. Changes the layer needs from the engine are
+made here, as generic features, and the layer moves its pin.
 
 ## Working on a live deployment
 

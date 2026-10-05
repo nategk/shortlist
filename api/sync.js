@@ -3,15 +3,8 @@
 // table both ways (lib/sync.js).
 //   GET  /api/sync   Vercel Cron (daily, vercel.json): Authorization: Bearer $CRON_SECRET
 //   POST /api/sync   by hand:  Authorization: Bearer $ADMIN_TOKEN
-import { timingSafeEqual } from "node:crypto";
 import { ensureWebhook, syncAll } from "../lib/sync.js";
-import { json, fail, requireAdmin } from "../lib/http.js";
-
-function isCron(request) {
-  const secret = process.env.CRON_SECRET || "";
-  const got = (request.headers.get("authorization") || "").replace(/^Bearer\s+/i, "");
-  return secret.length >= 16 && got.length === secret.length && timingSafeEqual(Buffer.from(got), Buffer.from(secret));
-}
+import { json, fail, requireAdmin, isCron } from "../lib/http.js";
 
 async function run() {
   const webhook = await ensureWebhook().catch(e => ({ ok: false, error: e.message }));

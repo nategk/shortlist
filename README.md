@@ -39,6 +39,9 @@ cached on the device and stored permanently in Vercel Blob.
    by Claude against the search's criteria. Without it, crawls still add
    listings, unscored.
 
+7. **Optional, daily crawl**: set `DAILY_CRAWL=1` (and `CRON_SECRET`) to crawl
+   every active search once a day and mark sold or taken-down posts.
+
 Open `https://YOUR-APP.vercel.app` on any device. The pill in the header
 shows which database is live.
 
